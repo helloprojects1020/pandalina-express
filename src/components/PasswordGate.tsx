@@ -3,6 +3,7 @@ import logo from '@/assets/logo.png';
 
 const CORRECT_PASSWORD = 'Hanna0526!@';
 const STORAGE_KEY = 'site-authenticated';
+const storage = sessionStorage;
 
 const PasswordGate = ({ children }: { children: React.ReactNode }) => {
   const [authenticated, setAuthenticated] = useState(
