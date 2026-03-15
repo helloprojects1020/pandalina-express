@@ -12,7 +12,7 @@ const CheckoutSheet = () => {
     items, isCheckoutOpen, setCheckoutOpen, customerDetails, setCustomerDetails,
     setOrderType, getSubtotal, getTotal, deliveryFee,
   } = useCartStore();
-  const [errors, setErrors] = useState<Record<string, boolean>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const subtotal = getSubtotal();
   const total = getTotal();
@@ -24,11 +24,41 @@ const CheckoutSheet = () => {
     { type: 'eat-in', label: t.checkout.eat_in, icon: UtensilsCrossed },
   ];
 
+  /** Only allow digits, spaces, dashes, plus for phone */
+  const handlePhoneChange = (value: string) => {
+    const cleaned = value.replace(/[^0-9+\-\s]/g, '');
+    setCustomerDetails({ phone: cleaned });
+    setErrors((p) => ({ ...p, phone: '' }));
+  };
+
+  /** Only allow letters, spaces, hyphens for name */
+  const handleNameChange = (value: string) => {
+    const cleaned = value.replace(/[0-9]/g, '');
+    setCustomerDetails({ name: cleaned });
+    setErrors((p) => ({ ...p, name: '' }));
+  };
+
   const validate = () => {
-    const e: Record<string, boolean> = {};
-    if (!customerDetails.name.trim()) e.name = true;
-    if (!customerDetails.phone.trim()) e.phone = true;
-    if (showDelivery && !customerDetails.address.trim()) e.address = true;
+    const e: Record<string, string> = {};
+
+    const name = customerDetails.name.trim();
+    if (!name) {
+      e.name = 'Name is required';
+    } else if (name.length < 2) {
+      e.name = 'Name is too short';
+    }
+
+    const phone = customerDetails.phone.trim();
+    if (!phone) {
+      e.phone = 'Phone is required';
+    } else if (phone.replace(/[\s\-+]/g, '').length < 7) {
+      e.phone = 'Enter a valid phone number';
+    }
+
+    if (showDelivery && !customerDetails.address.trim()) {
+      e.address = 'Address is required';
+    }
+
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -92,42 +122,66 @@ const CheckoutSheet = () => {
 
               {/* Fields */}
               <div className="space-y-3">
-                <div className={`flex items-center gap-3 h-12 px-4 rounded-xl bg-secondary ${errors.name ? 'ring-2 ring-destructive' : ''}`}>
-                  <User className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                  <input
-                    value={customerDetails.name}
-                    onChange={(e) => { setCustomerDetails({ name: e.target.value }); setErrors((p) => ({ ...p, name: false })); }}
-                    placeholder={t.checkout.name_placeholder}
-                    className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
-                  />
-                </div>
-                <div className={`flex items-center gap-3 h-12 px-4 rounded-xl bg-secondary ${errors.phone ? 'ring-2 ring-destructive' : ''}`}>
-                  <Phone className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                  <input
-                    value={customerDetails.phone}
-                    onChange={(e) => { setCustomerDetails({ phone: e.target.value }); setErrors((p) => ({ ...p, phone: false })); }}
-                    placeholder={t.checkout.phone_placeholder}
-                    type="tel"
-                    className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
-                  />
-                </div>
-                {showDelivery && (
-                  <div className={`flex items-center gap-3 h-12 px-4 rounded-xl bg-secondary ${errors.address ? 'ring-2 ring-destructive' : ''}`}>
-                    <MapPin className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                {/* Name */}
+                <div>
+                  <div className={`flex items-center gap-3 h-12 px-4 rounded-xl bg-secondary ${errors.name ? 'ring-2 ring-destructive' : ''}`}>
+                    <User className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                     <input
-                      value={customerDetails.address}
-                      onChange={(e) => { setCustomerDetails({ address: e.target.value }); setErrors((p) => ({ ...p, address: false })); }}
-                      placeholder={t.checkout.address_placeholder}
+                      value={customerDetails.name}
+                      onChange={(e) => handleNameChange(e.target.value)}
+                      placeholder={t.checkout.name_placeholder}
+                      maxLength={100}
+                      autoComplete="name"
                       className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
                     />
                   </div>
+                  {errors.name && <p className="text-destructive text-xs mt-1 ps-4">{errors.name}</p>}
+                </div>
+
+                {/* Phone */}
+                <div>
+                  <div className={`flex items-center gap-3 h-12 px-4 rounded-xl bg-secondary ${errors.phone ? 'ring-2 ring-destructive' : ''}`}>
+                    <Phone className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                    <input
+                      value={customerDetails.phone}
+                      onChange={(e) => handlePhoneChange(e.target.value)}
+                      placeholder={t.checkout.phone_placeholder}
+                      type="tel"
+                      inputMode="tel"
+                      maxLength={20}
+                      autoComplete="tel"
+                      className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+                    />
+                  </div>
+                  {errors.phone && <p className="text-destructive text-xs mt-1 ps-4">{errors.phone}</p>}
+                </div>
+
+                {/* Address (delivery only) */}
+                {showDelivery && (
+                  <div>
+                    <div className={`flex items-center gap-3 h-12 px-4 rounded-xl bg-secondary ${errors.address ? 'ring-2 ring-destructive' : ''}`}>
+                      <MapPin className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                      <input
+                        value={customerDetails.address}
+                        onChange={(e) => { setCustomerDetails({ address: e.target.value }); setErrors((p) => ({ ...p, address: '' })); }}
+                        placeholder={t.checkout.address_placeholder}
+                        maxLength={200}
+                        autoComplete="street-address"
+                        className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+                      />
+                    </div>
+                    {errors.address && <p className="text-destructive text-xs mt-1 ps-4">{errors.address}</p>}
+                  </div>
                 )}
+
+                {/* Notes */}
                 <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-secondary">
                   <MessageSquare className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5" />
                   <textarea
                     value={customerDetails.notes}
                     onChange={(e) => setCustomerDetails({ notes: e.target.value })}
                     placeholder={t.checkout.notes_placeholder}
+                    maxLength={500}
                     className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none resize-none h-16"
                   />
                 </div>
