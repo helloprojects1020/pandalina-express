@@ -9,24 +9,12 @@ import ProductModal from '@/components/ProductModal';
 import NoodleBuilder from '@/components/NoodleBuilder';
 import Footer from '@/components/Footer';
 
-/* Category-specific hero videos (Pexels, free to use) */
-const categoryVideos: Record<string, { sd: string; hd: string }> = {
-  'sushi-rolls': {
-    sd: 'https://videos.pexels.com/video-files/855452/855452-sd_640_360_24fps.mp4',
-    hd: 'https://videos.pexels.com/video-files/855452/855452-hd_1920_1080_24fps.mp4',
-  },
-  platters: {
-    sd: 'https://videos.pexels.com/video-files/855452/855452-sd_640_360_24fps.mp4',
-    hd: 'https://videos.pexels.com/video-files/855452/855452-hd_1920_1080_24fps.mp4',
-  },
-  kitchen: {
-    sd: 'https://videos.pexels.com/video-files/3298572/3298572-sd_640_360_25fps.mp4',
-    hd: 'https://videos.pexels.com/video-files/3298572/3298572-hd_1920_1080_25fps.mp4',
-  },
-  noodles: {
-    sd: 'https://videos.pexels.com/video-files/5337023/5337023-sd_640_360_30fps.mp4',
-    hd: 'https://videos.pexels.com/video-files/5337023/5337023-hd_1920_1080_30fps.mp4',
-  },
+/* Category-specific hero videos – locally hosted for reliability */
+const categoryVideos: Record<string, string> = {
+  'sushi-rolls': '/videos/category-sushi.mp4',
+  platters: '/videos/category-platters.mp4',
+  kitchen: '/videos/category-kitchen.mp4',
+  noodles: '/videos/category-noodles.mp4',
 };
 
 const CategoryPage = () => {
@@ -42,9 +30,7 @@ const CategoryPage = () => {
 
   const category = categories.find((c) => c.slug === slug);
 
-  const video = category ? categoryVideos[category.id] : undefined;
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-  const videoSrc = video ? (isMobile ? video.sd : video.hd) : undefined;
+  const videoSrc = category ? categoryVideos[category.id] : undefined;
 
   // Lazy load video using IntersectionObserver
   useEffect(() => {
