@@ -43,20 +43,20 @@ const CheckoutSheet = () => {
 
     const name = customerDetails.name.trim();
     if (!name) {
-      e.name = 'Name is required';
+      e.name = t.lang === 'he' ? 'שם הוא שדה חובה' : t.lang === 'ar' ? 'الاسم مطلوب' : 'Name is required';
     } else if (name.length < 2) {
-      e.name = 'Name is too short';
+      e.name = t.lang === 'he' ? 'השם קצר מדי' : t.lang === 'ar' ? 'الاسم قصير جداً' : 'Name is too short';
     }
 
     const phone = customerDetails.phone.trim();
     if (!phone) {
-      e.phone = 'Phone is required';
+      e.phone = t.lang === 'he' ? 'טלפון הוא שדה חובה' : t.lang === 'ar' ? 'الهاتف مطلوب' : 'Phone is required';
     } else if (phone.replace(/[\s\-+]/g, '').length < 7) {
-      e.phone = 'Enter a valid phone number';
+      e.phone = t.lang === 'he' ? 'מספר טלפון לא תקין' : t.lang === 'ar' ? 'رقم هاتف غير صالح' : 'Enter a valid phone number';
     }
 
     if (showDelivery && !customerDetails.address.trim()) {
-      e.address = 'Address is required';
+      e.address = t.lang === 'he' ? 'כתובת היא שדה חובה' : t.lang === 'ar' ? 'العنوان مطلوب' : 'Address is required';
     }
 
     setErrors(e);
