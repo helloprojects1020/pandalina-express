@@ -91,7 +91,7 @@ const CheckoutSheet = () => {
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', stiffness: 400, damping: 35 }}
-            className="fixed bottom-0 left-0 right-0 z-50 bg-card rounded-t-3xl max-h-[90vh] flex flex-col md:max-w-lg md:mx-auto overflow-hidden"
+            className="fixed bottom-0 left-0 right-0 z-50 bg-card rounded-t-3xl max-h-[85dvh] max-h-[85vh] flex flex-col md:max-w-lg md:mx-auto overflow-hidden"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-5 pt-5 pb-3 flex-shrink-0">
