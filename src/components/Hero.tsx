@@ -56,6 +56,13 @@ const Hero = () => {
     return () => clearInterval(timer);
   }, [next]);
 
+  // Eagerly start loading video on mount so it's buffered by slide 2
+  useEffect(() => {
+    const v = videoRef.current;
+    if (v) v.load();
+  }, []);
+
+  // Play/pause based on active slide
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
