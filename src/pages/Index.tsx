@@ -1,4 +1,5 @@
 import Hero from '@/components/Hero';
+import CategoryCards from '@/components/CategoryCards';
 import { BestSellers, PlattersPreview } from '@/components/HomeSections';
 import MenuSection from '@/components/MenuSection';
 import WhyOrderSection from '@/components/WhyOrderSection';
@@ -9,6 +10,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Hero />
+      <CategoryCards />
       <BestSellers />
       <PlattersPreview />
       <WhyOrderSection />
