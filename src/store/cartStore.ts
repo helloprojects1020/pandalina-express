@@ -50,12 +50,31 @@ export const useCartStore = create<CartStore>((set, get) => ({
   deliveryFee: 10,
   isCartOpen: false,
   isCheckoutOpen: false,
+  prepTime: '',
+  editingCartItemId: null,
 
   addItem: (menuItem, quantity, selectedOptions, notes) => {
     const id = `cart-${++idCounter}-${Date.now()}`;
     const lineTotal = calculateLineTotal(menuItem, quantity, selectedOptions);
     set((state) => ({
       items: [...state.items, { id, menuItem, quantity, selectedOptions, notes, lineTotal }],
+    }));
+  },
+
+  updateItem: (cartItemId, quantity, selectedOptions, notes) => {
+    set((state) => ({
+      items: state.items.map((item) =>
+        item.id === cartItemId
+          ? {
+              ...item,
+              quantity,
+              selectedOptions,
+              notes,
+              lineTotal: calculateLineTotal(item.menuItem, quantity, selectedOptions),
+            }
+          : item
+      ),
+      editingCartItemId: null,
     }));
   },
 
