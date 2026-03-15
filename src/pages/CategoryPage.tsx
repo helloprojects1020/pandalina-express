@@ -1,5 +1,5 @@
 import { useParams, Link } from 'react-router-dom';
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { categories, getItemsByCategory } from '@/data/menu';
 import type { MenuItem } from '@/types/menu';
@@ -22,41 +22,10 @@ const CategoryPage = () => {
   const { t } = useI18n();
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [noodleOpen, setNoodleOpen] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const heroRef = useRef<HTMLDivElement>(null);
-  const [videoReady, setVideoReady] = useState(false);
-  const [videoError, setVideoError] = useState(false);
-  const [shouldLoadVideo, setShouldLoadVideo] = useState(false);
 
   const category = categories.find((c) => c.slug === slug);
 
   const videoSrc = category ? categoryVideos[category.id] : undefined;
-
-  // Lazy load video using IntersectionObserver
-  useEffect(() => {
-    const el = heroRef.current;
-    if (!el || !videoSrc) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setShouldLoadVideo(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [videoSrc]);
-
-  // Play video once loaded
-  useEffect(() => {
-    const v = videoRef.current;
-    if (v && shouldLoadVideo) {
-      v.play().catch(() => setVideoError(true));
-    }
-  }, [shouldLoadVideo, videoReady]);
 
   if (!category) {
     return (
@@ -85,29 +54,17 @@ const CategoryPage = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero banner with video */}
-      <div ref={heroRef} className="relative h-56 md:h-72 overflow-hidden">
-        {/* Fallback image — always visible instantly */}
-        <img
-          src={category.image}
-          alt={categoryLabel}
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-
-        {/* Video — lazy loaded, fades in over fallback */}
-        {shouldLoadVideo && videoSrc && !videoError && (
+      <div className="relative h-56 md:h-72 overflow-hidden bg-black">
+        {/* Category video — immediate, no fallback image */}
+        {videoSrc && (
           <video
-            ref={videoRef}
             src={videoSrc}
             muted
             loop
             playsInline
             autoPlay
-            preload="metadata"
-            onCanPlayThrough={() => setVideoReady(true)}
-            onError={() => setVideoError(true)}
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
-              videoReady ? 'opacity-100' : 'opacity-0'
-            }`}
+            preload="auto"
+            className="absolute inset-0 w-full h-full object-cover"
           />
         )}
 
