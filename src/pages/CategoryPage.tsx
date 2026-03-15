@@ -30,9 +30,7 @@ const CategoryPage = () => {
 
   const category = categories.find((c) => c.slug === slug);
 
-  const video = category ? categoryVideos[category.id] : undefined;
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-  const videoSrc = video ? (isMobile ? video.sd : video.hd) : undefined;
+  const videoSrc = category ? categoryVideos[category.id] : undefined;
 
   // Lazy load video using IntersectionObserver
   useEffect(() => {
