@@ -104,19 +104,16 @@ const Hero = () => {
             className={`absolute inset-0 transition-opacity duration-700 ${i === current ? 'opacity-100' : 'opacity-0'}`}
           >
             <img src={s.src} alt="" className="absolute inset-0 w-full h-full object-cover" />
-            {!videoError && (
-              <video
-                ref={videoRef}
-                src={s.videoSrc}
-                muted
-                loop
-                playsInline
-                preload="auto"
-                onCanPlay={() => setVideoReady(true)}
-                onError={() => setVideoError(true)}
-                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${videoReady ? 'opacity-100' : 'opacity-0'}`}
-              />
-            )}
+            <video
+              ref={videoRef}
+              src={s.videoSrc}
+              muted
+              loop
+              playsInline
+              preload="auto"
+              onCanPlay={() => setVideoReady(true)}
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${videoReady ? 'opacity-100' : 'opacity-0'}`}
+            />
           </div>
         );
       })}
