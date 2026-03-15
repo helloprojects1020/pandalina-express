@@ -29,6 +29,7 @@ const he: Translations = {
     kitchen: 'מטבח',
     noodles: 'נודלס',
     platters: 'מגשים',
+    view_all: 'הצג הכל ←',
   },
 
   menu: {
