@@ -12,7 +12,11 @@ const CategoryNav = ({ activeCategory, onSelect }: CategoryNavProps) => {
   const navigate = useNavigate();
 
   const handleClick = (cat: (typeof categories)[0]) => {
-    navigate(`/category/${cat.slug}`);
+    onSelect(cat.id);
+    const el = document.getElementById(`category-${cat.id}`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   };
 
   return (
