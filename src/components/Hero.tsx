@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useI18n } from '@/i18n/context';
-import LanguageSwitcher from './LanguageSwitcher';
 import heroImg from '@/assets/hero-sushi.jpg';
 import kitchen1 from '@/assets/kitchen-1.jpg';
 import noodlesImg from '@/assets/noodles.jpg';
@@ -39,10 +38,6 @@ const Hero = () => {
 
   return (
     <section className="relative min-h-[85vh] md:min-h-[90vh] flex items-end overflow-hidden">
-      {/* Language switcher */}
-      <div className="absolute top-4 end-4 z-20">
-        <LanguageSwitcher />
-      </div>
 
       {/* Slides */}
       {slides.map((s, i) => (
