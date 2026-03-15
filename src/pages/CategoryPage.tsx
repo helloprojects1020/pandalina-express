@@ -56,7 +56,7 @@ const CategoryPage = () => {
             to="/"
             className="inline-flex items-center gap-1 text-primary-foreground/70 hover:text-primary-foreground text-sm mb-2 transition-colors"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
             {t.header.menu}
           </Link>
           <h1 className="text-3xl md:text-4xl tracking-tighter uppercase text-primary-foreground">
