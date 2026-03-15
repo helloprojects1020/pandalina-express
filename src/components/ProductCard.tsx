@@ -10,10 +10,23 @@ interface ProductCardProps {
 
 const BEST_SELLER_IDS = ['sushi-1', 'sushi-4', 'sushi-11', 'sushi-8'];
 
+/* Badge config: id → { emoji, label } — keep sparse (2-3 per category) */
+const BADGE_MAP: Record<string, { emoji: string; label: string }> = {
+  'sushi-1': { emoji: '⭐', label: 'Most Popular' },
+  'sushi-4': { emoji: '🔥', label: "Chef's Choice" },
+  'sushi-8': { emoji: '👑', label: 'Top Pick' },
+  'kitchen-1': { emoji: '🔥', label: "Chef's Choice" },
+  'kitchen-2': { emoji: '⭐', label: 'Most Popular' },
+  'platter-1': { emoji: '⭐', label: 'Most Popular' },
+  'platter-2': { emoji: '👑', label: 'Top Pick' },
+  'noodle-bowl': { emoji: '🔥', label: "Chef's Choice" },
+};
+
 const ProductCard = ({ item, onOpen, variant = 'default' }: ProductCardProps) => {
   const { t } = useI18n();
   const isBestSeller = BEST_SELLER_IDS.includes(item.id);
   const isPremium = variant === 'premium';
+  const badge = BADGE_MAP[item.id];
 
   return (
     <button
@@ -22,10 +35,10 @@ const ProductCard = ({ item, onOpen, variant = 'default' }: ProductCardProps) =>
         isPremium ? 'p-0 overflow-hidden' : 'p-2'
       }`}
     >
-      {/* Badges */}
-      {isBestSeller && (
-        <span className="absolute top-3 start-3 z-10 bg-accent text-accent-foreground text-[10px] font-bold px-2.5 py-1 rounded-full">
-          {t.menu.best_seller_badge}
+      {/* Badge */}
+      {badge && (
+        <span className="absolute top-3 start-3 z-10 bg-accent text-accent-foreground text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
+          <span>{badge.emoji}</span> {badge.label}
         </span>
       )}
 

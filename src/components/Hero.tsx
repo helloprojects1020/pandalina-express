@@ -11,6 +11,15 @@ const WOK_VIDEO_SD =
 const WOK_VIDEO_HD =
   'https://videos.pexels.com/video-files/3298572/3298572-hd_1920_1080_25fps.mp4';
 
+const WhatsAppSmallIcon = () => (
+  <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0">
+    <path
+      fill="currentColor"
+      d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91C21.95 6.45 17.5 2 12.04 2zm5.82 14.01c-.24.68-1.42 1.3-1.96 1.38-.5.08-1.13.11-1.82-.11-.42-.14-.96-.34-1.65-.66-2.92-1.36-4.82-4.31-4.97-4.51-.14-.2-1.17-1.56-1.17-2.97 0-1.42.74-2.12 1.01-2.41.26-.28.57-.35.76-.35.19 0 .38 0 .55.01.18.01.42-.07.65.49.24.57.82 2.01.89 2.16.07.14.12.31.02.5-.1.19-.14.31-.28.48-.14.17-.3.37-.43.5-.14.14-.28.29-.12.57.16.28.73 1.21 1.57 1.96 1.08.96 1.99 1.26 2.27 1.4.28.14.44.12.6-.07.17-.19.7-.82.89-1.1.19-.28.38-.24.63-.14.26.1 1.63.77 1.91.91.28.14.46.21.53.33.07.11.07.66-.17 1.34z"
+    />
+  </svg>
+);
+
 interface Slide {
   type: 'image' | 'video';
   src: string;
@@ -25,7 +34,7 @@ const slides: Slide[] = [
   { type: 'image', src: heroImg, titleKey: 'title', taglineKey: 'tagline' },
   {
     type: 'video',
-    src: kitchen1, // fallback image
+    src: kitchen1,
     videoSrc: isMobile ? WOK_VIDEO_SD : WOK_VIDEO_HD,
     titleKey: 'slide2_title',
     taglineKey: 'slide2_tagline',
@@ -47,7 +56,6 @@ const Hero = () => {
     return () => clearInterval(timer);
   }, [next]);
 
-  // Play/pause video when slide 2 is active
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
@@ -78,7 +86,6 @@ const Hero = () => {
             </div>
           );
         }
-        // Video slide
         return (
           <div
             key={i}
@@ -102,7 +109,8 @@ const Hero = () => {
         );
       })}
 
-      <div className="absolute inset-0 bg-gradient-to-t from-accent via-accent/70 to-accent/30" />
+      {/* Dark overlay for text readability */}
+      <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.55), rgba(0,0,0,0.35), rgba(0,0,0,0.45))' }} />
 
       {/* Dots */}
       <div className="absolute bottom-4 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 flex gap-2 z-10">
@@ -137,7 +145,7 @@ const Hero = () => {
             {t.hero[slide.taglineKey]}
           </p>
 
-          <div className="flex gap-3">
+          <div className="flex gap-3 flex-wrap">
             <button
               onClick={scrollToMenu}
               className="h-12 px-7 rounded-full bg-primary text-primary-foreground font-bold text-sm tracking-wide active:scale-95 transition-transform"
@@ -148,11 +156,17 @@ const Hero = () => {
               href="https://wa.me/972526204159"
               target="_blank"
               rel="noopener noreferrer"
-              className="h-12 px-7 rounded-full border border-primary-foreground/30 text-primary-foreground font-bold text-sm tracking-wide flex items-center active:scale-95 transition-transform"
+              className="h-14 px-8 rounded-full bg-[#25D366] text-white font-bold text-sm tracking-wide flex items-center gap-2 active:scale-95 transition-transform animate-[pulse_3s_ease-in-out_infinite]"
             >
-              {t.hero.cta_whatsapp}
+              <WhatsAppSmallIcon />
+              Order on WhatsApp
             </a>
           </div>
+
+          {/* Trust line */}
+          <p className="mt-5 text-xs md:text-sm text-primary-foreground/40 tracking-wide">
+            Fresh Asian street food • Sushi • Noodles • Kfar Yassif
+          </p>
         </motion.div>
       </div>
     </section>
