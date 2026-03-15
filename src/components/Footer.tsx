@@ -1,5 +1,6 @@
 import logoImg from '@/assets/logo.png';
 import { useI18n } from '@/i18n/context';
+import { Instagram, MessageCircle, Navigation } from 'lucide-react';
 
 const Footer = () => {
   const { t } = useI18n();
@@ -28,6 +29,35 @@ const Footer = () => {
             <p className="text-sm text-accent-foreground/60">{t.footer.hours_fri}</p>
             <p className="text-sm text-accent-foreground/60">{t.footer.hours_sat}</p>
           </div>
+        </div>
+
+        {/* Social Icons */}
+        <div className="flex justify-center gap-5 mt-8">
+          <a
+            href="https://www.instagram.com/pandalina_asian_st._bar/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-accent-foreground/50 hover:text-primary transition-colors duration-200 hover:scale-110 transform"
+            aria-label="Instagram"
+          >
+            <Instagram className="w-6 h-6" />
+          </a>
+          <a
+            href="https://wa.me/972526204159"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-accent-foreground/50 hover:text-primary transition-colors duration-200 hover:scale-110 transform"
+            aria-label="WhatsApp"
+          >
+            <MessageCircle className="w-6 h-6" />
+          </a>
+          <span
+            className="text-accent-foreground/50 cursor-default"
+            aria-label="Waze"
+            title="Waze"
+          >
+            <Navigation className="w-6 h-6" />
+          </span>
         </div>
 
         <div className="border-t border-accent-foreground/10 mt-8 pt-6 text-center space-y-2">
