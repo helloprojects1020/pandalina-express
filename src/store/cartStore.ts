@@ -7,8 +7,11 @@ interface CartStore {
   deliveryFee: number;
   isCartOpen: boolean;
   isCheckoutOpen: boolean;
+  prepTime: string;
+  editingCartItemId: string | null;
 
   addItem: (menuItem: MenuItem, quantity: number, selectedOptions: CartItemOption[], notes: string) => void;
+  updateItem: (cartItemId: string, quantity: number, selectedOptions: CartItemOption[], notes: string) => void;
   removeItem: (cartItemId: string) => void;
   updateQuantity: (cartItemId: string, quantity: number) => void;
   updateNotes: (cartItemId: string, notes: string) => void;
@@ -17,6 +20,8 @@ interface CartStore {
   setCheckoutOpen: (open: boolean) => void;
   setCustomerDetails: (details: Partial<CustomerDetails>) => void;
   setOrderType: (type: OrderType) => void;
+  setPrepTime: (time: string) => void;
+  setEditingCartItemId: (id: string | null) => void;
 
   getSubtotal: () => number;
   getTotal: () => number;
