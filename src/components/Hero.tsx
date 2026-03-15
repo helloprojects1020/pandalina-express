@@ -56,6 +56,13 @@ const Hero = () => {
     return () => clearInterval(timer);
   }, [next]);
 
+  // Eagerly start loading video on mount so it's buffered by slide 2
+  useEffect(() => {
+    const v = videoRef.current;
+    if (v) v.load();
+  }, []);
+
+  // Play/pause based on active slide
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
@@ -99,8 +106,8 @@ const Hero = () => {
                 muted
                 loop
                 playsInline
-                preload="metadata"
-                onCanPlayThrough={() => setVideoReady(true)}
+                preload="auto"
+                onCanPlay={() => setVideoReady(true)}
                 onError={() => setVideoError(true)}
                 className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${videoReady ? 'opacity-100' : 'opacity-0'}`}
               />
