@@ -160,7 +160,7 @@ const he: Translations = {
     send: 'שלח הודעה',
     phone_title: 'טלפון / וואטסאפ',
     location_title: 'מיקום',
-    location_desc: 'כתובת בקרוב',
+    location_desc: 'כפר יאסיף',
     hours_title: 'שעות פתיחה',
   },
 };

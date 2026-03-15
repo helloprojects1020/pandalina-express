@@ -173,7 +173,7 @@ const en = {
     send: 'Send Message',
     phone_title: 'Phone / WhatsApp',
     location_title: 'Location',
-    location_desc: 'Address coming soon',
+    location_desc: 'Kfar Yassif',
     hours_title: 'Opening Hours',
   },
 };

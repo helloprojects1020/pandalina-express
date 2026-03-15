@@ -160,7 +160,7 @@ const ar: Translations = {
     send: 'إرسال',
     phone_title: 'الهاتف / واتساب',
     location_title: 'الموقع',
-    location_desc: 'العنوان قريباً',
+    location_desc: 'كفر ياسيف',
     hours_title: 'ساعات العمل',
   },
 };
