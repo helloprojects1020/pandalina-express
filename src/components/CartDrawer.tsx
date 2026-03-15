@@ -1,17 +1,22 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
+import { X, Minus, Plus, Trash2, ShoppingBag, Pencil } from 'lucide-react';
 import { useCartStore } from '@/store/cartStore';
 import { useI18n } from '@/i18n/context';
 import Recommendations from './Recommendations';
 
 const CartDrawer = () => {
   const { t } = useI18n();
-  const { items, isCartOpen, setCartOpen, setCheckoutOpen, removeItem, updateQuantity, getSubtotal, getItemCount } =
+  const { items, isCartOpen, setCartOpen, setCheckoutOpen, removeItem, updateQuantity, getSubtotal, getItemCount, setEditingCartItemId } =
     useCartStore();
 
   const subtotal = getSubtotal();
   const count = getItemCount();
   const excludeIds = items.map((i) => i.menuItem.id);
+
+  const handleEdit = (cartItemId: string) => {
+    setEditingCartItemId(cartItemId);
+    setCartOpen(false);
+  };
 
   return (
     <AnimatePresence>
@@ -65,7 +70,16 @@ const CartDrawer = () => {
                         className="w-16 h-16 rounded-xl object-cover flex-shrink-0"
                       />
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-sm text-foreground truncate">{item.menuItem.name}</h3>
+                        <div className="flex items-start justify-between gap-1">
+                          <h3 className="font-bold text-sm text-foreground truncate">{item.menuItem.name}</h3>
+                          <button
+                            onClick={() => handleEdit(item.id)}
+                            className="h-7 w-7 flex-shrink-0 flex items-center justify-center rounded-full bg-card text-muted-foreground hover:text-primary active:scale-95 transition-colors"
+                            aria-label="Edit item"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                         {item.selectedOptions.length > 0 && (
                           <p className="text-xs text-muted-foreground truncate">
                             {item.selectedOptions.flatMap((o) => o.selectedChoices.map((c) => c.name)).join(', ')}

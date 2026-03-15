@@ -1,16 +1,22 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, MapPin, User, Phone, MessageSquare, Truck, Store, UtensilsCrossed } from 'lucide-react';
+import { X, MapPin, User, Phone, MessageSquare, Truck, Store, UtensilsCrossed, Clock } from 'lucide-react';
 import { useCartStore } from '@/store/cartStore';
 import { generateWhatsAppLink } from '@/lib/whatsapp';
 import { useI18n } from '@/i18n/context';
 import type { OrderType } from '@/types/menu';
 
+const PREP_OPTIONS = [
+  { id: 'now', label: 'התחילו להכין' },
+  { id: '20min', label: 'מוכן בעוד 20 דקות' },
+  { id: '30min', label: 'מוכן בעוד 30 דקות' },
+];
+
 const CheckoutSheet = () => {
   const { t } = useI18n();
   const {
     items, isCheckoutOpen, setCheckoutOpen, customerDetails, setCustomerDetails,
-    setOrderType, getSubtotal, getTotal, deliveryFee,
+    setOrderType, getSubtotal, getTotal, deliveryFee, prepTime, setPrepTime,
   } = useCartStore();
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -24,14 +30,12 @@ const CheckoutSheet = () => {
     { type: 'eat-in', label: t.checkout.eat_in, icon: UtensilsCrossed },
   ];
 
-  /** Only allow digits, spaces, dashes, plus for phone */
   const handlePhoneChange = (value: string) => {
     const cleaned = value.replace(/[^0-9+\-\s]/g, '');
     setCustomerDetails({ phone: cleaned });
     setErrors((p) => ({ ...p, phone: '' }));
   };
 
-  /** Only allow letters, spaces, hyphens for name */
   const handleNameChange = (value: string) => {
     const cleaned = value.replace(/[0-9]/g, '');
     setCustomerDetails({ name: cleaned });
@@ -65,7 +69,7 @@ const CheckoutSheet = () => {
 
   const handleSend = () => {
     if (!validate()) return;
-    const link = generateWhatsAppLink(items, customerDetails, subtotal, deliveryFee, total, t);
+    const link = generateWhatsAppLink(items, customerDetails, subtotal, deliveryFee, total, t, prepTime);
     window.open(link, '_blank');
   };
 
@@ -87,7 +91,7 @@ const CheckoutSheet = () => {
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', stiffness: 400, damping: 35 }}
-            className="fixed bottom-0 left-0 right-0 z-50 bg-card rounded-t-3xl max-h-[90vh] flex flex-col md:max-w-lg md:mx-auto"
+            className="fixed bottom-0 left-0 right-0 z-50 bg-card rounded-t-3xl max-h-[90vh] flex flex-col md:max-w-lg md:mx-auto overflow-hidden"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-5 pt-5 pb-3 flex-shrink-0">
@@ -98,7 +102,7 @@ const CheckoutSheet = () => {
             </div>
 
             {/* Content */}
-            <div className="flex-1 overflow-y-auto px-5 pb-4">
+            <div className="flex-1 overflow-y-auto px-5 pb-4 min-w-0">
               {/* Order Type */}
               <div className="mb-5">
                 <label className="font-bold text-sm text-foreground block mb-2">{t.checkout.order_type}</label>
@@ -120,11 +124,34 @@ const CheckoutSheet = () => {
                 </div>
               </div>
 
+              {/* Preparation Time */}
+              <div className="mb-5">
+                <label className="font-bold text-sm text-foreground flex items-center gap-2 mb-2">
+                  <Clock className="w-4 h-4 text-primary" />
+                  זמן הכנה
+                </label>
+                <div className="flex flex-col gap-2">
+                  {PREP_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.id}
+                      onClick={() => setPrepTime(prepTime === opt.id ? '' : opt.id)}
+                      className={`h-11 px-4 rounded-xl text-sm font-semibold transition-all active:scale-[0.98] ${
+                        prepTime === opt.id
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-secondary text-secondary-foreground'
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               {/* Fields */}
               <div className="space-y-3">
                 {/* Name */}
                 <div>
-                  <div className={`flex items-center gap-3 h-12 px-4 rounded-xl bg-secondary ${errors.name ? 'ring-2 ring-destructive' : ''}`}>
+                  <div className={`flex items-center gap-3 h-12 px-4 rounded-xl bg-secondary min-w-0 ${errors.name ? 'ring-2 ring-destructive' : ''}`}>
                     <User className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                     <input
                       value={customerDetails.name}
@@ -132,7 +159,7 @@ const CheckoutSheet = () => {
                       placeholder={t.checkout.name_placeholder}
                       maxLength={100}
                       autoComplete="name"
-                      className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+                      className="flex-1 min-w-0 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
                     />
                   </div>
                   {errors.name && <p className="text-destructive text-xs mt-1 ps-4">{errors.name}</p>}
@@ -140,7 +167,7 @@ const CheckoutSheet = () => {
 
                 {/* Phone */}
                 <div>
-                  <div className={`flex items-center gap-3 h-12 px-4 rounded-xl bg-secondary ${errors.phone ? 'ring-2 ring-destructive' : ''}`}>
+                  <div className={`flex items-center gap-3 h-12 px-4 rounded-xl bg-secondary min-w-0 ${errors.phone ? 'ring-2 ring-destructive' : ''}`}>
                     <Phone className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                     <input
                       value={customerDetails.phone}
@@ -150,7 +177,7 @@ const CheckoutSheet = () => {
                       inputMode="tel"
                       maxLength={20}
                       autoComplete="tel"
-                      className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+                      className="flex-1 min-w-0 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
                     />
                   </div>
                   {errors.phone && <p className="text-destructive text-xs mt-1 ps-4">{errors.phone}</p>}
@@ -159,7 +186,7 @@ const CheckoutSheet = () => {
                 {/* Address (delivery only) */}
                 {showDelivery && (
                   <div>
-                    <div className={`flex items-center gap-3 h-12 px-4 rounded-xl bg-secondary ${errors.address ? 'ring-2 ring-destructive' : ''}`}>
+                    <div className={`flex items-center gap-3 h-12 px-4 rounded-xl bg-secondary min-w-0 ${errors.address ? 'ring-2 ring-destructive' : ''}`}>
                       <MapPin className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                       <input
                         value={customerDetails.address}
@@ -167,7 +194,7 @@ const CheckoutSheet = () => {
                         placeholder={t.checkout.address_placeholder}
                         maxLength={200}
                         autoComplete="street-address"
-                        className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+                        className="flex-1 min-w-0 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
                       />
                     </div>
                     {errors.address && <p className="text-destructive text-xs mt-1 ps-4">{errors.address}</p>}
@@ -175,14 +202,14 @@ const CheckoutSheet = () => {
                 )}
 
                 {/* Notes */}
-                <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-secondary">
+                <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-secondary min-w-0">
                   <MessageSquare className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5" />
                   <textarea
                     value={customerDetails.notes}
                     onChange={(e) => setCustomerDetails({ notes: e.target.value })}
                     placeholder={t.checkout.notes_placeholder}
                     maxLength={500}
-                    className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none resize-none h-16"
+                    className="flex-1 min-w-0 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none resize-none h-16"
                   />
                 </div>
               </div>

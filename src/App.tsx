@@ -8,6 +8,8 @@ import SiteHeader from "@/components/SiteHeader";
 import CartDrawer from "@/components/CartDrawer";
 import FloatingCart from "@/components/FloatingCart";
 import CheckoutSheet from "@/components/CheckoutSheet";
+import PasswordGate from "@/components/PasswordGate";
+import EditProductModal from "@/components/EditProductModal";
 import Index from "./pages/Index.tsx";
 import About from "./pages/About.tsx";
 import Contact from "./pages/Contact.tsx";
@@ -29,6 +31,7 @@ const AppLayout = () => (
     <FloatingCart />
     <CartDrawer />
     <CheckoutSheet />
+    <EditProductModal />
   </>
 );
 
@@ -38,9 +41,11 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
-          <AppLayout />
-        </BrowserRouter>
+        <PasswordGate>
+          <BrowserRouter>
+            <AppLayout />
+          </BrowserRouter>
+        </PasswordGate>
       </TooltipProvider>
     </I18nProvider>
   </QueryClientProvider>
