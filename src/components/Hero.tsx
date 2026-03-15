@@ -174,7 +174,7 @@ const Hero = () => {
 
           {/* Trust line */}
           <p className="mt-5 text-xs md:text-sm text-primary-foreground/40 tracking-wide">
-            Fresh Asian street food • Sushi • Noodles • Kfar Yassif
+            {t.hero.tagline}
           </p>
         </motion.div>
       </div>
