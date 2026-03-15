@@ -28,28 +28,24 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
 );
 
 const WazeIcon = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" className={className}>
-    {/* Face / body */}
+  <svg viewBox="0 0 580 580" className={className}>
+    {/* Main body - white with dark outline */}
     <path
+      d="M289 30C152 30 47 135 47 262c0 55 20 106 53 146-7 34-25 64-50 87a14 14 0 0 0 10 24c45 0 87-17 120-44 27 9 56 13 85 13h2c137 0 266-105 266-226C533 135 426 30 289 30z"
       fill="#FFFFFF"
-      d="M20.37 11.38c0-4.52-3.83-8.19-8.55-8.19S3.27 6.86 3.27 11.38c0 1.97.75 3.78 2 5.18-.25 1.2-.88 2.28-1.77 3.1a.5.5 0 0 0 .35.85c1.6 0 3.1-.59 4.27-1.55.96.3 1.97.46 3.01.46h.05c4.72 0 8.55-3.67 8.55-8.19l-.36.15z"
+      stroke="#30353A"
+      strokeWidth="18"
     />
+    {/* Left eye */}
+    <circle cx="220" cy="240" r="32" fill="#30353A" />
+    {/* Right eye */}
+    <circle cx="360" cy="240" r="32" fill="#30353A" />
+    {/* Smile */}
     <path
-      fill="#000000"
-      d="M20.37 11.38c0-4.52-3.83-8.19-8.55-8.19S3.27 6.86 3.27 11.38c0 1.97.75 3.78 2 5.18-.25 1.2-.88 2.28-1.77 3.1a.5.5 0 0 0 .35.85c1.6 0 3.1-.59 4.27-1.55.96.3 1.97.46 3.01.46h.05c4.72 0 8.55-3.67 8.55-8.19z"
-      fillOpacity="0"
-      stroke="#000000"
-      strokeWidth="0.8"
-    />
-    {/* Eyes */}
-    <circle cx="9.5" cy="10.5" r="1.4" fill="#000000" />
-    <circle cx="14.5" cy="10.5" r="1.4" fill="#000000" />
-    {/* Mouth */}
-    <path
-      d="M9.5 14c0 0 1.2 1.5 2.5 1.5s2.5-1.5 2.5-1.5"
+      d="M210 340c0 0 35 55 80 55s80-55 80-55"
       fill="none"
-      stroke="#000000"
-      strokeWidth="0.9"
+      stroke="#30353A"
+      strokeWidth="18"
       strokeLinecap="round"
     />
   </svg>
