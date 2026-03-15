@@ -32,7 +32,7 @@ const slides: Slide[] = [
   {
     type: 'video',
     src: kitchen1,
-    videoSrc: isMobile ? WOK_VIDEO_SD : WOK_VIDEO_HD,
+    videoSrc: WOK_VIDEO,
     titleKey: 'slide2_title',
     taglineKey: 'slide2_tagline',
   },
