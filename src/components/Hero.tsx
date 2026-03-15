@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useI18n } from '@/i18n/context';
-import LanguageSwitcher from './LanguageSwitcher';
 import heroImg from '@/assets/hero-sushi.jpg';
 import kitchen1 from '@/assets/kitchen-1.jpg';
 import noodlesImg from '@/assets/noodles.jpg';
