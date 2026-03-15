@@ -105,7 +105,7 @@ const ProductModal = ({ item, onClose }: ProductModalProps) => {
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', stiffness: 400, damping: 35 }}
-            className="fixed bottom-0 left-0 right-0 z-50 bg-card rounded-t-3xl max-h-[90vh] flex flex-col md:max-w-lg md:mx-auto"
+            className="fixed bottom-0 left-0 right-0 z-50 bg-card rounded-t-3xl max-h-[85dvh] max-h-[85vh] flex flex-col md:max-w-lg md:mx-auto"
           >
             {/* Image */}
             <div className="relative aspect-[16/10] overflow-hidden rounded-t-3xl flex-shrink-0">
