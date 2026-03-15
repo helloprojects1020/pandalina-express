@@ -35,8 +35,10 @@ const CategoryPage = () => {
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [noodleOpen, setNoodleOpen] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const heroRef = useRef<HTMLDivElement>(null);
   const [videoReady, setVideoReady] = useState(false);
   const [videoError, setVideoError] = useState(false);
+  const [shouldLoadVideo, setShouldLoadVideo] = useState(false);
 
   const category = categories.find((c) => c.slug === slug);
 
@@ -44,12 +46,31 @@ const CategoryPage = () => {
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
   const videoSrc = video ? (isMobile ? video.sd : video.hd) : undefined;
 
+  // Lazy load video using IntersectionObserver
+  useEffect(() => {
+    const el = heroRef.current;
+    if (!el || !videoSrc) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShouldLoadVideo(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [videoSrc]);
+
+  // Play video once loaded
   useEffect(() => {
     const v = videoRef.current;
-    if (v && videoSrc) {
+    if (v && shouldLoadVideo) {
       v.play().catch(() => setVideoError(true));
     }
-  }, [videoSrc]);
+  }, [shouldLoadVideo, videoReady]);
 
   if (!category) {
     return (
@@ -78,16 +99,16 @@ const CategoryPage = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero banner with video */}
-      <div className="relative h-56 md:h-72 overflow-hidden">
-        {/* Fallback image */}
+      <div ref={heroRef} className="relative h-56 md:h-72 overflow-hidden">
+        {/* Fallback image — always visible instantly */}
         <img
           src={category.image}
           alt={categoryLabel}
           className="absolute inset-0 w-full h-full object-cover"
         />
 
-        {/* Video overlay */}
-        {videoSrc && !videoError && (
+        {/* Video — lazy loaded, fades in over fallback */}
+        {shouldLoadVideo && videoSrc && !videoError && (
           <video
             ref={videoRef}
             src={videoSrc}
@@ -104,7 +125,12 @@ const CategoryPage = () => {
           />
         )}
 
-        <div className="absolute inset-0 bg-gradient-to-t from-accent via-accent/60 to-transparent" />
+        {/* Dark overlay for readability */}
+        <div
+          className="absolute inset-0"
+          style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.6), rgba(0,0,0,0.25), rgba(0,0,0,0.35))' }}
+        />
+
         <div className="absolute bottom-0 start-0 end-0 p-4 md:p-8 max-w-screen-xl mx-auto">
           <Link
             to="/"
