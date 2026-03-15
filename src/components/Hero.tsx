@@ -5,11 +5,8 @@ import heroImg from '@/assets/hero-sushi.jpg';
 import kitchen1 from '@/assets/kitchen-1.jpg';
 import logoImg from '@/assets/logo.png';
 
-/* Wok cooking with flames – Pexels free video */
-const WOK_VIDEO_SD =
-  'https://videos.pexels.com/video-files/3298572/3298572-sd_640_360_25fps.mp4';
-const WOK_VIDEO_HD =
-  'https://videos.pexels.com/video-files/3298572/3298572-hd_1920_1080_25fps.mp4';
+/* Wok cooking video – locally hosted for reliability */
+const WOK_VIDEO = '/videos/wok-cooking.mp4';
 
 const WhatsAppSmallIcon = () => (
   <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0">
@@ -35,7 +32,7 @@ const slides: Slide[] = [
   {
     type: 'video',
     src: kitchen1,
-    videoSrc: isMobile ? WOK_VIDEO_SD : WOK_VIDEO_HD,
+    videoSrc: WOK_VIDEO,
     titleKey: 'slide2_title',
     taglineKey: 'slide2_tagline',
   },
@@ -67,7 +64,15 @@ const Hero = () => {
     const v = videoRef.current;
     if (!v) return;
     if (current === 1) {
-      v.play().catch(() => setVideoError(true));
+      // Reset error state and retry on each visit to slide 2
+      setVideoError(false);
+      v.play().catch(() => {
+        // Try loading and playing again after a brief delay
+        v.load();
+        setTimeout(() => {
+          v.play().catch(() => setVideoError(true));
+        }, 500);
+      });
     } else {
       v.pause();
     }
@@ -99,19 +104,16 @@ const Hero = () => {
             className={`absolute inset-0 transition-opacity duration-700 ${i === current ? 'opacity-100' : 'opacity-0'}`}
           >
             <img src={s.src} alt="" className="absolute inset-0 w-full h-full object-cover" />
-            {!videoError && (
-              <video
-                ref={videoRef}
-                src={s.videoSrc}
-                muted
-                loop
-                playsInline
-                preload="auto"
-                onCanPlay={() => setVideoReady(true)}
-                onError={() => setVideoError(true)}
-                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${videoReady ? 'opacity-100' : 'opacity-0'}`}
-              />
-            )}
+            <video
+              ref={videoRef}
+              src={s.videoSrc}
+              muted
+              loop
+              playsInline
+              preload="auto"
+              onCanPlay={() => setVideoReady(true)}
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${videoReady ? 'opacity-100' : 'opacity-0'}`}
+            />
           </div>
         );
       })}
