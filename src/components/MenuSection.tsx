@@ -65,7 +65,7 @@ const MenuSection = () => {
                   onClick={() => navigate(`/category/${cat.slug}`)}
                   className="text-primary text-sm font-semibold hover:underline flex-shrink-0"
                 >
-                  {t.categories.view_all || 'View All →'}
+                  {(t.categories as Record<string, string>).view_all || 'View All →'}
                 </button>
               )}
             </div>
