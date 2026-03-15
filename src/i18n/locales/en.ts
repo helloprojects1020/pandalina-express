@@ -137,4 +137,4 @@ const en = {
 };
 
 export default en;
-export type Translations = typeof en;
+export type Translations = Omit<typeof en, 'dir'> & { dir: 'ltr' | 'rtl' };
