@@ -30,9 +30,12 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="border-t border-accent-foreground/10 mt-8 pt-6 text-center">
+        <div className="border-t border-accent-foreground/10 mt-8 pt-6 text-center space-y-2">
           <p className="text-xs text-accent-foreground/40">
             {t.footer.copyright.replace('{{year}}', String(new Date().getFullYear()))}
+          </p>
+          <p className="text-[10px] text-accent-foreground/25 tracking-wider uppercase">
+            Powered by BITELYX
           </p>
         </div>
       </div>
