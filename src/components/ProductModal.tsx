@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Minus, Plus } from 'lucide-react';
 import type { MenuItem, CartItemOption, OptionChoice } from '@/types/menu';
 import { useCartStore } from '@/store/cartStore';
+import { useI18n } from '@/i18n/context';
+import Recommendations from './Recommendations';
 
 interface ProductModalProps {
   item: MenuItem | null;
@@ -10,6 +12,7 @@ interface ProductModalProps {
 }
 
 const ProductModal = ({ item, onClose }: ProductModalProps) => {
+  const { t } = useI18n();
   const [quantity, setQuantity] = useState(1);
   const [selectedOptions, setSelectedOptions] = useState<CartItemOption[]>([]);
   const [notes, setNotes] = useState('');
@@ -84,7 +87,7 @@ const ProductModal = ({ item, onClose }: ProductModalProps) => {
               <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
               <button
                 onClick={onClose}
-                className="absolute top-4 right-4 h-9 w-9 rounded-full bg-card/80 backdrop-blur flex items-center justify-center active:scale-95"
+                className="absolute top-4 end-4 h-9 w-9 rounded-full bg-card/80 backdrop-blur flex items-center justify-center active:scale-95"
               >
                 <X className="w-5 h-5 text-foreground" />
               </button>
@@ -101,7 +104,7 @@ const ProductModal = ({ item, onClose }: ProductModalProps) => {
                 <div key={group.id} className="mt-5">
                   <h3 className="font-bold text-sm text-foreground mb-2">
                     {group.title}
-                    {group.required && <span className="text-primary ml-1">*</span>}
+                    {group.required && <span className="text-primary ms-1">*</span>}
                   </h3>
                   <div className="flex flex-wrap gap-2">
                     {group.choices.map((choice) => (
@@ -124,14 +127,17 @@ const ProductModal = ({ item, onClose }: ProductModalProps) => {
 
               {/* Notes */}
               <div className="mt-5">
-                <label className="font-bold text-sm text-foreground block mb-2">Special Notes</label>
+                <label className="font-bold text-sm text-foreground block mb-2">{t.product.special_notes}</label>
                 <textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Any special requests..."
+                  placeholder={t.product.notes_placeholder}
                   className="w-full h-20 rounded-xl bg-secondary px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-primary/30"
                 />
               </div>
+
+              {/* Recommendations */}
+              <Recommendations excludeIds={[item.id]} variant="modal" />
             </div>
 
             {/* Sticky footer */}
@@ -156,7 +162,7 @@ const ProductModal = ({ item, onClose }: ProductModalProps) => {
                   onClick={handleAdd}
                   className="flex-1 h-12 rounded-full bg-primary text-primary-foreground font-bold text-sm active:scale-95 transition-transform"
                 >
-                  Add to Cart — ₪{lineTotal}
+                  {t.product.add_to_cart} — ₪{lineTotal}
                 </button>
               </div>
             </div>

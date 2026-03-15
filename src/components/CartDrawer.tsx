@@ -1,13 +1,17 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
 import { useCartStore } from '@/store/cartStore';
+import { useI18n } from '@/i18n/context';
+import Recommendations from './Recommendations';
 
 const CartDrawer = () => {
+  const { t } = useI18n();
   const { items, isCartOpen, setCartOpen, setCheckoutOpen, removeItem, updateQuantity, getSubtotal, getItemCount } =
     useCartStore();
 
   const subtotal = getSubtotal();
   const count = getItemCount();
+  const excludeIds = items.map((i) => i.menuItem.id);
 
   return (
     <AnimatePresence>
@@ -27,14 +31,16 @@ const CartDrawer = () => {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', stiffness: 400, damping: 35 }}
-            className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-md bg-card flex flex-col"
+            className="fixed end-0 top-0 bottom-0 z-50 w-full max-w-md bg-card flex flex-col"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-border flex-shrink-0">
               <div className="flex items-center gap-2">
                 <ShoppingBag className="w-5 h-5 text-primary" />
-                <h2 className="font-display text-lg text-foreground">Your Cart</h2>
-                <span className="text-xs text-muted-foreground">({count} items)</span>
+                <h2 className="font-display text-lg text-foreground">{t.cart.title}</h2>
+                <span className="text-xs text-muted-foreground">
+                  {t.cart.items_count.replace('{{count}}', String(count))}
+                </span>
               </div>
               <button onClick={() => setCartOpen(false)} className="h-9 w-9 rounded-full bg-secondary flex items-center justify-center active:scale-95">
                 <X className="w-5 h-5" />
@@ -46,8 +52,8 @@ const CartDrawer = () => {
               {items.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-center">
                   <ShoppingBag className="w-12 h-12 text-muted-foreground/30 mb-4" />
-                  <p className="font-bold text-foreground">Your cart is empty</p>
-                  <p className="text-sm text-muted-foreground mt-1">Add some delicious items!</p>
+                  <p className="font-bold text-foreground">{t.cart.empty_title}</p>
+                  <p className="text-sm text-muted-foreground mt-1">{t.cart.empty_desc}</p>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -88,13 +94,20 @@ const CartDrawer = () => {
                   ))}
                 </div>
               )}
+
+              {/* Recommendations in cart */}
+              {items.length > 0 && (
+                <div className="mt-4">
+                  <Recommendations excludeIds={excludeIds} variant="cart" />
+                </div>
+              )}
             </div>
 
             {/* Footer */}
             {items.length > 0 && (
               <div className="flex-shrink-0 px-5 py-4 border-t border-border bg-card">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm text-muted-foreground">Subtotal</span>
+                  <span className="text-sm text-muted-foreground">{t.cart.subtotal}</span>
                   <span className="font-display text-lg text-foreground">₪{subtotal}</span>
                 </div>
                 <button
@@ -104,7 +117,7 @@ const CartDrawer = () => {
                   }}
                   className="w-full h-12 rounded-full bg-primary text-primary-foreground font-bold text-sm active:scale-95 transition-transform"
                 >
-                  Checkout — ₪{subtotal}
+                  {t.cart.checkout} — ₪{subtotal}
                 </button>
               </div>
             )}

@@ -3,15 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, MapPin, User, Phone, MessageSquare, Truck, Store, UtensilsCrossed } from 'lucide-react';
 import { useCartStore } from '@/store/cartStore';
 import { generateWhatsAppLink } from '@/lib/whatsapp';
+import { useI18n } from '@/i18n/context';
 import type { OrderType } from '@/types/menu';
 
-const orderTypes: { type: OrderType; label: string; icon: React.ElementType }[] = [
-  { type: 'pickup', label: 'Pickup', icon: Store },
-  { type: 'delivery', label: 'Delivery', icon: Truck },
-  { type: 'eat-in', label: 'Eat In', icon: UtensilsCrossed },
-];
-
 const CheckoutSheet = () => {
+  const { t } = useI18n();
   const {
     items, isCheckoutOpen, setCheckoutOpen, customerDetails, setCustomerDetails,
     setOrderType, getSubtotal, getTotal, deliveryFee,
@@ -21,6 +17,12 @@ const CheckoutSheet = () => {
   const subtotal = getSubtotal();
   const total = getTotal();
   const showDelivery = customerDetails.orderType === 'delivery';
+
+  const orderTypes: { type: OrderType; label: string; icon: React.ElementType }[] = [
+    { type: 'pickup', label: t.checkout.pickup, icon: Store },
+    { type: 'delivery', label: t.checkout.delivery, icon: Truck },
+    { type: 'eat-in', label: t.checkout.eat_in, icon: UtensilsCrossed },
+  ];
 
   const validate = () => {
     const e: Record<string, boolean> = {};
@@ -33,7 +35,7 @@ const CheckoutSheet = () => {
 
   const handleSend = () => {
     if (!validate()) return;
-    const link = generateWhatsAppLink(items, customerDetails, subtotal, deliveryFee, total);
+    const link = generateWhatsAppLink(items, customerDetails, subtotal, deliveryFee, total, t);
     window.open(link, '_blank');
   };
 
@@ -59,7 +61,7 @@ const CheckoutSheet = () => {
           >
             {/* Header */}
             <div className="flex items-center justify-between px-5 pt-5 pb-3 flex-shrink-0">
-              <h2 className="font-display text-lg text-foreground">Complete Your Order</h2>
+              <h2 className="font-display text-lg text-foreground">{t.checkout.title}</h2>
               <button onClick={() => setCheckoutOpen(false)} className="h-9 w-9 rounded-full bg-secondary flex items-center justify-center active:scale-95">
                 <X className="w-5 h-5" />
               </button>
@@ -69,7 +71,7 @@ const CheckoutSheet = () => {
             <div className="flex-1 overflow-y-auto px-5 pb-4">
               {/* Order Type */}
               <div className="mb-5">
-                <label className="font-bold text-sm text-foreground block mb-2">Order Type</label>
+                <label className="font-bold text-sm text-foreground block mb-2">{t.checkout.order_type}</label>
                 <div className="grid grid-cols-3 gap-2">
                   {orderTypes.map(({ type, label, icon: Icon }) => (
                     <button
@@ -95,7 +97,7 @@ const CheckoutSheet = () => {
                   <input
                     value={customerDetails.name}
                     onChange={(e) => { setCustomerDetails({ name: e.target.value }); setErrors((p) => ({ ...p, name: false })); }}
-                    placeholder="Your name"
+                    placeholder={t.checkout.name_placeholder}
                     className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
                   />
                 </div>
@@ -104,7 +106,7 @@ const CheckoutSheet = () => {
                   <input
                     value={customerDetails.phone}
                     onChange={(e) => { setCustomerDetails({ phone: e.target.value }); setErrors((p) => ({ ...p, phone: false })); }}
-                    placeholder="Phone number"
+                    placeholder={t.checkout.phone_placeholder}
                     type="tel"
                     className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
                   />
@@ -115,7 +117,7 @@ const CheckoutSheet = () => {
                     <input
                       value={customerDetails.address}
                       onChange={(e) => { setCustomerDetails({ address: e.target.value }); setErrors((p) => ({ ...p, address: false })); }}
-                      placeholder="Delivery address"
+                      placeholder={t.checkout.address_placeholder}
                       className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
                     />
                   </div>
@@ -125,7 +127,7 @@ const CheckoutSheet = () => {
                   <textarea
                     value={customerDetails.notes}
                     onChange={(e) => setCustomerDetails({ notes: e.target.value })}
-                    placeholder="Additional notes (optional)"
+                    placeholder={t.checkout.notes_placeholder}
                     className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none resize-none h-16"
                   />
                 </div>
@@ -134,17 +136,17 @@ const CheckoutSheet = () => {
               {/* Summary */}
               <div className="mt-5 space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Subtotal</span>
+                  <span className="text-muted-foreground">{t.cart.subtotal}</span>
                   <span className="text-foreground font-semibold">₪{subtotal}</span>
                 </div>
                 {showDelivery && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Delivery Fee</span>
+                    <span className="text-muted-foreground">{t.checkout.delivery_fee}</span>
                     <span className="text-foreground font-semibold">₪{deliveryFee}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-base border-t border-border pt-2">
-                  <span className="font-bold text-foreground">Total</span>
+                  <span className="font-bold text-foreground">{t.checkout.total}</span>
                   <span className="font-display text-primary text-lg">₪{total}</span>
                 </div>
               </div>
@@ -156,7 +158,7 @@ const CheckoutSheet = () => {
                 onClick={handleSend}
                 className="w-full h-14 rounded-full bg-[#25D366] text-primary-foreground font-bold text-sm active:scale-95 transition-transform flex items-center justify-center gap-2"
               >
-                Send Order to WhatsApp — ₪{total}
+                {t.checkout.send_whatsapp} — ₪{total}
               </button>
             </div>
           </motion.div>
