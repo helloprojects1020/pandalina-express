@@ -22,41 +22,10 @@ const CategoryPage = () => {
   const { t } = useI18n();
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [noodleOpen, setNoodleOpen] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const heroRef = useRef<HTMLDivElement>(null);
-  const [videoReady, setVideoReady] = useState(false);
-  const [videoError, setVideoError] = useState(false);
-  const [shouldLoadVideo, setShouldLoadVideo] = useState(false);
 
   const category = categories.find((c) => c.slug === slug);
 
   const videoSrc = category ? categoryVideos[category.id] : undefined;
-
-  // Lazy load video using IntersectionObserver
-  useEffect(() => {
-    const el = heroRef.current;
-    if (!el || !videoSrc) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setShouldLoadVideo(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [videoSrc]);
-
-  // Play video once loaded
-  useEffect(() => {
-    const v = videoRef.current;
-    if (v && shouldLoadVideo) {
-      v.play().catch(() => setVideoError(true));
-    }
-  }, [shouldLoadVideo, videoReady]);
 
   if (!category) {
     return (
