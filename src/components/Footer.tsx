@@ -68,7 +68,7 @@ const Footer = () => {
 
           <div>
             <h4 className="font-bold text-sm mb-2">{t.footer.contact}</h4>
-            <p className="text-sm text-accent-foreground/60">📞 050-300-9005</p>
+            <p className="text-sm text-accent-foreground/60">📞 052-620-4159</p>
             <p className="text-sm text-accent-foreground/60">📍 {t.footer.address}</p>
           </div>
 
