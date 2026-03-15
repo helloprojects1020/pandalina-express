@@ -7,8 +7,11 @@ interface CartStore {
   deliveryFee: number;
   isCartOpen: boolean;
   isCheckoutOpen: boolean;
+  prepTime: string;
+  editingCartItemId: string | null;
 
   addItem: (menuItem: MenuItem, quantity: number, selectedOptions: CartItemOption[], notes: string) => void;
+  updateItem: (cartItemId: string, quantity: number, selectedOptions: CartItemOption[], notes: string) => void;
   removeItem: (cartItemId: string) => void;
   updateQuantity: (cartItemId: string, quantity: number) => void;
   updateNotes: (cartItemId: string, notes: string) => void;
@@ -17,6 +20,8 @@ interface CartStore {
   setCheckoutOpen: (open: boolean) => void;
   setCustomerDetails: (details: Partial<CustomerDetails>) => void;
   setOrderType: (type: OrderType) => void;
+  setPrepTime: (time: string) => void;
+  setEditingCartItemId: (id: string | null) => void;
 
   getSubtotal: () => number;
   getTotal: () => number;
@@ -45,12 +50,31 @@ export const useCartStore = create<CartStore>((set, get) => ({
   deliveryFee: 10,
   isCartOpen: false,
   isCheckoutOpen: false,
+  prepTime: '',
+  editingCartItemId: null,
 
   addItem: (menuItem, quantity, selectedOptions, notes) => {
     const id = `cart-${++idCounter}-${Date.now()}`;
     const lineTotal = calculateLineTotal(menuItem, quantity, selectedOptions);
     set((state) => ({
       items: [...state.items, { id, menuItem, quantity, selectedOptions, notes, lineTotal }],
+    }));
+  },
+
+  updateItem: (cartItemId, quantity, selectedOptions, notes) => {
+    set((state) => ({
+      items: state.items.map((item) =>
+        item.id === cartItemId
+          ? {
+              ...item,
+              quantity,
+              selectedOptions,
+              notes,
+              lineTotal: calculateLineTotal(item.menuItem, quantity, selectedOptions),
+            }
+          : item
+      ),
+      editingCartItemId: null,
     }));
   },
 
@@ -80,6 +104,8 @@ export const useCartStore = create<CartStore>((set, get) => ({
 
   setCartOpen: (open) => set({ isCartOpen: open }),
   setCheckoutOpen: (open) => set({ isCheckoutOpen: open }),
+  setPrepTime: (time) => set({ prepTime: time }),
+  setEditingCartItemId: (id) => set({ editingCartItemId: id }),
 
   setCustomerDetails: (details) =>
     set((state) => ({ customerDetails: { ...state.customerDetails, ...details } })),

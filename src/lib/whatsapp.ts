@@ -3,13 +3,20 @@ import type { Translations } from '@/i18n/locales/en';
 
 const PHONE = '972526204159';
 
+const PREP_LABELS: Record<string, string> = {
+  now: 'התחילו להכין',
+  '20min': 'מוכן בעוד 20 דקות',
+  '30min': 'מוכן בעוד 30 דקות',
+};
+
 export const generateWhatsAppLink = (
   items: CartItem[],
   customer: CustomerDetails,
   subtotal: number,
   deliveryFee: number,
   total: number,
-  t: Translations
+  t: Translations,
+  prepTime?: string
 ): string => {
   const orderTypeLabel = {
     pickup: t.wa.pickup,
@@ -38,6 +45,10 @@ export const generateWhatsAppLink = (
 
   if (customer.orderType === 'delivery' && customer.address) {
     lines.push(`*${t.wa.address}:* ${customer.address}`);
+  }
+
+  if (prepTime && PREP_LABELS[prepTime]) {
+    lines.push(`*זמן הכנה:* ${PREP_LABELS[prepTime]}`);
   }
 
   lines.push('', `*${t.wa.items}:*`, itemLines, '');

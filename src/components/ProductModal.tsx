@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Minus, Plus } from 'lucide-react';
 import type { MenuItem, CartItemOption, OptionChoice } from '@/types/menu';
@@ -17,6 +17,22 @@ const ProductModal = ({ item, onClose }: ProductModalProps) => {
   const [selectedOptions, setSelectedOptions] = useState<CartItemOption[]>([]);
   const [notes, setNotes] = useState('');
   const addItem = useCartStore((s) => s.addItem);
+  const updateItem = useCartStore((s) => s.updateItem);
+  const editingCartItemId = useCartStore((s) => s.editingCartItemId);
+  const items = useCartStore((s) => s.items);
+  const setEditingCartItemId = useCartStore((s) => s.setEditingCartItemId);
+
+  const isEditing = !!editingCartItemId;
+  const editingCartItem = isEditing ? items.find((i) => i.id === editingCartItemId) : null;
+
+  // Load editing item values when editing starts
+  useEffect(() => {
+    if (editingCartItem) {
+      setQuantity(editingCartItem.quantity);
+      setSelectedOptions(editingCartItem.selectedOptions);
+      setNotes(editingCartItem.notes);
+    }
+  }, [editingCartItem]);
 
   const toggleChoice = (groupId: string, groupTitle: string, type: string, choice: OptionChoice) => {
     setSelectedOptions((prev) => {
@@ -53,13 +69,22 @@ const ProductModal = ({ item, onClose }: ProductModalProps) => {
   const price = item?.price ?? 0;
   const lineTotal = (price + optionsTotal) * quantity;
 
-  const handleAdd = () => {
-    if (!item) return;
-    addItem(item, quantity, selectedOptions, notes);
+  const handleClose = () => {
+    setEditingCartItemId(null);
     onClose();
     setQuantity(1);
     setSelectedOptions([]);
     setNotes('');
+  };
+
+  const handleSave = () => {
+    if (!item) return;
+    if (isEditing && editingCartItemId) {
+      updateItem(editingCartItemId, quantity, selectedOptions, notes);
+    } else {
+      addItem(item, quantity, selectedOptions, notes);
+    }
+    handleClose();
   };
 
   return (
@@ -72,7 +97,7 @@ const ProductModal = ({ item, onClose }: ProductModalProps) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 bg-foreground/40 backdrop-blur-sm"
-            onClick={onClose}
+            onClick={handleClose}
           />
           <motion.div
             key="product-modal"
@@ -86,7 +111,7 @@ const ProductModal = ({ item, onClose }: ProductModalProps) => {
             <div className="relative aspect-[16/10] overflow-hidden rounded-t-3xl flex-shrink-0">
               <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
               <button
-                onClick={onClose}
+                onClick={handleClose}
                 className="absolute top-4 end-4 h-9 w-9 rounded-full bg-card/80 backdrop-blur flex items-center justify-center active:scale-95"
               >
                 <X className="w-5 h-5 text-foreground" />
@@ -136,8 +161,8 @@ const ProductModal = ({ item, onClose }: ProductModalProps) => {
                 />
               </div>
 
-              {/* Recommendations */}
-              <Recommendations excludeIds={[item.id]} variant="modal" />
+              {/* Recommendations - only when adding new, not editing */}
+              {!isEditing && <Recommendations excludeIds={[item.id]} variant="modal" />}
             </div>
 
             {/* Sticky footer */}
@@ -159,10 +184,10 @@ const ProductModal = ({ item, onClose }: ProductModalProps) => {
                   </button>
                 </div>
                 <button
-                  onClick={handleAdd}
+                  onClick={handleSave}
                   className="flex-1 h-12 rounded-full bg-primary text-primary-foreground font-bold text-sm active:scale-95 transition-transform"
                 >
-                  {t.product.add_to_cart} — ₪{lineTotal}
+                  {isEditing ? `${t.product.add_to_cart.replace(t.product.add_to_cart, '✓ עדכון')}` : t.product.add_to_cart} — ₪{lineTotal}
                 </button>
               </div>
             </div>
