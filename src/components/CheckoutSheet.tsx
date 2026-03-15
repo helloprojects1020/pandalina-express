@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import type { ElementType, KeyboardEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, MapPin, User, Phone, MessageSquare, Truck, Store, UtensilsCrossed, Clock } from 'lucide-react';
 import { useCartStore } from '@/store/cartStore';
@@ -12,23 +13,80 @@ const PREP_OPTIONS = [
   { id: '30min', label: 'מוכן בעוד 30 דקות' },
 ];
 
+type FocusableField = HTMLInputElement | HTMLTextAreaElement;
+
 const CheckoutSheet = () => {
   const { t } = useI18n();
   const {
     items, isCheckoutOpen, setCheckoutOpen, customerDetails, setCustomerDetails,
     setOrderType, getSubtotal, getTotal, deliveryFee, prepTime, setPrepTime,
   } = useCartStore();
+
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [viewportHeight, setViewportHeight] = useState<number | null>(null);
+
+  const nameInputRef = useRef<HTMLInputElement>(null);
+  const phoneInputRef = useRef<HTMLInputElement>(null);
+  const addressInputRef = useRef<HTMLInputElement>(null);
+  const notesInputRef = useRef<HTMLTextAreaElement>(null);
 
   const subtotal = getSubtotal();
   const total = getTotal();
   const showDelivery = customerDetails.orderType === 'delivery';
 
-  const orderTypes: { type: OrderType; label: string; icon: React.ElementType }[] = [
+  const orderTypes: { type: OrderType; label: string; icon: ElementType }[] = [
     { type: 'pickup', label: t.checkout.pickup, icon: Store },
     { type: 'delivery', label: t.checkout.delivery, icon: Truck },
     { type: 'eat-in', label: t.checkout.eat_in, icon: UtensilsCrossed },
   ];
+
+  useEffect(() => {
+    if (!isCheckoutOpen) return;
+
+    const updateViewportHeight = () => {
+      const nextHeight = Math.floor(window.visualViewport?.height ?? window.innerHeight);
+      setViewportHeight(nextHeight);
+    };
+
+    updateViewportHeight();
+
+    const visualViewport = window.visualViewport;
+    window.addEventListener('resize', updateViewportHeight);
+    window.addEventListener('orientationchange', updateViewportHeight);
+    visualViewport?.addEventListener('resize', updateViewportHeight);
+    visualViewport?.addEventListener('scroll', updateViewportHeight);
+
+    const originalBodyOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      window.removeEventListener('resize', updateViewportHeight);
+      window.removeEventListener('orientationchange', updateViewportHeight);
+      visualViewport?.removeEventListener('resize', updateViewportHeight);
+      visualViewport?.removeEventListener('scroll', updateViewportHeight);
+      document.body.style.overflow = originalBodyOverflow;
+      setViewportHeight(null);
+    };
+  }, [isCheckoutOpen]);
+
+  const keepFieldVisible = (element: FocusableField | null) => {
+    if (!element) return;
+    window.setTimeout(() => {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+    }, 120);
+  };
+
+  const focusField = (element: FocusableField | null) => {
+    if (!element) return;
+    element.focus();
+    keepFieldVisible(element);
+  };
+
+  const handleNextField = (event: KeyboardEvent<HTMLInputElement>, nextField: FocusableField | null) => {
+    if (event.key !== 'Enter') return;
+    event.preventDefault();
+    focusField(nextField);
+  };
 
   const handlePhoneChange = (value: string) => {
     const cleaned = value.replace(/[^0-9+\-\s]/g, '');
@@ -85,16 +143,18 @@ const CheckoutSheet = () => {
             className="fixed inset-0 z-50 bg-foreground/40 backdrop-blur-sm"
             onClick={() => setCheckoutOpen(false)}
           />
+
           <motion.div
             key="checkout-sheet"
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', stiffness: 400, damping: 35 }}
-            className="fixed bottom-0 left-0 right-0 z-50 bg-card rounded-t-3xl max-h-[85dvh] max-h-[85vh] flex flex-col md:max-w-lg md:mx-auto overflow-hidden"
+            style={viewportHeight ? { height: `${viewportHeight}px`, maxHeight: `${viewportHeight}px` } : undefined}
+            className="fixed inset-x-0 bottom-0 z-50 w-full max-w-full rounded-t-3xl bg-card flex flex-col overflow-hidden overflow-x-hidden md:left-1/2 md:max-w-lg md:-translate-x-1/2"
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-5 pt-5 pb-3 flex-shrink-0">
+            <div className="flex flex-shrink-0 items-center justify-between px-5 pt-5 pb-3">
               <h2 className="font-display text-lg text-foreground">{t.checkout.title}</h2>
               <button onClick={() => setCheckoutOpen(false)} className="h-9 w-9 rounded-full bg-secondary flex items-center justify-center active:scale-95">
                 <X className="w-5 h-5" />
@@ -102,7 +162,7 @@ const CheckoutSheet = () => {
             </div>
 
             {/* Content */}
-            <div className="flex-1 overflow-y-auto px-5 pb-4 min-w-0">
+            <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain px-5 pb-4 [-webkit-overflow-scrolling:touch]">
               {/* Order Type */}
               <div className="mb-5">
                 <label className="font-bold text-sm text-foreground block mb-2">{t.checkout.order_type}</label>
@@ -154,11 +214,17 @@ const CheckoutSheet = () => {
                   <div className={`flex items-center gap-3 h-12 px-4 rounded-xl bg-secondary min-w-0 ${errors.name ? 'ring-2 ring-destructive' : ''}`}>
                     <User className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                     <input
+                      ref={nameInputRef}
                       value={customerDetails.name}
                       onChange={(e) => handleNameChange(e.target.value)}
+                      onFocus={(e) => keepFieldVisible(e.currentTarget)}
+                      onKeyDown={(e) => handleNextField(e, phoneInputRef.current)}
                       placeholder={t.checkout.name_placeholder}
                       maxLength={100}
                       autoComplete="name"
+                      type="text"
+                      inputMode="text"
+                      enterKeyHint="next"
                       className="flex-1 min-w-0 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
                     />
                   </div>
@@ -170,11 +236,15 @@ const CheckoutSheet = () => {
                   <div className={`flex items-center gap-3 h-12 px-4 rounded-xl bg-secondary min-w-0 ${errors.phone ? 'ring-2 ring-destructive' : ''}`}>
                     <Phone className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                     <input
+                      ref={phoneInputRef}
                       value={customerDetails.phone}
                       onChange={(e) => handlePhoneChange(e.target.value)}
+                      onFocus={(e) => keepFieldVisible(e.currentTarget)}
+                      onKeyDown={(e) => handleNextField(e, showDelivery ? addressInputRef.current : notesInputRef.current)}
                       placeholder={t.checkout.phone_placeholder}
                       type="tel"
                       inputMode="tel"
+                      enterKeyHint="next"
                       maxLength={20}
                       autoComplete="tel"
                       className="flex-1 min-w-0 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
@@ -189,11 +259,20 @@ const CheckoutSheet = () => {
                     <div className={`flex items-center gap-3 h-12 px-4 rounded-xl bg-secondary min-w-0 ${errors.address ? 'ring-2 ring-destructive' : ''}`}>
                       <MapPin className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                       <input
+                        ref={addressInputRef}
                         value={customerDetails.address}
-                        onChange={(e) => { setCustomerDetails({ address: e.target.value }); setErrors((p) => ({ ...p, address: '' })); }}
+                        onChange={(e) => {
+                          setCustomerDetails({ address: e.target.value });
+                          setErrors((p) => ({ ...p, address: '' }));
+                        }}
+                        onFocus={(e) => keepFieldVisible(e.currentTarget)}
+                        onKeyDown={(e) => handleNextField(e, notesInputRef.current)}
                         placeholder={t.checkout.address_placeholder}
                         maxLength={200}
                         autoComplete="street-address"
+                        type="text"
+                        inputMode="text"
+                        enterKeyHint="next"
                         className="flex-1 min-w-0 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
                       />
                     </div>
@@ -205,10 +284,13 @@ const CheckoutSheet = () => {
                 <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-secondary min-w-0">
                   <MessageSquare className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5" />
                   <textarea
+                    ref={notesInputRef}
                     value={customerDetails.notes}
                     onChange={(e) => setCustomerDetails({ notes: e.target.value })}
+                    onFocus={(e) => keepFieldVisible(e.currentTarget)}
                     placeholder={t.checkout.notes_placeholder}
                     maxLength={500}
+                    enterKeyHint="done"
                     className="flex-1 min-w-0 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none resize-none h-16"
                   />
                 </div>
