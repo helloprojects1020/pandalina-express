@@ -38,10 +38,6 @@ const Hero = () => {
 
   return (
     <section className="relative min-h-[85vh] md:min-h-[90vh] flex items-end overflow-hidden">
-      {/* Language switcher */}
-      <div className="absolute top-4 end-4 z-20">
-        <LanguageSwitcher />
-      </div>
 
       {/* Slides */}
       {slides.map((s, i) => (
