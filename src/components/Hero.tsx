@@ -6,9 +6,9 @@ import kitchen1 from '@/assets/kitchen-1.jpg';
 import logoImg from '@/assets/logo.png';
 
 const HERO_VIDEO_SD =
-  'https://videos.pexels.com/video-files/5034974/5034974-sd_640_360_24fps.mp4';
+  'https://videos.pexels.com/video-files/2491284/2491284-sd_640_360_24fps.mp4';
 const HERO_VIDEO_HD =
-  'https://videos.pexels.com/video-files/5034974/5034974-hd_1920_1080_24fps.mp4';
+  'https://videos.pexels.com/video-files/2491284/2491284-hd_1920_1080_24fps.mp4';
 
 interface Slide {
   type: 'image' | 'video';
