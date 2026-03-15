@@ -162,7 +162,7 @@ const Hero = () => {
               {t.hero.cta_menu}
             </button>
             <a
-              href="https://wa.me/972503009005"
+              href="https://wa.me/972526204159"
               target="_blank"
               rel="noopener noreferrer"
               className="h-14 px-8 rounded-full bg-[#25D366] text-white font-bold text-sm tracking-wide flex items-center gap-2 active:scale-95 transition-transform animate-[pulse_3s_ease-in-out_infinite]"

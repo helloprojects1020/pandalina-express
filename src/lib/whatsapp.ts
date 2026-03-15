@@ -1,7 +1,7 @@
 import type { CartItem, CustomerDetails } from '@/types/menu';
 import type { Translations } from '@/i18n/locales/en';
 
-const PHONE = '972503009005';
+const PHONE = '972526204159';
 
 export const generateWhatsAppLink = (
   items: CartItem[],

@@ -13,7 +13,7 @@ const WhatsAppCTA = () => {
           {t.cta.desc}
         </p>
         <a
-          href="https://wa.me/972503009005"
+          href="https://wa.me/972526204159"
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex h-14 px-8 rounded-full bg-[#25D366] text-primary-foreground font-bold text-sm items-center gap-2 active:scale-95 transition-transform"

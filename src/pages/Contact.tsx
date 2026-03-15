@@ -29,7 +29,7 @@ const Contact = () => {
               </div>
               <div>
                 <h3 className="font-bold text-sm text-foreground mb-1">{t.contact.phone_title}</h3>
-                <a href="tel:+972503009005" className="text-sm text-muted-foreground hover:text-primary transition-colors">050-300-9005</a>
+                <a href="tel:+972526204159" className="text-sm text-muted-foreground hover:text-primary transition-colors">052-620-4159</a>
               </div>
             </div>
 
