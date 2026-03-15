@@ -5,11 +5,8 @@ import heroImg from '@/assets/hero-sushi.jpg';
 import kitchen1 from '@/assets/kitchen-1.jpg';
 import logoImg from '@/assets/logo.png';
 
-/* Wok cooking with flames – Pexels free video */
-const WOK_VIDEO_SD =
-  'https://videos.pexels.com/video-files/3298572/3298572-sd_640_360_25fps.mp4';
-const WOK_VIDEO_HD =
-  'https://videos.pexels.com/video-files/3298572/3298572-hd_1920_1080_25fps.mp4';
+/* Wok cooking video – locally hosted for reliability */
+const WOK_VIDEO = '/videos/wok-cooking.mp4';
 
 const WhatsAppSmallIcon = () => (
   <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0">
