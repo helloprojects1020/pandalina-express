@@ -3,6 +3,13 @@ const en = {
   lang: 'en',
   label: 'EN',
 
+  // Header
+  header: {
+    menu: 'Menu',
+    about: 'About',
+    contact: 'Contact',
+  },
+
   // Hero
   hero: {
     title: 'Pandalina',
@@ -133,6 +140,34 @@ const en = {
     pickup: 'Pickup',
     delivery: 'Delivery',
     eat_in: 'Eat In',
+  },
+
+  // About page
+  about: {
+    title: 'Our Story',
+    p1: 'Pandalina was born from a passion for authentic Asian street food and the art of sushi. We bring the vibrant energy of Asian night markets to your neighborhood.',
+    p2: 'Every roll is handcrafted with the freshest ingredients, every noodle bowl is made to order, and every dish is prepared with love and precision.',
+    p3: 'From our signature sushi platters to our build-your-own noodle bowls, we offer an experience that is bold, fresh, and unforgettable.',
+    values_title: 'What We Stand For',
+    val1_title: 'Quality First',
+    val1_desc: 'Premium fish and produce sourced daily from trusted suppliers.',
+    val2_title: 'Speed & Freshness',
+    val2_desc: 'Every order is made fresh. Fast takeaway without compromising quality.',
+    val3_title: 'Asian Street Culture',
+    val3_desc: 'We bring the energy, flavors, and spirit of Asian street food to every plate.',
+  },
+
+  // Contact page
+  contact: {
+    title: 'Get in Touch',
+    name_label: 'Name',
+    email_label: 'Email',
+    message_label: 'Message',
+    send: 'Send Message',
+    phone_title: 'Phone / WhatsApp',
+    location_title: 'Location',
+    location_desc: 'Address coming soon',
+    hours_title: 'Opening Hours',
   },
 };
 
