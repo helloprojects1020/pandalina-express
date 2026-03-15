@@ -29,18 +29,14 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
 
 const WazeIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 580 580" className={className}>
-    {/* Main body - white with dark outline */}
     <path
       d="M289 30C152 30 47 135 47 262c0 55 20 106 53 146-7 34-25 64-50 87a14 14 0 0 0 10 24c45 0 87-17 120-44 27 9 56 13 85 13h2c137 0 266-105 266-226C533 135 426 30 289 30z"
       fill="#FFFFFF"
       stroke="#30353A"
       strokeWidth="18"
     />
-    {/* Left eye */}
     <circle cx="220" cy="240" r="32" fill="#30353A" />
-    {/* Right eye */}
     <circle cx="360" cy="240" r="32" fill="#30353A" />
-    {/* Smile */}
     <path
       d="M210 340c0 0 35 55 80 55s80-55 80-55"
       fill="none"
@@ -55,33 +51,34 @@ const Footer = () => {
   const { t } = useI18n();
 
   return (
-    <footer className="bg-accent text-accent-foreground py-10 px-4">
+    <footer className="bg-accent text-accent-foreground py-8 px-4">
       <div className="max-w-screen-xl mx-auto">
-        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-8">
-          <div className="flex items-center gap-3">
-            <img src={logoImg} alt="Pandalina" className="w-10 h-10 rounded-lg" />
-            <div>
-              <h3 className="font-display text-base">Pandalina</h3>
-              <p className="text-xs text-accent-foreground/50">{t.hero.subtitle}</p>
-            </div>
-          </div>
-
+        {/* Logo + Name */}
+        <div className="flex items-center justify-center gap-3 mb-6">
+          <img src={logoImg} alt="Pandalina" className="w-10 h-10 rounded-lg" />
           <div>
-            <h4 className="font-bold text-sm mb-2">{t.footer.contact}</h4>
-            <p className="text-sm text-accent-foreground/60">📞 052-620-4159</p>
-            <p className="text-sm text-accent-foreground/60">📍 {t.footer.address}</p>
-          </div>
-
-          <div>
-            <h4 className="font-bold text-sm mb-2">{t.footer.hours_title}</h4>
-            <p className="text-sm text-accent-foreground/60">{t.footer.hours_sun_thu}</p>
-            <p className="text-sm text-accent-foreground/60">{t.footer.hours_fri}</p>
-            <p className="text-sm text-accent-foreground/60">{t.footer.hours_sat}</p>
+            <h3 className="font-display text-base">Pandalina</h3>
+            <p className="text-[11px] text-accent-foreground/50">{t.hero.subtitle}</p>
           </div>
         </div>
 
-        {/* Social Icons — brand colors */}
-        <div className="flex justify-center gap-6 mt-8">
+        {/* Contact + Hours — 2-column grid on mobile */}
+        <div className="grid grid-cols-2 gap-4 text-center mb-6">
+          <div>
+            <h4 className="font-bold text-xs mb-1.5">{t.footer.contact}</h4>
+            <p className="text-xs text-accent-foreground/60">📞 052-620-4159</p>
+            <p className="text-xs text-accent-foreground/60 mt-0.5">📍 {t.footer.address}</p>
+          </div>
+          <div>
+            <h4 className="font-bold text-xs mb-1.5">{t.footer.hours_title}</h4>
+            <p className="text-xs text-accent-foreground/60">{t.footer.hours_sun_thu}</p>
+            <p className="text-xs text-accent-foreground/60 mt-0.5">{t.footer.hours_fri}</p>
+            <p className="text-xs text-accent-foreground/60 mt-0.5">{t.footer.hours_sat}</p>
+          </div>
+        </div>
+
+        {/* Social Icons */}
+        <div className="flex justify-center gap-5 mb-6">
           <a
             href="https://www.instagram.com/pandalina_asian_st._bar/"
             target="_blank"
@@ -89,7 +86,7 @@ const Footer = () => {
             className="hover:scale-110 transition-transform duration-200"
             aria-label="Instagram"
           >
-            <InstagramIcon className="w-7 h-7" />
+            <InstagramIcon className="w-6 h-6" />
           </a>
           <a
             href="https://wa.me/972526204159"
@@ -98,19 +95,16 @@ const Footer = () => {
             className="hover:scale-110 transition-transform duration-200"
             aria-label="WhatsApp"
           >
-            <WhatsAppIcon className="w-7 h-7" />
+            <WhatsAppIcon className="w-6 h-6" />
           </a>
-          <span
-            className="opacity-80 cursor-default"
-            aria-label="Waze"
-            title="Waze"
-          >
-            <WazeIcon className="w-7 h-7" />
+          <span className="opacity-80 cursor-default" aria-label="Waze" title="Waze">
+            <WazeIcon className="w-6 h-6" />
           </span>
         </div>
 
-        <div className="border-t border-accent-foreground/10 mt-8 pt-6 text-center space-y-2">
-          <p className="text-xs text-accent-foreground/40">
+        {/* Copyright */}
+        <div className="border-t border-accent-foreground/10 pt-4 text-center space-y-1">
+          <p className="text-[11px] text-accent-foreground/40">
             {t.footer.copyright.replace('{{year}}', String(new Date().getFullYear()))}
           </p>
           <p className="text-[10px] text-accent-foreground/25 tracking-wider uppercase">
