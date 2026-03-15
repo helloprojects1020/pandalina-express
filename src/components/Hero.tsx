@@ -5,29 +5,32 @@ import heroImg from '@/assets/hero-sushi.jpg';
 import kitchen1 from '@/assets/kitchen-1.jpg';
 import logoImg from '@/assets/logo.png';
 
-const HERO_VIDEO_SD =
-  'https://videos.pexels.com/video-files/2491284/2491284-sd_640_360_24fps.mp4';
-const HERO_VIDEO_HD =
-  'https://videos.pexels.com/video-files/2491284/2491284-hd_1920_1080_24fps.mp4';
+/* Wok cooking with flames – Pexels free video */
+const WOK_VIDEO_SD =
+  'https://videos.pexels.com/video-files/3298572/3298572-sd_640_360_25fps.mp4';
+const WOK_VIDEO_HD =
+  'https://videos.pexels.com/video-files/3298572/3298572-hd_1920_1080_25fps.mp4';
 
 interface Slide {
   type: 'image' | 'video';
-  src: string;          // image src or fallback image for video
+  src: string;
   videoSrc?: string;
   titleKey: 'title' | 'slide2_title' | 'slide3_title';
   taglineKey: 'tagline' | 'slide2_tagline' | 'slide3_tagline';
 }
 
+const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+
 const slides: Slide[] = [
   { type: 'image', src: heroImg, titleKey: 'title', taglineKey: 'tagline' },
-  { type: 'image', src: kitchen1, titleKey: 'slide2_title', taglineKey: 'slide2_tagline' },
   {
     type: 'video',
-    src: heroImg, // fallback
-    videoSrc: typeof window !== 'undefined' && window.innerWidth >= 768 ? HERO_VIDEO_HD : HERO_VIDEO_SD,
-    titleKey: 'slide3_title',
-    taglineKey: 'slide3_tagline',
+    src: kitchen1, // fallback image
+    videoSrc: isMobile ? WOK_VIDEO_SD : WOK_VIDEO_HD,
+    titleKey: 'slide2_title',
+    taglineKey: 'slide2_tagline',
   },
+  { type: 'image', src: kitchen1, titleKey: 'slide3_title', taglineKey: 'slide3_tagline' },
 ];
 
 const Hero = () => {
@@ -44,11 +47,11 @@ const Hero = () => {
     return () => clearInterval(timer);
   }, [next]);
 
-  // Play/pause video when its slide is active
+  // Play/pause video when slide 2 is active
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
-    if (current === 2) {
+    if (current === 1) {
       v.play().catch(() => setVideoError(true));
     } else {
       v.pause();
@@ -63,7 +66,7 @@ const Hero = () => {
 
   return (
     <section className="relative min-h-[85vh] md:min-h-[90vh] flex items-end overflow-hidden">
-      {/* Image slides */}
+      {/* Slides */}
       {slides.map((s, i) => {
         if (s.type === 'image') {
           return (
@@ -75,13 +78,12 @@ const Hero = () => {
             </div>
           );
         }
-        // Video slide (slide 3)
+        // Video slide
         return (
           <div
             key={i}
             className={`absolute inset-0 transition-opacity duration-700 ${i === current ? 'opacity-100' : 'opacity-0'}`}
           >
-            {/* Fallback image behind video */}
             <img src={s.src} alt="" className="absolute inset-0 w-full h-full object-cover" />
             {!videoError && (
               <video
@@ -90,7 +92,7 @@ const Hero = () => {
                 muted
                 loop
                 playsInline
-                preload="auto"
+                preload="metadata"
                 onCanPlayThrough={() => setVideoReady(true)}
                 onError={() => setVideoError(true)}
                 className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${videoReady ? 'opacity-100' : 'opacity-0'}`}
