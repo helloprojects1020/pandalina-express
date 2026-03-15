@@ -54,29 +54,17 @@ const CategoryPage = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero banner with video */}
-      <div ref={heroRef} className="relative h-56 md:h-72 overflow-hidden">
-        {/* Fallback image — always visible instantly */}
-        <img
-          src={category.image}
-          alt={categoryLabel}
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-
-        {/* Video — lazy loaded, fades in over fallback */}
-        {shouldLoadVideo && videoSrc && !videoError && (
+      <div className="relative h-56 md:h-72 overflow-hidden bg-black">
+        {/* Category video — immediate, no fallback image */}
+        {videoSrc && (
           <video
-            ref={videoRef}
             src={videoSrc}
             muted
             loop
             playsInline
             autoPlay
-            preload="metadata"
-            onCanPlayThrough={() => setVideoReady(true)}
-            onError={() => setVideoError(true)}
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
-              videoReady ? 'opacity-100' : 'opacity-0'
-            }`}
+            preload="auto"
+            className="absolute inset-0 w-full h-full object-cover"
           />
         )}
 
