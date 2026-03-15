@@ -10,7 +10,7 @@ const CategoryNav = ({ activeCategory, onSelect }: CategoryNavProps) => {
   const { t } = useI18n();
 
   return (
-    <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-md border-b border-border">
+    <div className="sticky top-14 z-30 bg-background/95 backdrop-blur-md border-b border-border">
       <div className="max-w-screen-xl mx-auto">
         <nav className="flex gap-2 px-4 py-3 overflow-x-auto scrollbar-hide">
           {categories.map((cat) => (
