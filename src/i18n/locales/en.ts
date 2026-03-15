@@ -30,6 +30,7 @@ const en = {
     kitchen: 'Kitchen',
     noodles: 'Noodles',
     platters: 'Platters',
+    view_all: 'View All →',
   },
 
   // Menu

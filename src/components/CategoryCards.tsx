@@ -1,12 +1,10 @@
+import { useNavigate } from 'react-router-dom';
 import { categories } from '@/data/menu';
 import { useI18n } from '@/i18n/context';
 
 const CategoryCards = () => {
   const { t } = useI18n();
-
-  const scrollToCategory = (slug: string) => {
-    document.getElementById(`category-${slug}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
+  const navigate = useNavigate();
 
   return (
     <section className="py-10 px-4 max-w-screen-xl mx-auto">
@@ -17,7 +15,7 @@ const CategoryCards = () => {
         {categories.map((cat) => (
           <button
             key={cat.id}
-            onClick={() => scrollToCategory(cat.id)}
+            onClick={() => navigate(`/category/${cat.slug}`)}
             className="group relative aspect-[4/3] rounded-2xl overflow-hidden active:scale-[0.98] transition-transform"
           >
             <img

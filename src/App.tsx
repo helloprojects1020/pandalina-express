@@ -11,6 +11,7 @@ import CheckoutSheet from "@/components/CheckoutSheet";
 import Index from "./pages/Index.tsx";
 import About from "./pages/About.tsx";
 import Contact from "./pages/Contact.tsx";
+import CategoryPage from "./pages/CategoryPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -20,6 +21,7 @@ const AppLayout = () => (
     <SiteHeader />
     <Routes>
       <Route path="/" element={<Index />} />
+      <Route path="/category/:slug" element={<CategoryPage />} />
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="*" element={<NotFound />} />
