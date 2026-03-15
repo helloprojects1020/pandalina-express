@@ -7,7 +7,7 @@ const storage = sessionStorage;
 
 const PasswordGate = ({ children }: { children: React.ReactNode }) => {
   const [authenticated, setAuthenticated] = useState(
-    () => localStorage.getItem(STORAGE_KEY) === 'true'
+    () => storage.getItem(STORAGE_KEY) === 'true'
   );
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
