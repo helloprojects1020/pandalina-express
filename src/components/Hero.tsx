@@ -64,7 +64,15 @@ const Hero = () => {
     const v = videoRef.current;
     if (!v) return;
     if (current === 1) {
-      v.play().catch(() => setVideoError(true));
+      // Reset error state and retry on each visit to slide 2
+      setVideoError(false);
+      v.play().catch(() => {
+        // Try loading and playing again after a brief delay
+        v.load();
+        setTimeout(() => {
+          v.play().catch(() => setVideoError(true));
+        }, 500);
+      });
     } else {
       v.pause();
     }
