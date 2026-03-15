@@ -10,7 +10,7 @@ const Contact = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const body = `Name: ${form.name}\nEmail: ${form.email}\n\n${form.message}`;
-    window.open(`https://wa.me/972503009005?text=${encodeURIComponent(body)}`, '_blank');
+    window.open(`https://wa.me/972526204159?text=${encodeURIComponent(body)}`, '_blank');
   };
 
   return (
