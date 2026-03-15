@@ -1,5 +1,5 @@
 import { useParams, Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { categories, getItemsByCategory } from '@/data/menu';
 import type { MenuItem } from '@/types/menu';
@@ -9,13 +9,47 @@ import ProductModal from '@/components/ProductModal';
 import NoodleBuilder from '@/components/NoodleBuilder';
 import Footer from '@/components/Footer';
 
+/* Category-specific hero videos (Pexels, free to use) */
+const categoryVideos: Record<string, { sd: string; hd: string }> = {
+  'sushi-rolls': {
+    sd: 'https://videos.pexels.com/video-files/855452/855452-sd_640_360_24fps.mp4',
+    hd: 'https://videos.pexels.com/video-files/855452/855452-hd_1920_1080_24fps.mp4',
+  },
+  platters: {
+    sd: 'https://videos.pexels.com/video-files/855452/855452-sd_640_360_24fps.mp4',
+    hd: 'https://videos.pexels.com/video-files/855452/855452-hd_1920_1080_24fps.mp4',
+  },
+  kitchen: {
+    sd: 'https://videos.pexels.com/video-files/3298572/3298572-sd_640_360_25fps.mp4',
+    hd: 'https://videos.pexels.com/video-files/3298572/3298572-hd_1920_1080_25fps.mp4',
+  },
+  noodles: {
+    sd: 'https://videos.pexels.com/video-files/5337023/5337023-sd_640_360_30fps.mp4',
+    hd: 'https://videos.pexels.com/video-files/5337023/5337023-hd_1920_1080_30fps.mp4',
+  },
+};
+
 const CategoryPage = () => {
   const { slug } = useParams<{ slug: string }>();
   const { t } = useI18n();
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [noodleOpen, setNoodleOpen] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [videoReady, setVideoReady] = useState(false);
+  const [videoError, setVideoError] = useState(false);
 
   const category = categories.find((c) => c.slug === slug);
+
+  const video = category ? categoryVideos[category.id] : undefined;
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const videoSrc = video ? (isMobile ? video.sd : video.hd) : undefined;
+
+  useEffect(() => {
+    const v = videoRef.current;
+    if (v && videoSrc) {
+      v.play().catch(() => setVideoError(true));
+    }
+  }, [videoSrc]);
 
   if (!category) {
     return (
@@ -43,13 +77,33 @@ const CategoryPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero banner */}
-      <div className="relative h-48 md:h-64 overflow-hidden">
+      {/* Hero banner with video */}
+      <div className="relative h-56 md:h-72 overflow-hidden">
+        {/* Fallback image */}
         <img
           src={category.image}
           alt={categoryLabel}
-          className="w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover"
         />
+
+        {/* Video overlay */}
+        {videoSrc && !videoError && (
+          <video
+            ref={videoRef}
+            src={videoSrc}
+            muted
+            loop
+            playsInline
+            autoPlay
+            preload="metadata"
+            onCanPlayThrough={() => setVideoReady(true)}
+            onError={() => setVideoError(true)}
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
+              videoReady ? 'opacity-100' : 'opacity-0'
+            }`}
+          />
+        )}
+
         <div className="absolute inset-0 bg-gradient-to-t from-accent via-accent/60 to-transparent" />
         <div className="absolute bottom-0 start-0 end-0 p-4 md:p-8 max-w-screen-xl mx-auto">
           <Link
