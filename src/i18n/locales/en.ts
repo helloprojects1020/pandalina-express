@@ -114,10 +114,17 @@ const en = {
     button: 'Order on WhatsApp',
   },
 
+  // Chef
+  chef: {
+    title: 'Meet Our Chef',
+    name: 'Chef Fouzy Khoury',
+    bio: 'Chef Fouzy Khoury brings years of culinary experience and a passion for high-quality ingredients. With dedication to flavor, precision, and creativity, he leads the kitchen with a strong commitment to quality and memorable dining experiences.',
+  },
+
   // Footer
   footer: {
     contact: 'Contact',
-    address: 'Address coming soon',
+    address: 'Kfar Yassif',
     hours_title: 'Opening Hours',
     hours_sun_thu: 'Sun–Thu: 11:00–23:00',
     hours_fri: 'Fri: 11:00–15:00',
