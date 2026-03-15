@@ -85,7 +85,7 @@ const Hero = () => {
   const slide = slides[current];
 
   return (
-    <section className="relative min-h-[85vh] md:min-h-[90vh] flex items-end overflow-hidden">
+    <section className="relative h-[100dvh] md:min-h-[90vh] md:h-auto flex items-end overflow-hidden">
       {/* Slides */}
       {slides.map((s, i) => {
         if (s.type === 'image') {
