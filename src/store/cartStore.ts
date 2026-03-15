@@ -104,6 +104,8 @@ export const useCartStore = create<CartStore>((set, get) => ({
 
   setCartOpen: (open) => set({ isCartOpen: open }),
   setCheckoutOpen: (open) => set({ isCheckoutOpen: open }),
+  setPrepTime: (time) => set({ prepTime: time }),
+  setEditingCartItemId: (id) => set({ editingCartItemId: id }),
 
   setCustomerDetails: (details) =>
     set((state) => ({ customerDetails: { ...state.customerDetails, ...details } })),
