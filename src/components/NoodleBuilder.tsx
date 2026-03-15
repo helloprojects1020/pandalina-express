@@ -4,6 +4,7 @@ import { X, ChevronRight, ChevronLeft } from 'lucide-react';
 import { noodleBases, noodleToppings, noodleSauces } from '@/data/menu';
 import type { OptionChoice, NoodleConfig } from '@/types/menu';
 import { useCartStore } from '@/store/cartStore';
+import { useI18n } from '@/i18n/context';
 import noodlesImg from '@/assets/noodles.jpg';
 
 interface NoodleBuilderProps {
@@ -11,49 +12,47 @@ interface NoodleBuilderProps {
   onClose: () => void;
 }
 
-const STEPS = ['Base', 'Toppings', 'Sauce'] as const;
-
 const NoodleBuilder = ({ open, onClose }: NoodleBuilderProps) => {
+  const { t, isRTL } = useI18n();
   const [step, setStep] = useState(0);
   const [config, setConfig] = useState<NoodleConfig>({ base: null, toppings: [], sauce: null });
   const addItem = useCartStore((s) => s.addItem);
+
+  const STEPS = [t.noodle.base, t.noodle.toppings, t.noodle.sauce];
 
   const reset = () => {
     setStep(0);
     setConfig({ base: null, toppings: [], sauce: null });
   };
 
-  const handleClose = () => {
-    reset();
-    onClose();
-  };
+  const handleClose = () => { reset(); onClose(); };
 
   const toggleTopping = (topping: OptionChoice) => {
     setConfig((prev) => ({
       ...prev,
-      toppings: prev.toppings.find((t) => t.id === topping.id)
-        ? prev.toppings.filter((t) => t.id !== topping.id)
+      toppings: prev.toppings.find((tp) => tp.id === topping.id)
+        ? prev.toppings.filter((tp) => tp.id !== topping.id)
         : [...prev.toppings, topping],
     }));
   };
 
   const basePrice = 38;
-  const toppingsPrice = config.toppings.reduce((s, t) => s + t.priceModifier, 0);
+  const toppingsPrice = config.toppings.reduce((s, tp) => s + tp.priceModifier, 0);
   const total = basePrice + toppingsPrice;
 
   const canNext = step === 0 ? !!config.base : step === 1 ? true : !!config.sauce;
 
   const handleAdd = () => {
     const options = [
-      { groupId: 'base', groupTitle: 'Base', selectedChoices: config.base ? [config.base] : [] },
-      { groupId: 'toppings', groupTitle: 'Toppings', selectedChoices: config.toppings },
-      { groupId: 'sauce', groupTitle: 'Sauce', selectedChoices: config.sauce ? [config.sauce] : [] },
+      { groupId: 'base', groupTitle: t.noodle.base, selectedChoices: config.base ? [config.base] : [] },
+      { groupId: 'toppings', groupTitle: t.noodle.toppings, selectedChoices: config.toppings },
+      { groupId: 'sauce', groupTitle: t.noodle.sauce, selectedChoices: config.sauce ? [config.sauce] : [] },
     ].filter((o) => o.selectedChoices.length > 0);
 
     addItem(
       {
         id: 'noodle-bowl',
-        name: 'Custom Noodle Bowl',
+        name: t.noodle.custom_name,
         slug: 'custom-noodle-bowl',
         categoryId: 'noodles',
         description: `${config.base?.name || ''} with ${config.sauce?.name || ''} sauce`,
@@ -72,6 +71,9 @@ const NoodleBuilder = ({ open, onClose }: NoodleBuilderProps) => {
     );
     handleClose();
   };
+
+  const BackIcon = isRTL ? ChevronRight : ChevronLeft;
+  const NextIcon = isRTL ? ChevronLeft : ChevronRight;
 
   return (
     <AnimatePresence>
@@ -96,9 +98,9 @@ const NoodleBuilder = ({ open, onClose }: NoodleBuilderProps) => {
             {/* Header */}
             <div className="flex items-center justify-between px-5 pt-5 pb-3 flex-shrink-0">
               <div>
-                <h2 className="font-display text-lg tracking-tight text-foreground">Build Your Bowl</h2>
+                <h2 className="font-display text-lg tracking-tight text-foreground">{t.noodle.title}</h2>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Step {step + 1} of 3 — {STEPS[step]}
+                  {t.noodle.step_of.replace('{{current}}', String(step + 1)).replace('{{total}}', '3')} — {STEPS[step]}
                 </p>
               </div>
               <button onClick={handleClose} className="h-9 w-9 rounded-full bg-secondary flex items-center justify-center active:scale-95">
@@ -109,10 +111,7 @@ const NoodleBuilder = ({ open, onClose }: NoodleBuilderProps) => {
             {/* Progress */}
             <div className="flex gap-1 px-5 mb-4 flex-shrink-0">
               {STEPS.map((_, i) => (
-                <div
-                  key={i}
-                  className={`h-1 flex-1 rounded-full transition-colors ${i <= step ? 'bg-primary' : 'bg-secondary'}`}
-                />
+                <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${i <= step ? 'bg-primary' : 'bg-secondary'}`} />
               ))}
             </div>
 
@@ -124,10 +123,8 @@ const NoodleBuilder = ({ open, onClose }: NoodleBuilderProps) => {
                     <button
                       key={base.id}
                       onClick={() => setConfig((p) => ({ ...p, base }))}
-                      className={`h-14 px-5 rounded-2xl text-left font-semibold text-sm flex items-center transition-all active:scale-[0.98] ${
-                        config.base?.id === base.id
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-secondary text-secondary-foreground'
+                      className={`h-14 px-5 rounded-2xl text-start font-semibold text-sm flex items-center transition-all active:scale-[0.98] ${
+                        config.base?.id === base.id ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'
                       }`}
                     >
                       {base.name}
@@ -143,7 +140,7 @@ const NoodleBuilder = ({ open, onClose }: NoodleBuilderProps) => {
                       key={topping.id}
                       onClick={() => toggleTopping(topping)}
                       className={`h-10 px-4 rounded-full text-sm font-medium transition-all active:scale-95 ${
-                        config.toppings.find((t) => t.id === topping.id)
+                        config.toppings.find((tp) => tp.id === topping.id)
                           ? 'bg-primary text-primary-foreground'
                           : 'bg-secondary text-secondary-foreground'
                       }`}
@@ -162,9 +159,7 @@ const NoodleBuilder = ({ open, onClose }: NoodleBuilderProps) => {
                       key={sauce.id}
                       onClick={() => setConfig((p) => ({ ...p, sauce }))}
                       className={`h-14 rounded-2xl font-semibold text-sm transition-all active:scale-[0.98] ${
-                        config.sauce?.id === sauce.id
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-secondary text-secondary-foreground'
+                        config.sauce?.id === sauce.id ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'
                       }`}
                     >
                       {sauce.name}
@@ -182,7 +177,7 @@ const NoodleBuilder = ({ open, onClose }: NoodleBuilderProps) => {
                     onClick={() => setStep(step - 1)}
                     className="h-12 w-12 rounded-full bg-secondary flex items-center justify-center active:scale-95"
                   >
-                    <ChevronLeft className="w-5 h-5" />
+                    <BackIcon className="w-5 h-5" />
                   </button>
                 )}
                 {step < 2 ? (
@@ -191,7 +186,7 @@ const NoodleBuilder = ({ open, onClose }: NoodleBuilderProps) => {
                     disabled={!canNext}
                     className="flex-1 h-12 rounded-full bg-accent text-accent-foreground font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-transform disabled:opacity-40"
                   >
-                    Next <ChevronRight className="w-4 h-4" />
+                    {t.noodle.next} <NextIcon className="w-4 h-4" />
                   </button>
                 ) : (
                   <button
@@ -199,7 +194,7 @@ const NoodleBuilder = ({ open, onClose }: NoodleBuilderProps) => {
                     disabled={!canNext}
                     className="flex-1 h-12 rounded-full bg-primary text-primary-foreground font-bold text-sm active:scale-95 transition-transform disabled:opacity-40"
                   >
-                    Add to Cart — ₪{total}
+                    {t.noodle.add_to_cart} — ₪{total}
                   </button>
                 )}
               </div>

@@ -1,4 +1,5 @@
 import { categories } from '@/data/menu';
+import { useI18n } from '@/i18n/context';
 
 interface CategoryNavProps {
   activeCategory: string;
@@ -6,6 +7,8 @@ interface CategoryNavProps {
 }
 
 const CategoryNav = ({ activeCategory, onSelect }: CategoryNavProps) => {
+  const { t } = useI18n();
+
   return (
     <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-md border-b border-border">
       <div className="max-w-screen-xl mx-auto">
@@ -20,7 +23,7 @@ const CategoryNav = ({ activeCategory, onSelect }: CategoryNavProps) => {
                   : 'bg-secondary text-secondary-foreground hover:bg-muted'
               }`}
             >
-              {cat.name}
+              {t.categories[cat.id as keyof typeof t.categories] || cat.name}
             </button>
           ))}
         </nav>

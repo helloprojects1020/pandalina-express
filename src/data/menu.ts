@@ -14,9 +14,9 @@ const pickRollImg = (i: number) => rollImages[i % rollImages.length];
 
 export const categories: MenuCategory[] = [
   { id: 'sushi-rolls', name: 'Sushi Rolls', slug: 'sushi-rolls', description: 'Signature sushi rolls', image: sushiRoll1, sortOrder: 1 },
-  { id: 'kitchen', name: 'Kitchen', slug: 'kitchen', description: 'Hot dishes & specials', image: kitchen1, sortOrder: 2 },
-  { id: 'noodles', name: 'Noodles', slug: 'noodles', description: 'Build your own noodle bowl', image: noodlesImg, sortOrder: 3 },
-  { id: 'platters', name: 'Platters', slug: 'platters', description: 'Sharing trays & party platters', image: platterImg, sortOrder: 4 },
+  { id: 'platters', name: 'Platters', slug: 'platters', description: 'Sharing trays & party platters', image: platterImg, sortOrder: 2 },
+  { id: 'kitchen', name: 'Kitchen', slug: 'kitchen', description: 'Hot dishes & specials', image: kitchen1, sortOrder: 3 },
+  { id: 'noodles', name: 'Noodles', slug: 'noodles', description: 'Build your own noodle bowl', image: noodlesImg, sortOrder: 4 },
 ];
 
 const sushiRolls: MenuItem[] = [
@@ -131,10 +131,12 @@ export const noodleSauces = [
 ];
 
 const platters: MenuItem[] = [
-  { name: 'Pandalina Party Platter', desc: '40 pieces of mixed sushi rolls', price: 189 },
-  { name: 'Sushi Lovers Tray', desc: '30 pieces of chef\'s selection rolls', price: 149 },
-  { name: 'Family Combo', desc: '24 pieces with 2 kitchen sides', price: 129 },
-  { name: 'Date Night Box', desc: '16 premium pieces for two', price: 99 },
+  { name: 'Family Sushi Platter', desc: '48 pieces of mixed sushi rolls — Perfect for sharing', price: 199, badge: 'family' },
+  { name: 'Party Sushi Tray', desc: '72 pieces assorted sushi — Chef selection', price: 289, badge: 'popular' },
+  { name: 'Premium Sushi Combo', desc: '60 pieces of signature rolls', price: 249, badge: 'premium' },
+  { name: 'Large Sushi Celebration Tray', desc: '96 pieces of mixed sushi — Perfect for events', price: 379, badge: 'premium' },
+  { name: 'Pandalina Party Platter', desc: '40 pieces of mixed sushi rolls', price: 189, badge: 'popular' },
+  { name: 'Date Night Box', desc: '16 premium pieces for two', price: 99, badge: 'family' },
 ].map((item, i) => ({
   id: `platter-${i + 1}`,
   name: item.name,
@@ -147,7 +149,7 @@ const platters: MenuItem[] = [
   isAvailable: true,
   isCustomizable: false,
   options: [],
-  isFeatured: i === 0,
+  isFeatured: i < 2,
   sortOrder: i + 1,
 }));
 

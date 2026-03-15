@@ -1,4 +1,5 @@
 import type { CartItem, CustomerDetails } from '@/types/menu';
+import type { Translations } from '@/i18n/locales/en';
 
 const PHONE = '972503009005';
 
@@ -7,12 +8,13 @@ export const generateWhatsAppLink = (
   customer: CustomerDetails,
   subtotal: number,
   deliveryFee: number,
-  total: number
+  total: number,
+  t: Translations
 ): string => {
   const orderTypeLabel = {
-    pickup: 'Pickup',
-    delivery: 'Delivery',
-    'eat-in': 'Eat In',
+    pickup: t.wa.pickup,
+    delivery: t.wa.delivery,
+    'eat-in': t.wa.eat_in,
   }[customer.orderType];
 
   const itemLines = items
@@ -27,28 +29,28 @@ export const generateWhatsAppLink = (
     .join('\n');
 
   const lines = [
-    `*🐼 New Order — Pandalina*`,
+    `*${t.wa.new_order}*`,
     ``,
-    `*Customer:* ${customer.name}`,
-    `*Phone:* ${customer.phone}`,
-    `*Order Type:* ${orderTypeLabel}`,
+    `*${t.wa.customer}:* ${customer.name}`,
+    `*${t.wa.phone}:* ${customer.phone}`,
+    `*${t.wa.order_type}:* ${orderTypeLabel}`,
   ];
 
   if (customer.orderType === 'delivery' && customer.address) {
-    lines.push(`*Address:* ${customer.address}`);
+    lines.push(`*${t.wa.address}:* ${customer.address}`);
   }
 
-  lines.push('', `*Items:*`, itemLines, '');
-  lines.push(`*Subtotal:* ₪${subtotal}`);
+  lines.push('', `*${t.wa.items}:*`, itemLines, '');
+  lines.push(`*${t.wa.subtotal}:* ₪${subtotal}`);
 
   if (customer.orderType === 'delivery') {
-    lines.push(`*Delivery Fee:* ₪${deliveryFee}`);
+    lines.push(`*${t.wa.delivery_fee}:* ₪${deliveryFee}`);
   }
 
-  lines.push(`*Total:* ₪${total}`);
+  lines.push(`*${t.wa.total}:* ₪${total}`);
 
   if (customer.notes) {
-    lines.push('', `*Notes:* ${customer.notes}`);
+    lines.push('', `*${t.wa.notes}:* ${customer.notes}`);
   }
 
   const text = encodeURIComponent(lines.join('\n'));
