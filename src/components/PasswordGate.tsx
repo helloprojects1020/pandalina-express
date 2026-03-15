@@ -3,10 +3,11 @@ import logo from '@/assets/logo.png';
 
 const CORRECT_PASSWORD = 'Hanna0526!@';
 const STORAGE_KEY = 'site-authenticated';
+const storage = sessionStorage;
 
 const PasswordGate = ({ children }: { children: React.ReactNode }) => {
   const [authenticated, setAuthenticated] = useState(
-    () => localStorage.getItem(STORAGE_KEY) === 'true'
+    () => storage.getItem(STORAGE_KEY) === 'true'
   );
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
@@ -14,7 +15,7 @@ const PasswordGate = ({ children }: { children: React.ReactNode }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (password === CORRECT_PASSWORD) {
-      localStorage.setItem(STORAGE_KEY, 'true');
+      storage.setItem(STORAGE_KEY, 'true');
       setAuthenticated(true);
     } else {
       setError(true);
