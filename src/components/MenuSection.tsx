@@ -76,7 +76,7 @@ const MenuSection = () => {
             key={cat.id}
             id={`category-${cat.id}`}
             data-category={cat.id}
-            className="py-6 px-4 max-w-screen-xl mx-auto scroll-mt-16"
+            className="py-6 px-4 max-w-screen-xl mx-auto scroll-mt-28"
           >
             <h2 className="text-xl md:text-2xl tracking-tighter uppercase text-foreground mb-1">
               {t.categories[cat.id as keyof typeof t.categories] || cat.name}
