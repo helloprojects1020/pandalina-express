@@ -4,6 +4,7 @@ import { useMenu } from '@/hooks/useMenu';
 import type { MenuItem } from '@/types/menu';
 import { localizedName } from '@/lib/localize';
 import { Plus } from 'lucide-react';
+import { handleImageError } from '@/lib/imageFallback';
 
 const RECOMMENDATION_SLUGS = ['egg-roll', 'chicken-popcorn', 'avocado-salad', 'crunchy-roll', 'chicken-bao', 'crispy-shrimp-tempura'];
 
