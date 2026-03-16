@@ -1,4 +1,5 @@
 import { useI18n } from '@/i18n/context';
+import { trackWhatsAppClick } from '@/lib/analytics';
 import platterImg from '@/assets/platter.jpg';
 
 const WhatsAppCTA = () => {
@@ -29,6 +30,7 @@ const WhatsAppCTA = () => {
             href="https://wa.me/972526204159"
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => trackWhatsAppClick('cta_banner')}
             className="inline-flex h-14 px-8 rounded-full bg-[#25D366] text-primary-foreground font-bold text-sm items-center gap-2 active:scale-95 transition-transform"
           >
             {t.cta.button}

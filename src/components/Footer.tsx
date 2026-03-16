@@ -1,5 +1,6 @@
 import logoImg from '@/assets/logo.png';
 import { useI18n } from '@/i18n/context';
+import { trackWhatsAppClick, trackPhoneClick } from '@/lib/analytics';
 
 const InstagramIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" className={className} fill="none">
@@ -66,7 +67,7 @@ const Footer = () => {
         <div className="grid grid-cols-2 gap-4 text-center mb-6">
           <div>
             <h4 className="font-bold text-xs mb-1.5">{t.footer.contact}</h4>
-            <p className="text-xs text-accent-foreground/60">📞 052-620-4159</p>
+            <a href="tel:+972526204159" onClick={() => trackPhoneClick()} className="text-xs text-accent-foreground/60 hover:text-primary transition-colors">📞 052-620-4159</a>
             <p className="text-xs text-accent-foreground/60 mt-0.5">📍 {t.footer.address}</p>
           </div>
           <div>
@@ -92,6 +93,7 @@ const Footer = () => {
             href="https://wa.me/972526204159"
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => trackWhatsAppClick('footer')}
             className="hover:scale-110 transition-transform duration-200"
             aria-label="WhatsApp"
           >

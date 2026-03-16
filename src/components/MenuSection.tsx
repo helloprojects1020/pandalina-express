@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { categories, getItemsByCategory } from '@/data/menu';
 import type { MenuItem } from '@/types/menu';
@@ -8,6 +8,7 @@ import CategoryNav from './CategoryNav';
 import ProductCard from './ProductCard';
 import ProductModal from './ProductModal';
 import NoodleBuilder from './NoodleBuilder';
+import { trackMenuView } from '@/lib/analytics';
 
 const MenuSection = () => {
   const { t, locale } = useI18n();
@@ -15,6 +16,7 @@ const MenuSection = () => {
   const [activeCategory, setActiveCategory] = useState(categories[0].id);
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [noodleOpen, setNoodleOpen] = useState(false);
+  const [tracked, setTracked] = useState(false);
 
   const handleOpenItem = (item: MenuItem) => {
     if (item.categoryId === 'noodles' && item.id === 'noodle-bowl') {
@@ -24,8 +26,17 @@ const MenuSection = () => {
     }
   };
 
+  // Track menu_view when the section scrolls into view
+  const menuRef = useCallback((node: HTMLDivElement | null) => {
+    if (!node || tracked) return;
+    const obs = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { trackMenuView(); setTracked(true); obs.disconnect(); }
+    }, { threshold: 0.2 });
+    obs.observe(node);
+  }, [tracked]);
+
   return (
-    <div id="menu">
+    <div id="menu" ref={menuRef}>
       <CategoryNav activeCategory={activeCategory} onSelect={setActiveCategory} />
 
       {/* Category previews (excluding platters — shown separately above) */}

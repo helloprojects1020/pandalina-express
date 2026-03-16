@@ -4,10 +4,22 @@ import sushiRoll1 from '@/assets/sushi-roll-1.jpg';
 import sushiRoll2 from '@/assets/sushi-roll-2.jpg';
 import sushiRoll3 from '@/assets/sushi-roll-3.jpg';
 import noodlesImg from '@/assets/noodles.jpg';
-import kitchen1 from '@/assets/kitchen-1.jpg';
-import kitchen2 from '@/assets/kitchen-2.jpg';
-import kitchen3 from '@/assets/kitchen-3.jpg';
+import kitchenAsadoaki from '@/assets/kitchen-asadoaki.jpg';
+import kitchenCrispySalmon from '@/assets/kitchen-crispy-salmon.jpg';
+import kitchenAvocadoSalad from '@/assets/kitchen-avocado-salad.jpg';
+import kitchenBeefBroccoli from '@/assets/kitchen-beef-broccoli.jpg';
+import kitchenEggRoll from '@/assets/kitchen-egg-roll.jpg';
+import kitchenShrimpTempura from '@/assets/kitchen-shrimp-tempura.jpg';
+import kitchenChickenPopcorn from '@/assets/kitchen-chicken-popcorn.jpg';
+import kitchenChickenBao from '@/assets/kitchen-chicken-bao.jpg';
+import kitchenSalmonTeriyaki from '@/assets/kitchen-salmon-teriyaki.jpg';
 import platterImg from '@/assets/platter.jpg';
+import platterFamily from '@/assets/platter-family.jpg';
+import platterParty from '@/assets/platter-party.jpg';
+import platterPremium from '@/assets/platter-premium.jpg';
+import platterCelebration from '@/assets/platter-celebration.jpg';
+import platterPandalina from '@/assets/platter-pandalina.jpg';
+import platterDateNight from '@/assets/platter-date-night.jpg';
 import drinksCategoryImg from '@/assets/drinks-category.jpg';
 import drinkColaImg from '@/assets/drink-cola.jpg';
 import drinkSpriteImg from '@/assets/drink-sprite.jpg';
@@ -27,8 +39,8 @@ const pickRollImg = (i: number) => rollImages[i % rollImages.length];
 
 export const categories: MenuCategory[] = [
   { id: 'sushi-rolls', name: 'Sushi Rolls', name_he: 'רולים', name_ar: 'لفائف السوشي', slug: 'sushi-rolls', description: 'Signature sushi rolls', description_he: 'רולים מיוחדים של השף', description_ar: 'لفائف السوشي المميزة', image: sushiRoll1, sortOrder: 1 },
-  { id: 'platters', name: 'Platters', name_he: 'מגשים', name_ar: 'أطباق للمشاركة', slug: 'platters', description: 'Sharing trays & party platters', description_he: 'מגשים למסיבות ואירועים', description_ar: 'صواني مشاركة وأطباق حفلات', image: platterImg, sortOrder: 2 },
-  { id: 'kitchen', name: 'Kitchen', name_he: 'מטבח', name_ar: 'المطبخ', slug: 'kitchen', description: 'Hot dishes & specials', description_he: 'מנות חמות ומיוחדות', description_ar: 'أطباق ساخنة ومميزة', image: kitchen1, sortOrder: 3 },
+  { id: 'platters', name: 'Platters', name_he: 'מגשים', name_ar: 'أطباق للمشاركة', slug: 'platters', description: 'Sharing trays & party platters', description_he: 'מגשים למסיבות ואירועים', description_ar: 'صواني مشاركة وأطباق حفلات', image: platterFamily, sortOrder: 2 },
+  { id: 'kitchen', name: 'Kitchen', name_he: 'מטבח', name_ar: 'المطبخ', slug: 'kitchen', description: 'Hot dishes & specials', description_he: 'מנות חמות ומיוחדות', description_ar: 'أطباق ساخنة ومميزة', image: kitchenAsadoaki, sortOrder: 3 },
   { id: 'noodles', name: 'Noodles', name_he: 'נודלס', name_ar: 'نودلز', slug: 'noodles', description: 'Build your own noodle bowl', description_he: 'בנו את קערת הנודלס שלכם', description_ar: 'ابنِ وعاء النودلز الخاص بك', image: noodlesImg, sortOrder: 4 },
   { id: 'drinks', name: 'Drinks', name_he: 'שתייה', name_ar: 'مشروبات', slug: 'drinks', description: 'Soft drinks, beer & wine', description_he: 'שתייה קלה, בירה ויין', description_ar: 'مشروبات غازية، بيرة ونبيذ', image: drinksCategoryImg, sortOrder: 5 },
 ];
@@ -91,15 +103,15 @@ const sushiRolls: MenuItem[] = sushiRollsData.map((roll, i) => ({
 }));
 
 const kitchenData = [
-  { name: 'Asadoaki', name_he: 'אסאדואקי', name_ar: 'أسادواكي', desc: 'Grilled beef with Asian glaze', desc_he: 'בקר צלוי עם זיגוג אסייתי', desc_ar: 'لحم بقري مشوي مع تزجيج آسيوي', price: 52, img: kitchen2 },
-  { name: 'Crispy Salmon', name_he: 'סלמון קריספי', name_ar: 'سالمون مقرمش', desc: 'Pan-seared crispy skin salmon', desc_he: 'סלמון עם עור פריך על המחבת', desc_ar: 'سالمون بقشرة مقرمشة', price: 58, img: kitchen2 },
-  { name: 'Avocado Salad', name_he: 'סלט אבוקדו', name_ar: 'سلطة أفوكادو', desc: 'Fresh avocado with sesame dressing', desc_he: 'אבוקדו טרי עם רוטב שומשום', desc_ar: 'أفوكادو طازج مع صلصة السمسم', price: 38, img: kitchen2 },
-  { name: 'Beef Broccoli', name_he: 'בקר וברוקולי', name_ar: 'لحم بقري مع بروكلي', desc: 'Wok-tossed beef with broccoli', desc_he: 'בקר מוקפץ בווק עם ברוקולי', desc_ar: 'لحم بقري مقلي مع بروكلي', price: 48, img: kitchen2 },
-  { name: 'Egg Roll', name_he: 'אגרול', name_ar: 'لفائف البيض', desc: 'Crispy golden egg rolls', desc_he: 'אגרולים פריכים ומוזהבים', desc_ar: 'لفائف بيض ذهبية مقرمشة', price: 28, img: kitchen1 },
-  { name: 'Crispy Shrimp Tempura', name_he: 'טמפורה שרימפס', name_ar: 'تمبورا الروبيان المقرمشة', desc: 'Lightly battered tempura shrimp', desc_he: 'שרימפס טמפורה קלה ופריכה', desc_ar: 'روبيان تمبورا خفيف ومقرمش', price: 45, img: kitchen1 },
-  { name: 'Chicken Popcorn', name_he: 'פופקורן עוף', name_ar: 'فشار الدجاج', desc: 'Bite-sized crispy chicken', desc_he: 'חתיכות עוף פריכות בגודל ביס', desc_ar: 'قطع دجاج مقرمشة بحجم القضمة', price: 35, img: kitchen1 },
-  { name: 'Chicken Bao', name_he: "באו צ'יקן", name_ar: 'باو الدجاج', desc: 'Steamed bao with teriyaki chicken', desc_he: 'באו מאודה עם עוף טריאקי', desc_ar: 'باو مطهو على البخار مع دجاج ترياكي', price: 32, img: kitchen3 },
-  { name: 'Salmon Teriyaki', name_he: 'סלמון טריאקי', name_ar: 'سالمون ترياكي', desc: 'Grilled salmon with teriyaki glaze', desc_he: 'סלמון צלוי עם זיגוג טריאקי', desc_ar: 'سالمون مشوي مع تزجيج ترياكي', price: 56, img: kitchen2 },
+  { name: 'Asadoaki', name_he: 'אסאדואקי', name_ar: 'أسادواكي', desc: 'Grilled beef with Asian glaze', desc_he: 'בקר צלוי עם זיגוג אסייתי', desc_ar: 'لحم بقري مشوي مع تزجيج آسيوي', price: 52, img: kitchenAsadoaki },
+  { name: 'Crispy Salmon', name_he: 'סלמון קריספי', name_ar: 'سالمون مقرمش', desc: 'Pan-seared crispy skin salmon', desc_he: 'סלמון עם עור פריך על המחבת', desc_ar: 'سالمون بقشرة مقرمشة', price: 58, img: kitchenCrispySalmon },
+  { name: 'Avocado Salad', name_he: 'סלט אבוקדו', name_ar: 'سلطة أفوكادو', desc: 'Fresh avocado with sesame dressing', desc_he: 'אבוקדו טרי עם רוטב שומשום', desc_ar: 'أفوكادو طازج مع صلصة السمسم', price: 38, img: kitchenAvocadoSalad },
+  { name: 'Beef Broccoli', name_he: 'בקר וברוקולי', name_ar: 'لحم بقري مع بروكلي', desc: 'Wok-tossed beef with broccoli', desc_he: 'בקר מוקפץ בווק עם ברוקולי', desc_ar: 'لحم بقري مقلي مع بروكلي', price: 48, img: kitchenBeefBroccoli },
+  { name: 'Egg Roll', name_he: 'אגרול', name_ar: 'لفائف البيض', desc: 'Crispy golden egg rolls', desc_he: 'אגרולים פריכים ומוזהבים', desc_ar: 'لفائف بيض ذهبية مقرمشة', price: 28, img: kitchenEggRoll },
+  { name: 'Crispy Shrimp Tempura', name_he: 'טמפורה שרימפס', name_ar: 'تمبورا الروبيان المقرمشة', desc: 'Lightly battered tempura shrimp', desc_he: 'שרימפס טמפורה קלה ופריכה', desc_ar: 'روبيان تمبورا خفيف ومقرمش', price: 45, img: kitchenShrimpTempura },
+  { name: 'Chicken Popcorn', name_he: 'פופקורן עוף', name_ar: 'فشار الدجاج', desc: 'Bite-sized crispy chicken', desc_he: 'חתיכות עוף פריכות בגודל ביס', desc_ar: 'قطع دجاج مقرمشة بحجم القضمة', price: 35, img: kitchenChickenPopcorn },
+  { name: 'Chicken Bao', name_he: "באו צ'יקן", name_ar: 'باو الدجاج', desc: 'Steamed bao with teriyaki chicken', desc_he: 'באו מאודה עם עוף טריאקי', desc_ar: 'باو مطهو على البخار مع دجاج ترياكي', price: 32, img: kitchenChickenBao },
+  { name: 'Salmon Teriyaki', name_he: 'סלמון טריאקי', name_ar: 'سالمون ترياكي', desc: 'Grilled salmon with teriyaki glaze', desc_he: 'סלמון צלוי עם זיגוג טריאקי', desc_ar: 'سالمون مشوي مع تزجيج ترياكي', price: 56, img: kitchenSalmonTeriyaki },
 ];
 
 const kitchenItems: MenuItem[] = kitchenData.map((item, i) => ({
@@ -178,12 +190,12 @@ export const noodleSauces = [
 ];
 
 const plattersData = [
-  { name: 'Family Sushi Platter', name_he: 'מגש סושי משפחתי', name_ar: 'طبق سوشي عائلي', desc: '48 pieces of mixed sushi rolls — Perfect for sharing', desc_he: '48 חתיכות רולים מעורבים — מושלם לשיתוף', desc_ar: '48 قطعة من لفائف السوشي المتنوعة — مثالي للمشاركة', price: 199, badge: 'family' },
-  { name: 'Party Sushi Tray', name_he: 'מגש סושי למסיבה', name_ar: 'صينية سوشي للحفلات', desc: '72 pieces assorted sushi — Chef selection', desc_he: '72 חתיכות סושי מגוון — בחירת השף', desc_ar: '72 قطعة سوشي متنوعة — اختيار الشيف', price: 289, badge: 'popular' },
-  { name: 'Premium Sushi Combo', name_he: 'קומבו סושי פרימיום', name_ar: 'كومبو سوشي مميز', desc: '60 pieces of signature rolls', desc_he: '60 חתיכות של רולים ייחודיים', desc_ar: '60 قطعة من اللفائف المميزة', price: 249, badge: 'premium' },
-  { name: 'Large Sushi Celebration Tray', name_he: 'מגש סושי חגיגי גדול', name_ar: 'صينية سوشي احتفالية كبيرة', desc: '96 pieces of mixed sushi — Perfect for events', desc_he: '96 חתיכות סושי מעורב — מושלם לאירועים', desc_ar: '96 قطعة سوشي متنوعة — مثالية للمناسبات', price: 379, badge: 'premium' },
-  { name: 'Pandalina Party Platter', name_he: 'מגש מסיבה פנדלינה', name_ar: 'طبق حفلة باندالينا', desc: '40 pieces of mixed sushi rolls', desc_he: '40 חתיכות רולים מעורבים', desc_ar: '40 قطعة من لفائف السوشي المتنوعة', price: 189, badge: 'popular' },
-  { name: 'Date Night Box', name_he: 'קופסת ערב רומנטי', name_ar: 'علبة ليلة رومانسية', desc: '16 premium pieces for two', desc_he: '16 חתיכות פרימיום לזוג', desc_ar: '16 قطعة فاخرة لشخصين', price: 99, badge: 'family' },
+  { name: 'Family Sushi Platter', name_he: 'מגש סושי משפחתי', name_ar: 'طبق سوشي عائلي', desc: '48 pieces of mixed sushi rolls — Perfect for sharing', desc_he: '48 חתיכות רולים מעורבים — מושלם לשיתוף', desc_ar: '48 قطعة من لفائف السوشي المتنوعة — مثالي للمشاركة', price: 199, badge: 'family', img: platterFamily },
+  { name: 'Party Sushi Tray', name_he: 'מגש סושי למסיבה', name_ar: 'صينية سوشي للحفلات', desc: '72 pieces assorted sushi — Chef selection', desc_he: '72 חתיכות סושי מגוון — בחירת השף', desc_ar: '72 قطعة سوشي متنوعة — اختيار الشيف', price: 289, badge: 'popular', img: platterParty },
+  { name: 'Premium Sushi Combo', name_he: 'קומבו סושי פרימיום', name_ar: 'كومبو سوشي مميز', desc: '60 pieces of signature rolls', desc_he: '60 חתיכות של רולים ייחודיים', desc_ar: '60 قطعة من اللفائف المميزة', price: 249, badge: 'premium', img: platterPremium },
+  { name: 'Large Sushi Celebration Tray', name_he: 'מגש סושי חגיגי גדול', name_ar: 'صينية سوشي احتفالية كبيرة', desc: '96 pieces of mixed sushi — Perfect for events', desc_he: '96 חתיכות סושי מעורב — מושלם לאירועים', desc_ar: '96 قطعة سوشي متنوعة — مثالية للمناسبات', price: 379, badge: 'premium', img: platterCelebration },
+  { name: 'Pandalina Party Platter', name_he: 'מגש מסיבה פנדלינה', name_ar: 'طبق حفلة باندالينا', desc: '40 pieces of mixed sushi rolls', desc_he: '40 חתיכות רולים מעורבים', desc_ar: '40 قطعة من لفائف السوشي المتنوعة', price: 189, badge: 'popular', img: platterPandalina },
+  { name: 'Date Night Box', name_he: 'קופסת ערב רומנטי', name_ar: 'علبة ليلة رومانسية', desc: '16 premium pieces for two', desc_he: '16 חתיכות פרימיום לזוג', desc_ar: '16 قطعة فاخرة لشخصين', price: 99, badge: 'family', img: platterDateNight },
 ];
 
 const platters: MenuItem[] = plattersData.map((item, i) => ({
@@ -197,7 +209,7 @@ const platters: MenuItem[] = plattersData.map((item, i) => ({
   description_he: item.desc_he,
   description_ar: item.desc_ar,
   price: item.price,
-  image: platterImg,
+  image: item.img,
   tags: ['platter', 'sharing'],
   isAvailable: true,
   isCustomizable: false,

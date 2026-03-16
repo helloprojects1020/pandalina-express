@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useI18n } from '@/i18n/context';
+import { trackWhatsAppClick, trackMenuView } from '@/lib/analytics';
 import heroImg from '@/assets/hero-sushi.jpg';
 import kitchen1 from '@/assets/kitchen-1.jpg';
 import logoImg from '@/assets/logo.png';
@@ -79,6 +80,7 @@ const Hero = () => {
   }, [current]);
 
   const scrollToMenu = () => {
+    trackMenuView();
     document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' });
   };
 
@@ -165,6 +167,7 @@ const Hero = () => {
               href="https://wa.me/972526204159"
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => trackWhatsAppClick('hero')}
               className="h-14 px-8 rounded-full bg-[#25D366] text-white font-bold text-sm tracking-wide flex items-center gap-2 active:scale-95 transition-transform animate-[pulse_3s_ease-in-out_infinite]"
             >
               <WhatsAppSmallIcon />

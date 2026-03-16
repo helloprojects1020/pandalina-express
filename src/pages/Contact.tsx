@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useI18n } from '@/i18n/context';
 import { Phone, MapPin, Clock } from 'lucide-react';
 import Footer from '@/components/Footer';
+import { trackWhatsAppClick, trackPhoneClick } from '@/lib/analytics';
 
 const Contact = () => {
   const { t } = useI18n();
@@ -10,6 +11,7 @@ const Contact = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const body = `Name: ${form.name}\nEmail: ${form.email}\n\n${form.message}`;
+    trackWhatsAppClick('contact_form');
     window.open(`https://wa.me/972526204159?text=${encodeURIComponent(body)}`, '_blank');
   };
 
@@ -29,7 +31,7 @@ const Contact = () => {
               </div>
               <div>
                 <h3 className="font-bold text-sm text-foreground mb-1">{t.contact.phone_title}</h3>
-                <a href="tel:+972526204159" className="text-sm text-muted-foreground hover:text-primary transition-colors">052-620-4159</a>
+                <a href="tel:+972526204159" onClick={() => trackPhoneClick()} className="text-sm text-muted-foreground hover:text-primary transition-colors">052-620-4159</a>
               </div>
             </div>
 
