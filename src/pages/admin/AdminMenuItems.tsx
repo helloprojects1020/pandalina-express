@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useRestaurantId } from '@/hooks/useRestaurantId';
-import { uploadMenuImage } from '@/lib/storage';
+import { uploadMenuImage, deleteMenuImage } from '@/lib/storage';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Pencil, Trash2, Loader2, ImageIcon, Star, Sparkles } from 'lucide-react';
+import { Plus, Pencil, Trash2, Loader2, ImageIcon, Star, Sparkles, X } from 'lucide-react';
 
 type MenuItemRow = {
   id: string;
@@ -245,7 +245,23 @@ const AdminMenuItems = () => {
             <div className="space-y-1">
               <Label>Image</Label>
               <Input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files?.[0] ?? null)} />
-              {form.image_url && !imageFile && <img src={form.image_url} alt="" className="w-20 h-20 rounded-lg object-cover mt-1" />}
+              {form.image_url && !imageFile && (
+                <div className="flex items-start gap-2 mt-1">
+                  <img src={form.image_url} alt="" className="w-20 h-20 rounded-lg object-cover" />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-destructive hover:text-destructive shrink-0"
+                    onClick={async () => {
+                      await deleteMenuImage(form.image_url!);
+                      setForm(f => ({ ...f, image_url: null }));
+                    }}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
 
