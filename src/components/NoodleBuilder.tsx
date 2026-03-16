@@ -146,7 +146,7 @@ const NoodleBuilder = ({ open, onClose }: NoodleBuilderProps) => {
                           : 'bg-secondary text-secondary-foreground'
                       }`}
                     >
-                      {topping.name}
+                      {localizedName(topping, locale)}
                       {topping.priceModifier > 0 && ` +₪${topping.priceModifier}`}
                     </button>
                   ))}
