@@ -6,6 +6,7 @@ const langs: { code: Locale; label: string }[] = [
   { code: 'en', label: 'EN' },
   { code: 'he', label: 'עברית' },
   { code: 'ar', label: 'العربية' },
+  { code: 'ru', label: 'RU' },
 ];
 
 const LanguageSwitcher = () => {

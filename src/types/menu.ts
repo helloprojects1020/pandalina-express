@@ -2,9 +2,11 @@ export interface LocalizedFields {
   name_he?: string;
   name_ar?: string;
   name_en?: string;
+  name_ru?: string;
   description_he?: string;
   description_ar?: string;
   description_en?: string;
+  description_ru?: string;
 }
 
 export interface OptionChoice extends LocalizedFields {
@@ -19,6 +21,7 @@ export interface OptionGroup {
   title_he?: string;
   title_ar?: string;
   title_en?: string;
+  title_ru?: string;
   type: 'single' | 'multiple';
   required: boolean;
   choices: OptionChoice[];
