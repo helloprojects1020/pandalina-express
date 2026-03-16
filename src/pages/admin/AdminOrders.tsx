@@ -47,7 +47,8 @@ const statusIcons: Record<string, React.ReactNode> = {
   cancelled: <XCircle className="w-3.5 h-3.5" />,
 };
 
-const allStatuses = ['new', 'preparing', 'ready', 'completed', 'cancelled'] as const;
+type OrderStatus = 'new' | 'preparing' | 'ready' | 'completed' | 'cancelled';
+const allStatuses: OrderStatus[] = ['new', 'preparing', 'ready', 'completed', 'cancelled'];
 
 const AdminOrders = () => {
   const { restaurantId, loading: ridLoading } = useRestaurantId();
