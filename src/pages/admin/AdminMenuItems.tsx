@@ -245,7 +245,23 @@ const AdminMenuItems = () => {
             <div className="space-y-1">
               <Label>Image</Label>
               <Input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files?.[0] ?? null)} />
-              {form.image_url && !imageFile && <img src={form.image_url} alt="" className="w-20 h-20 rounded-lg object-cover mt-1" />}
+              {form.image_url && !imageFile && (
+                <div className="flex items-start gap-2 mt-1">
+                  <img src={form.image_url} alt="" className="w-20 h-20 rounded-lg object-cover" />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-destructive hover:text-destructive shrink-0"
+                    onClick={async () => {
+                      await deleteMenuImage(form.image_url!);
+                      setForm(f => ({ ...f, image_url: null }));
+                    }}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
 
