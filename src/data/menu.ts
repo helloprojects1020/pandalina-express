@@ -190,12 +190,12 @@ export const noodleSauces = [
 ];
 
 const plattersData = [
-  { name: 'Family Sushi Platter', name_he: 'מגש סושי משפחתי', name_ar: 'طبق سوشي عائلي', desc: '48 pieces of mixed sushi rolls — Perfect for sharing', desc_he: '48 חתיכות רולים מעורבים — מושלם לשיתוף', desc_ar: '48 قطعة من لفائف السوشي المتنوعة — مثالي للمشاركة', price: 199, badge: 'family' },
-  { name: 'Party Sushi Tray', name_he: 'מגש סושי למסיבה', name_ar: 'صينية سوشي للحفلات', desc: '72 pieces assorted sushi — Chef selection', desc_he: '72 חתיכות סושי מגוון — בחירת השף', desc_ar: '72 قطعة سوشي متنوعة — اختيار الشيف', price: 289, badge: 'popular' },
-  { name: 'Premium Sushi Combo', name_he: 'קומבו סושי פרימיום', name_ar: 'كومبو سوشي مميز', desc: '60 pieces of signature rolls', desc_he: '60 חתיכות של רולים ייחודיים', desc_ar: '60 قطعة من اللفائف المميزة', price: 249, badge: 'premium' },
-  { name: 'Large Sushi Celebration Tray', name_he: 'מגש סושי חגיגי גדול', name_ar: 'صينية سوشي احتفالية كبيرة', desc: '96 pieces of mixed sushi — Perfect for events', desc_he: '96 חתיכות סושי מעורב — מושלם לאירועים', desc_ar: '96 قطعة سوشي متنوعة — مثالية للمناسبات', price: 379, badge: 'premium' },
-  { name: 'Pandalina Party Platter', name_he: 'מגש מסיבה פנדלינה', name_ar: 'طبق حفلة باندالينا', desc: '40 pieces of mixed sushi rolls', desc_he: '40 חתיכות רולים מעורבים', desc_ar: '40 قطعة من لفائف السوشي المتنوعة', price: 189, badge: 'popular' },
-  { name: 'Date Night Box', name_he: 'קופסת ערב רומנטי', name_ar: 'علبة ليلة رومانسية', desc: '16 premium pieces for two', desc_he: '16 חתיכות פרימיום לזוג', desc_ar: '16 قطعة فاخرة لشخصين', price: 99, badge: 'family' },
+  { name: 'Family Sushi Platter', name_he: 'מגש סושי משפחתי', name_ar: 'طبق سوشي عائلي', desc: '48 pieces of mixed sushi rolls — Perfect for sharing', desc_he: '48 חתיכות רולים מעורבים — מושלם לשיתוף', desc_ar: '48 قطعة من لفائف السوشي المتنوعة — مثالي للمشاركة', price: 199, badge: 'family', img: platterFamily },
+  { name: 'Party Sushi Tray', name_he: 'מגש סושי למסיבה', name_ar: 'صينية سوشي للحفلات', desc: '72 pieces assorted sushi — Chef selection', desc_he: '72 חתיכות סושי מגוון — בחירת השף', desc_ar: '72 قطعة سوشي متنوعة — اختيار الشيف', price: 289, badge: 'popular', img: platterParty },
+  { name: 'Premium Sushi Combo', name_he: 'קומבו סושי פרימיום', name_ar: 'كومبو سوشي مميز', desc: '60 pieces of signature rolls', desc_he: '60 חתיכות של רולים ייחודיים', desc_ar: '60 قطعة من اللفائف المميزة', price: 249, badge: 'premium', img: platterPremium },
+  { name: 'Large Sushi Celebration Tray', name_he: 'מגש סושי חגיגי גדול', name_ar: 'صينية سوشي احتفالية كبيرة', desc: '96 pieces of mixed sushi — Perfect for events', desc_he: '96 חתיכות סושי מעורב — מושלם לאירועים', desc_ar: '96 قطعة سوشي متنوعة — مثالية للمناسبات', price: 379, badge: 'premium', img: platterCelebration },
+  { name: 'Pandalina Party Platter', name_he: 'מגש מסיבה פנדלינה', name_ar: 'طبق حفلة باندالينا', desc: '40 pieces of mixed sushi rolls', desc_he: '40 חתיכות רולים מעורבים', desc_ar: '40 قطعة من لفائف السوشي المتنوعة', price: 189, badge: 'popular', img: platterPandalina },
+  { name: 'Date Night Box', name_he: 'קופסת ערב רומנטי', name_ar: 'علبة ليلة رومانسية', desc: '16 premium pieces for two', desc_he: '16 חתיכות פרימיום לזוג', desc_ar: '16 قطعة فاخرة لشخصين', price: 99, badge: 'family', img: platterDateNight },
 ];
 
 const platters: MenuItem[] = plattersData.map((item, i) => ({
