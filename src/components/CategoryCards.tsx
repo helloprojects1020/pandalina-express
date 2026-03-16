@@ -25,6 +25,7 @@ const CategoryCards = () => {
               alt={t.categories[cat.id as keyof typeof t.categories] || cat.name}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               loading="lazy"
+              onError={handleImageError}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-accent/80 to-transparent" />
             <div className="absolute bottom-0 start-0 end-0 p-3">

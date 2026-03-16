@@ -67,6 +67,7 @@ const ProductCard = ({ item, onOpen, variant = 'default' }: ProductCardProps) =>
           alt={localizedName(item, locale)}
           className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
           loading="lazy"
+          onError={handleImageError}
         />
       </button>
       <button onClick={() => onOpen(item)} className={`flex flex-col flex-1 pb-1 text-start ${isPremium ? 'px-4 py-3' : 'px-1'}`}>
