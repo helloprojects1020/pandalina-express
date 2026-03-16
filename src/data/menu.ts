@@ -8,6 +8,10 @@ import kitchen1 from '@/assets/kitchen-1.jpg';
 import kitchen2 from '@/assets/kitchen-2.jpg';
 import kitchen3 from '@/assets/kitchen-3.jpg';
 import platterImg from '@/assets/platter.jpg';
+import drinksCategoryImg from '@/assets/drinks-category.jpg';
+import drinkSoftImg from '@/assets/drink-soft.jpg';
+import drinkBeerImg from '@/assets/drink-beer.jpg';
+import drinkWineImg from '@/assets/drink-wine.jpg';
 
 const rollImages = [sushiRoll1, sushiRoll2, sushiRoll3];
 const pickRollImg = (i: number) => rollImages[i % rollImages.length];
