@@ -10,7 +10,7 @@ import ProductModal from './ProductModal';
 import NoodleBuilder from './NoodleBuilder';
 
 const MenuSection = () => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState(categories[0].id);
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
