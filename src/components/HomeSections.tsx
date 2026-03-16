@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { featuredItems, getItemsByCategory } from '@/data/menu';
+import { featuredItems, getItemsByCategory, categories } from '@/data/menu';
 import type { MenuItem } from '@/types/menu';
 import { useI18n } from '@/i18n/context';
+import { localizedDescription } from '@/lib/localize';
 import ProductCard from './ProductCard';
 import ProductModal from './ProductModal';
 import NoodleBuilder from './NoodleBuilder';
