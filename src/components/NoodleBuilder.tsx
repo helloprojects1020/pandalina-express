@@ -134,7 +134,7 @@ const NoodleBuilder = ({ open, onClose }: NoodleBuilderProps) => {
               <div className="absolute inset-0 flex items-end p-4">
                 <div>
                   <h2 className="font-display text-lg text-primary-foreground">{t.noodle.title}</h2>
-                  <p className="text-xs text-primary-foreground/60">{t.noodle.subtitle}</p>
+                  <p className="text-xs text-primary-foreground/60">{t.noodle.description}</p>
                 </div>
               </div>
               <button onClick={handleClose} className="absolute top-3 end-3 h-8 w-8 rounded-full bg-accent/80 flex items-center justify-center">
