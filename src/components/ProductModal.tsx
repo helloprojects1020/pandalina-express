@@ -110,7 +110,7 @@ const ProductModal = ({ item, onClose }: ProductModalProps) => {
           >
             {/* Image */}
             <div className="relative aspect-[16/10] overflow-hidden rounded-t-3xl flex-shrink-0">
-              <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+              <img src={item.image} alt={localizedName(item, locale)} className="w-full h-full object-cover" />
               <button
                 onClick={handleClose}
                 className="absolute top-4 end-4 h-9 w-9 rounded-full bg-card/80 backdrop-blur flex items-center justify-center active:scale-95"
