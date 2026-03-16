@@ -1,5 +1,6 @@
 import type { MenuItem } from '@/types/menu';
 import { useI18n } from '@/i18n/context';
+import { localizedName, localizedDescription } from '@/lib/localize';
 import { Plus } from 'lucide-react';
 
 interface ProductCardProps {
