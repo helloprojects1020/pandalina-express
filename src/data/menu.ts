@@ -144,11 +144,11 @@ const kitchenItems: MenuItem[] = kitchenData.map((item, i) => ({
 }));
 
 const noodlesData = [
-  { name: 'Build Your Noodle Bowl', name_he: 'בנו את קערת הנודלס', name_ar: 'ابنِ وعاء النودلز', desc: 'Choose your base, toppings, and sauce', desc_he: 'בחרו בסיס, תוספות ורוטב', desc_ar: 'اختر القاعدة والإضافات والصلصة', price: 38, img: noodlesImg, customizable: true },
-  { name: 'Chicken Teriyaki Noodles', name_he: 'נודלס עוף טריאקי', name_ar: 'نودلز دجاج ترياكي', desc: 'Udon noodles with grilled teriyaki chicken', desc_he: 'נודלס אודון עם עוף טריאקי צלוי', desc_ar: 'نودلز أودون مع دجاج ترياكي مشوي', price: 46, img: noodleChickenTeriyaki, customizable: false },
-  { name: 'Spicy Beef Ramen', name_he: 'ראמן בקר חריף', name_ar: 'رامن لحم بقري حار', desc: 'Rich spicy broth with sliced beef & soft egg', desc_he: 'מרק חריף עשיר עם בקר פרוס וביצה רכה', desc_ar: 'مرق حار غني مع شرائح لحم بقري وبيض طري', price: 52, img: noodleSpicyBeef, customizable: false },
-  { name: 'Shrimp Pad Thai', name_he: 'פאד תאי שרימפס', name_ar: 'باد تاي روبيان', desc: 'Rice noodles with shrimp, peanuts & lime', desc_he: 'נודלס אורז עם שרימפס, בוטנים ולימון', desc_ar: 'نودلز أرز مع روبيان وفول سوداني وليمون', price: 48, img: noodleShrimpPadthai, customizable: false },
-  { name: 'Veggie Lo Mein', name_he: 'לו מיין ירקות', name_ar: 'لو مين خضار', desc: 'Stir-fried egg noodles with seasonal vegetables', desc_he: 'נודלס ביצים מוקפצים עם ירקות עונתיים', desc_ar: 'نودلز البيض المقلية مع خضروات موسمية', price: 38, img: noodleVeggieLomein, customizable: false },
+  { name: 'Build Your Noodle Bowl', name_he: 'בנו את קערת הנודלס', name_ar: 'ابنِ وعاء النودلز', name_ru: 'Собери свою лапшу', desc: 'Choose your base, toppings, and sauce', desc_he: 'בחרו בסיס, תוספות ורוטב', desc_ar: 'اختر القاعدة والإضافات والصلصة', desc_ru: 'Выберите основу, топпинги и соус', price: 38, img: noodlesImg, customizable: true },
+  { name: 'Chicken Teriyaki Noodles', name_he: 'נודלס עוף טריאקי', name_ar: 'نودلز دجاج ترياكي', name_ru: 'Лапша с курицей терияки', desc: 'Udon noodles with grilled teriyaki chicken', desc_he: 'נודלס אודון עם עוף טריאקי צלוי', desc_ar: 'نودلز أودون مع دجاج ترياكي مشوي', desc_ru: 'Удон с курицей терияки на гриле', price: 46, img: noodleChickenTeriyaki, customizable: false },
+  { name: 'Spicy Beef Ramen', name_he: 'ראמן בקר חריף', name_ar: 'رامن لحم بقري حار', name_ru: 'Острый рамен с говядиной', desc: 'Rich spicy broth with sliced beef & soft egg', desc_he: 'מרק חריף עשיר עם בקר פרוס וביצה רכה', desc_ar: 'مرق حار غني مع شرائح لحم بقري وبيض طري', desc_ru: 'Насыщенный острый бульон с говядиной и яйцом', price: 52, img: noodleSpicyBeef, customizable: false },
+  { name: 'Shrimp Pad Thai', name_he: 'פאד תאי שרימפס', name_ar: 'باد تاي روبيان', name_ru: 'Пад Тай с креветками', desc: 'Rice noodles with shrimp, peanuts & lime', desc_he: 'נודלס אורז עם שרימפס, בוטנים ולימון', desc_ar: 'نودلز أرز مع روبيان وفول سوداني وليمون', desc_ru: 'Рисовая лапша с креветками, арахисом и лаймом', price: 48, img: noodleShrimpPadthai, customizable: false },
+  { name: 'Veggie Lo Mein', name_he: 'לו מיין ירקות', name_ar: 'لو مين خضار', name_ru: 'Ло Мейн с овощами', desc: 'Stir-fried egg noodles with seasonal vegetables', desc_he: 'נודלס ביצים מוקפצים עם ירקות עונתיים', desc_ar: 'نودلز البيض المقلية مع خضروات موسمية', desc_ru: 'Жареная яичная лапша с сезонными овощами', price: 38, img: noodleVeggieLomein, customizable: false },
 ];
 
 const noodleItems: MenuItem[] = noodlesData.map((item, i) => ({
@@ -156,11 +156,13 @@ const noodleItems: MenuItem[] = noodlesData.map((item, i) => ({
   name: item.name,
   name_he: item.name_he,
   name_ar: item.name_ar,
+  name_ru: item.name_ru,
   slug: item.name.toLowerCase().replace(/\s+/g, '-'),
   categoryId: 'noodles',
   description: item.desc,
   description_he: item.desc_he,
   description_ar: item.desc_ar,
+  description_ru: item.desc_ru,
   price: item.price,
   image: item.img,
   tags: ['noodles', ...(item.customizable ? ['customizable'] : [])],
