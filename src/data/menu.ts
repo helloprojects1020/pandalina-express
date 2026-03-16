@@ -70,10 +70,10 @@ const sushiRollsData: { name: string; name_he: string; name_ar: string; name_ru:
 ];
 
 const sushiExtras = [
-  { id: 'extra-ginger', name: 'Extra Ginger', name_he: "ג'ינג'ר נוסף", name_ar: 'زنجبيل إضافي', priceModifier: 3 },
-  { id: 'extra-wasabi', name: 'Extra Wasabi', name_he: 'וואסבי נוסף', name_ar: 'واسابي إضافي', priceModifier: 3 },
-  { id: 'spicy-mayo', name: 'Spicy Mayo', name_he: 'מיונז חריף', name_ar: 'مايونيز حار', priceModifier: 4 },
-  { id: 'soy-sauce', name: 'Soy Sauce', name_he: 'רוטב סויה', name_ar: 'صلصة الصويا', priceModifier: 0 },
+  { id: 'extra-ginger', name: 'Extra Ginger', name_he: "ג'ינג'ר נוסף", name_ar: 'زنجبيل إضافي', name_ru: 'Доп. имбирь', priceModifier: 3 },
+  { id: 'extra-wasabi', name: 'Extra Wasabi', name_he: 'וואסבי נוסף', name_ar: 'واسابي إضافي', name_ru: 'Доп. васаби', priceModifier: 3 },
+  { id: 'spicy-mayo', name: 'Spicy Mayo', name_he: 'מיונז חריף', name_ar: 'مايونيز حار', name_ru: 'Острый майонез', priceModifier: 4 },
+  { id: 'soy-sauce', name: 'Soy Sauce', name_he: 'רוטב סויה', name_ar: 'صلصة الصويا', name_ru: 'Соевый соус', priceModifier: 0 },
 ];
 
 const sushiRolls: MenuItem[] = sushiRollsData.map((roll, i) => ({
