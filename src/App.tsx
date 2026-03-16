@@ -21,6 +21,8 @@ import NotFound from "./pages/NotFound.tsx";
 import AdminLogin from "./pages/admin/AdminLogin.tsx";
 import AdminDashboard from "./pages/admin/AdminDashboard.tsx";
 import AdminMenu from "./pages/admin/AdminMenu.tsx";
+import AdminMenuItems from "./pages/admin/AdminMenuItems.tsx";
+import AdminOptions from "./pages/admin/AdminOptions.tsx";
 import AdminOrders from "./pages/admin/AdminOrders.tsx";
 import AdminSettings from "./pages/admin/AdminSettings.tsx";
 
@@ -64,6 +66,8 @@ const App = () => (
               >
                 <Route index element={<AdminDashboard />} />
                 <Route path="menu" element={<AdminMenu />} />
+                <Route path="menu/items" element={<AdminMenuItems />} />
+                <Route path="menu/options" element={<AdminOptions />} />
                 <Route path="orders" element={<AdminOrders />} />
                 <Route path="settings" element={<AdminSettings />} />
               </Route>
