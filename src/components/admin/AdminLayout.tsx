@@ -3,6 +3,8 @@ import { useAuth } from '@/hooks/useAuth';
 import {
   LayoutDashboard,
   UtensilsCrossed,
+  List,
+  SlidersHorizontal,
   ClipboardList,
   Settings,
   LogOut,
@@ -14,7 +16,9 @@ import logoImg from '@/assets/logo.png';
 
 const navItems = [
   { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true },
-  { to: '/admin/menu', icon: UtensilsCrossed, label: 'Menu Management' },
+  { to: '/admin/menu', icon: UtensilsCrossed, label: 'Categories', end: true },
+  { to: '/admin/menu/items', icon: List, label: 'Menu Items' },
+  { to: '/admin/menu/options', icon: SlidersHorizontal, label: 'Options / Modifiers' },
   { to: '/admin/orders', icon: ClipboardList, label: 'Orders' },
   { to: '/admin/settings', icon: Settings, label: 'Settings' },
 ];
