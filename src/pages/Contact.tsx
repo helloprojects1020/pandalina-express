@@ -11,6 +11,7 @@ const Contact = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const body = `Name: ${form.name}\nEmail: ${form.email}\n\n${form.message}`;
+    trackWhatsAppClick('contact_form');
     window.open(`https://wa.me/972526204159?text=${encodeURIComponent(body)}`, '_blank');
   };
 
