@@ -16,6 +16,7 @@ const MenuSection = () => {
   const [activeCategory, setActiveCategory] = useState(categories[0].id);
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [noodleOpen, setNoodleOpen] = useState(false);
+  const [tracked, setTracked] = useState(false);
 
   const handleOpenItem = (item: MenuItem) => {
     if (item.categoryId === 'noodles' && item.id === 'noodle-bowl') {
