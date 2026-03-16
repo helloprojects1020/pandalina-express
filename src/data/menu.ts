@@ -301,7 +301,7 @@ const drinkItems: MenuItem[] = drinksData.map((item, i) => ({
 export const menuItems: MenuItem[] = [
   ...sushiRolls,
   ...kitchenItems,
-  noodleItem,
+  ...noodleItems,
   ...platters,
   ...drinkItems,
 ];
