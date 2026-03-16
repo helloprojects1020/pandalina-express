@@ -14,7 +14,7 @@ interface RecommendationsProps {
 }
 
 const Recommendations = ({ title, excludeIds = [], variant = 'modal' }: RecommendationsProps) => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const addItem = useCartStore((s) => s.addItem);
 
   const items = RECOMMENDATION_IDS
