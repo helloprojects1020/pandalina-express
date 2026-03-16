@@ -174,38 +174,38 @@ const noodleItems: MenuItem[] = noodlesData.map((item, i) => ({
 }));
 
 export const noodleBases = [
-  { id: 'egg-noodles', name: 'Egg Noodles', name_he: 'נודלס ביצים', name_ar: 'نودلز البيض', priceModifier: 0 },
-  { id: 'rice-noodles', name: 'Rice Noodles', name_he: 'נודלס אורז', name_ar: 'نودلز الأرز', priceModifier: 0 },
-  { id: 'udon', name: 'Udon Noodles', name_he: 'נודלס אודון', name_ar: 'نودلز أودون', priceModifier: 0 },
-  { id: 'soba', name: 'Soba Noodles', name_he: 'נודלס סובה', name_ar: 'نودلز سوبا', priceModifier: 0 },
-  { id: 'white-rice', name: 'White Rice', name_he: 'אורז לבן', name_ar: 'أرز أبيض', priceModifier: 0 },
+  { id: 'egg-noodles', name: 'Egg Noodles', name_he: 'נודלס ביצים', name_ar: 'نودلز البيض', name_ru: 'Яичная лапша', priceModifier: 0 },
+  { id: 'rice-noodles', name: 'Rice Noodles', name_he: 'נודלס אורז', name_ar: 'نودلز الأرز', name_ru: 'Рисовая лапша', priceModifier: 0 },
+  { id: 'udon', name: 'Udon Noodles', name_he: 'נודלס אודון', name_ar: 'نودلز أودون', name_ru: 'Удон', priceModifier: 0 },
+  { id: 'soba', name: 'Soba Noodles', name_he: 'נודלס סובה', name_ar: 'نودلز سوبا', name_ru: 'Соба', priceModifier: 0 },
+  { id: 'white-rice', name: 'White Rice', name_he: 'אורז לבן', name_ar: 'أرز أبيض', name_ru: 'Белый рис', priceModifier: 0 },
 ];
 
 export const noodleToppings = [
-  { id: 'chicken', name: 'Chicken', name_he: 'עוף', name_ar: 'دجاج', priceModifier: 8 },
-  { id: 'beef', name: 'Beef', name_he: 'בקר', name_ar: 'لحم بقري', priceModifier: 12 },
-  { id: 'shrimp', name: 'Shrimp', name_he: 'שרימפס', name_ar: 'روبيان', priceModifier: 14 },
-  { id: 'salmon', name: 'Salmon', name_he: 'סלמון', name_ar: 'سالمون', priceModifier: 16 },
-  { id: 'egg', name: 'Egg', name_he: 'ביצה', name_ar: 'بيض', priceModifier: 4 },
-  { id: 'broccoli', name: 'Broccoli', name_he: 'ברוקולי', name_ar: 'بروكلي', priceModifier: 3 },
-  { id: 'onion', name: 'Onion', name_he: 'בצל', name_ar: 'بصل', priceModifier: 2 },
-  { id: 'bean-sprouts', name: 'Bean Sprouts', name_he: 'נבטים', name_ar: 'براعم الفاصولياء', priceModifier: 2 },
-  { id: 'pineapple', name: 'Pineapple', name_he: 'אננס', name_ar: 'أناناس', priceModifier: 3 },
-  { id: 'jalapeno', name: 'Jalapeño', name_he: "חלפיניו", name_ar: 'هالابينو', priceModifier: 2 },
-  { id: 'sesame', name: 'Sesame', name_he: 'שומשום', name_ar: 'سمسم', priceModifier: 1 },
-  { id: 'peanuts', name: 'Peanuts', name_he: 'בוטנים', name_ar: 'فول سوداني', priceModifier: 2 },
-  { id: 'cashew', name: 'Cashew', name_he: 'קשיו', name_ar: 'كاجو', priceModifier: 3 },
+  { id: 'chicken', name: 'Chicken', name_he: 'עוף', name_ar: 'دجاج', name_ru: 'Курица', priceModifier: 8 },
+  { id: 'beef', name: 'Beef', name_he: 'בקר', name_ar: 'لحم بقري', name_ru: 'Говядина', priceModifier: 12 },
+  { id: 'shrimp', name: 'Shrimp', name_he: 'שרימפס', name_ar: 'روبيان', name_ru: 'Креветки', priceModifier: 14 },
+  { id: 'salmon', name: 'Salmon', name_he: 'סלמון', name_ar: 'سالمون', name_ru: 'Лосось', priceModifier: 16 },
+  { id: 'egg', name: 'Egg', name_he: 'ביצה', name_ar: 'بيض', name_ru: 'Яйцо', priceModifier: 4 },
+  { id: 'broccoli', name: 'Broccoli', name_he: 'ברוקולי', name_ar: 'بروكلي', name_ru: 'Брокколи', priceModifier: 3 },
+  { id: 'onion', name: 'Onion', name_he: 'בצל', name_ar: 'بصل', name_ru: 'Лук', priceModifier: 2 },
+  { id: 'bean-sprouts', name: 'Bean Sprouts', name_he: 'נבטים', name_ar: 'براعم الفاصولياء', name_ru: 'Ростки', priceModifier: 2 },
+  { id: 'pineapple', name: 'Pineapple', name_he: 'אננס', name_ar: 'أناناس', name_ru: 'Ананас', priceModifier: 3 },
+  { id: 'jalapeno', name: 'Jalapeño', name_he: "חלפיניו", name_ar: 'هالابينو', name_ru: 'Халапеньо', priceModifier: 2 },
+  { id: 'sesame', name: 'Sesame', name_he: 'שומשום', name_ar: 'سمسم', name_ru: 'Кунжут', priceModifier: 1 },
+  { id: 'peanuts', name: 'Peanuts', name_he: 'בוטנים', name_ar: 'فول سوداني', name_ru: 'Арахис', priceModifier: 2 },
+  { id: 'cashew', name: 'Cashew', name_he: 'קשיו', name_ar: 'كاجو', name_ru: 'Кешью', priceModifier: 3 },
 ];
 
 export const noodleSauces = [
-  { id: 'pandalina', name: 'Pandalina', name_he: 'פנדלינה', name_ar: 'باندالينا', priceModifier: 0 },
-  { id: 'tokyo', name: 'Tokyo', name_he: 'טוקיו', name_ar: 'طوكيو', priceModifier: 0 },
-  { id: 'shanghai', name: 'Shanghai', name_he: 'שנגחאי', name_ar: 'شنغهاي', priceModifier: 0 },
-  { id: 'bangkok', name: 'Bangkok', name_he: 'בנגקוק', name_ar: 'بانكوك', priceModifier: 0 },
-  { id: 'jakarta', name: 'Jakarta', name_he: 'ג׳קרטה', name_ar: 'جاكرتا', priceModifier: 0 },
-  { id: 'hanoi', name: 'Hanoi', name_he: 'האנוי', name_ar: 'هانوي', priceModifier: 0 },
-  { id: 'hong-kong', name: 'Hong Kong', name_he: 'הונג קונג', name_ar: 'هونغ كونغ', priceModifier: 0 },
-  { id: 'manila', name: 'Manila', name_he: 'מנילה', name_ar: 'مانيلا', priceModifier: 0 },
+  { id: 'pandalina', name: 'Pandalina', name_he: 'פנדלינה', name_ar: 'باندالينا', name_ru: 'Пандалина', priceModifier: 0 },
+  { id: 'tokyo', name: 'Tokyo', name_he: 'טוקיו', name_ar: 'طوكيو', name_ru: 'Токио', priceModifier: 0 },
+  { id: 'shanghai', name: 'Shanghai', name_he: 'שנגחאי', name_ar: 'شنغهاي', name_ru: 'Шанхай', priceModifier: 0 },
+  { id: 'bangkok', name: 'Bangkok', name_he: 'בנגקוק', name_ar: 'بانكوك', name_ru: 'Бангкок', priceModifier: 0 },
+  { id: 'jakarta', name: 'Jakarta', name_he: 'ג׳קרטה', name_ar: 'جاكرتا', name_ru: 'Джакарта', priceModifier: 0 },
+  { id: 'hanoi', name: 'Hanoi', name_he: 'האנוי', name_ar: 'هانوي', name_ru: 'Ханой', priceModifier: 0 },
+  { id: 'hong-kong', name: 'Hong Kong', name_he: 'הונג קונג', name_ar: 'هونغ كونغ', name_ru: 'Гонконг', priceModifier: 0 },
+  { id: 'manila', name: 'Manila', name_he: 'מנילה', name_ar: 'مانيلا', name_ru: 'Манила', priceModifier: 0 },
 ];
 
 const plattersData = [
