@@ -24,7 +24,7 @@ const BADGE_MAP: Record<string, { emoji: string; label: string }> = {
 };
 
 const ProductCard = ({ item, onOpen, variant = 'default' }: ProductCardProps) => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const isBestSeller = BEST_SELLER_IDS.includes(item.id);
   const isPremium = variant === 'premium';
   const badge = BADGE_MAP[item.id];
