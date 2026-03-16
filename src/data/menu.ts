@@ -9,9 +9,18 @@ import kitchen2 from '@/assets/kitchen-2.jpg';
 import kitchen3 from '@/assets/kitchen-3.jpg';
 import platterImg from '@/assets/platter.jpg';
 import drinksCategoryImg from '@/assets/drinks-category.jpg';
-import drinkSoftImg from '@/assets/drink-soft.jpg';
-import drinkBeerImg from '@/assets/drink-beer.jpg';
-import drinkWineImg from '@/assets/drink-wine.jpg';
+import drinkColaImg from '@/assets/drink-cola.jpg';
+import drinkSpriteImg from '@/assets/drink-sprite.jpg';
+import drinkFantaImg from '@/assets/drink-fanta.jpg';
+import drinkWaterImg from '@/assets/drink-water.jpg';
+import drinkIcedTeaImg from '@/assets/drink-icedtea.jpg';
+import drinkGoldstarImg from '@/assets/drink-goldstar.jpg';
+import drinkHeinekenImg from '@/assets/drink-heineken.jpg';
+import drinkCoronaImg from '@/assets/drink-corona.jpg';
+import drinkAsahiImg from '@/assets/drink-asahi.jpg';
+import drinkRedWineImg from '@/assets/drink-red-wine.jpg';
+import drinkWhiteWineImg from '@/assets/drink-white-wine.jpg';
+import drinkRoseWineImg from '@/assets/drink-rose-wine.jpg';
 
 const rollImages = [sushiRoll1, sushiRoll2, sushiRoll3];
 const pickRollImg = (i: number) => rollImages[i % rollImages.length];
@@ -224,9 +233,25 @@ const drinksData = [
 ];
 
 const drinkImageMap: Record<string, string> = {
-  'soft-drink': drinkSoftImg,
-  beer: drinkBeerImg,
-  wine: drinkWineImg,
+  'Coca Cola': drinkColaImg,
+  'Coca Cola Zero': drinkColaImg,
+  'Sprite': drinkSpriteImg,
+  'Fanta': drinkFantaImg,
+  'Sparkling Water': drinkWaterImg,
+  'Mineral Water': drinkWaterImg,
+  'Fuse Tea': drinkIcedTeaImg,
+  'Goldstar': drinkGoldstarImg,
+  'Maccabi': drinkGoldstarImg,
+  'Heineken': drinkHeinekenImg,
+  'Corona': drinkCoronaImg,
+  'Asahi': drinkAsahiImg,
+  'Sapporo': drinkAsahiImg,
+  'Red Wine (Glass)': drinkRedWineImg,
+  'Red Wine (Bottle)': drinkRedWineImg,
+  'White Wine (Glass)': drinkWhiteWineImg,
+  'White Wine (Bottle)': drinkWhiteWineImg,
+  'Rosé Wine (Glass)': drinkRoseWineImg,
+  'Rosé Wine (Bottle)': drinkRoseWineImg,
 };
 
 const drinkItems: MenuItem[] = drinksData.map((item, i) => ({
@@ -240,7 +265,7 @@ const drinkItems: MenuItem[] = drinksData.map((item, i) => ({
   description_he: item.desc_he,
   description_ar: item.desc_ar,
   price: item.price,
-  image: drinkImageMap[item.tags[0]] || drinkSoftImg,
+  image: drinkImageMap[item.name] || drinkColaImg,
   tags: ['drinks', ...item.tags],
   isAvailable: true,
   isCustomizable: false,
