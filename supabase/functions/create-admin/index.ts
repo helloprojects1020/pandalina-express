@@ -12,21 +12,26 @@ serve(async (req) => {
   }
 
   try {
-    const { email, password, secret } = await req.json();
-
-    // Simple bootstrap secret to prevent unauthorized creation
-    if (secret !== Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
+    const { email, password } = await req.json();
 
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
       { auth: { autoRefreshToken: false, persistSession: false } }
     );
+
+    // Check if any admin exists - only allow bootstrap if no admins yet
+    const { count } = await supabaseAdmin
+      .from('user_roles')
+      .select('id', { count: 'exact', head: true })
+      .eq('role', 'admin');
+
+    if (count && count > 0) {
+      return new Response(JSON.stringify({ error: 'Admin already exists. Bootstrap disabled.' }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     // Create user
     const { data: userData, error: createError } = await supabaseAdmin.auth.admin.createUser({
