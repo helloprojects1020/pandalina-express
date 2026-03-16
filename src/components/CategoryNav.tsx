@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { categories } from '@/data/menu';
+import { useMenu } from '@/hooks/useMenu';
 import { useI18n } from '@/i18n/context';
 
 interface CategoryNavProps {
@@ -10,6 +10,7 @@ interface CategoryNavProps {
 const CategoryNav = ({ activeCategory, onSelect }: CategoryNavProps) => {
   const { t } = useI18n();
   const navigate = useNavigate();
+  const { categories } = useMenu();
 
   const handleClick = (cat: (typeof categories)[0]) => {
     onSelect(cat.id);

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { featuredItems, getItemsByCategory, categories } from '@/data/menu';
+import { useMenu } from '@/hooks/useMenu';
 import type { MenuItem } from '@/types/menu';
 import { useI18n } from '@/i18n/context';
 import { localizedDescription } from '@/lib/localize';
@@ -11,6 +11,7 @@ import NoodleBuilder from './NoodleBuilder';
 /** Standalone Best Sellers grid for the homepage */
 export const BestSellers = () => {
   const { t } = useI18n();
+  const { featuredItems } = useMenu();
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
 
   return (
@@ -32,6 +33,7 @@ export const BestSellers = () => {
 export const PlattersPreview = () => {
   const { t, locale } = useI18n();
   const navigate = useNavigate();
+  const { categories, getItemsByCategory } = useMenu();
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const plattersCategory = categories.find(c => c.id === 'platters');
   const items = getItemsByCategory('platters');

@@ -1,11 +1,11 @@
 import { useI18n } from '@/i18n/context';
 import { useCartStore } from '@/store/cartStore';
-import { menuItems } from '@/data/menu';
+import { useMenu } from '@/hooks/useMenu';
 import type { MenuItem } from '@/types/menu';
 import { localizedName } from '@/lib/localize';
 import { Plus } from 'lucide-react';
 
-const RECOMMENDATION_IDS = ['kitchen-5', 'kitchen-7', 'kitchen-3', 'sushi-1', 'kitchen-8', 'kitchen-6'];
+const RECOMMENDATION_SLUGS = ['egg-roll', 'chicken-popcorn', 'avocado-salad', 'crunchy-roll', 'chicken-bao', 'crispy-shrimp-tempura'];
 
 interface RecommendationsProps {
   title?: string;
@@ -16,9 +16,10 @@ interface RecommendationsProps {
 const Recommendations = ({ title, excludeIds = [], variant = 'modal' }: RecommendationsProps) => {
   const { t, locale } = useI18n();
   const addItem = useCartStore((s) => s.addItem);
+  const { menuItems } = useMenu();
 
-  const items = RECOMMENDATION_IDS
-    .map((id) => menuItems.find((m) => m.id === id))
+  const items = RECOMMENDATION_SLUGS
+    .map((slug) => menuItems.find((m) => m.slug === slug))
     .filter((m): m is MenuItem => !!m && !excludeIds.includes(m.id))
     .slice(0, 5);
 
