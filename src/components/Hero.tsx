@@ -80,6 +80,7 @@ const Hero = () => {
   }, [current]);
 
   const scrollToMenu = () => {
+    trackMenuView();
     document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' });
   };
 
