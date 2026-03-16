@@ -66,7 +66,7 @@ const AdminOrders = () => {
     if (filterStatus === 'active') {
       q = q.in('status', ['new', 'preparing', 'ready']);
     } else if (filterStatus !== 'all') {
-      q = q.eq('status', filterStatus);
+      q = q.eq('status', filterStatus as OrderStatus);
     }
     const { data } = await q;
     setOrders((data as OrderRow[]) ?? []);
