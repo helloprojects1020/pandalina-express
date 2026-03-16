@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Minus, Plus, Trash2, ShoppingBag, Pencil } from 'lucide-react';
 import { useCartStore } from '@/store/cartStore';
 import { useI18n } from '@/i18n/context';
+import { localizedName } from '@/lib/localize';
 import Recommendations from './Recommendations';
 
 const CartDrawer = () => {
