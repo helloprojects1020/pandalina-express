@@ -9,6 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
 import { Plus, Pencil, Trash2, Loader2, ImageIcon, Star, Sparkles, X } from 'lucide-react';
@@ -248,18 +249,33 @@ const AdminMenuItems = () => {
               {form.image_url && !imageFile && (
                 <div className="flex items-start gap-2 mt-1">
                   <img src={form.image_url} alt="" className="w-20 h-20 rounded-lg object-cover" />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 text-destructive hover:text-destructive shrink-0"
-                    onClick={async () => {
-                      await deleteMenuImage(form.image_url!);
-                      setForm(f => ({ ...f, image_url: null }));
-                    }}
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive shrink-0">
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Remove image?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          The uploaded image will be deleted. The public site will fall back to the default image for this item.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          onClick={async () => {
+                            await deleteMenuImage(form.image_url!);
+                            setForm(f => ({ ...f, image_url: null }));
+                          }}
+                        >
+                          Remove
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
               )}
             </div>
