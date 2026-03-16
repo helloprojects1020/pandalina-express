@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import { categories, getItemsByCategory } from '@/data/menu';
 import type { MenuItem } from '@/types/menu';
 import { useI18n } from '@/i18n/context';
+import { localizedDescription } from '@/lib/localize';
 import ProductCard from '@/components/ProductCard';
 import ProductModal from '@/components/ProductModal';
 import NoodleBuilder from '@/components/NoodleBuilder';
