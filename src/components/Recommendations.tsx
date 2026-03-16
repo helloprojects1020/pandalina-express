@@ -2,6 +2,7 @@ import { useI18n } from '@/i18n/context';
 import { useCartStore } from '@/store/cartStore';
 import { menuItems } from '@/data/menu';
 import type { MenuItem } from '@/types/menu';
+import { localizedName } from '@/lib/localize';
 import { Plus } from 'lucide-react';
 
 const RECOMMENDATION_IDS = ['kitchen-5', 'kitchen-7', 'kitchen-3', 'sushi-1', 'kitchen-8', 'kitchen-6'];
