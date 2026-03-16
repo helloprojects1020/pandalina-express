@@ -44,7 +44,7 @@ export const PlattersPreview = () => {
           <h2 className="text-xl md:text-2xl tracking-tighter uppercase text-foreground mb-1">
             {t.categories.platters}
           </h2>
-          <p className="text-sm text-muted-foreground">{t.categories.platters_desc || 'Sharing trays & party platters'}</p>
+          <p className="text-sm text-muted-foreground">{plattersCategory ? localizedDescription(plattersCategory, locale) : ''}</p>
         </div>
         <button
           onClick={() => navigate('/category/platters')}
