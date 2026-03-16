@@ -121,8 +121,8 @@ const ProductModal = ({ item, onClose }: ProductModalProps) => {
 
             {/* Scrollable content */}
             <div className="flex-1 overflow-y-auto px-5 pt-4 pb-2">
-              <h2 className="font-display text-xl tracking-tight text-foreground">{item.name}</h2>
-              <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
+              <h2 className="font-display text-xl tracking-tight text-foreground">{localizedName(item, locale)}</h2>
+              <p className="text-sm text-muted-foreground mt-1">{localizedDescription(item, locale)}</p>
               <p className="font-display text-2xl text-primary mt-2">₪{item.price}</p>
 
               {/* Options */}
