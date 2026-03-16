@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import logo from '@/assets/logo.png';
 
-const CORRECT_PASSWORD = 'Hanna0526!@';
+const CORRECT_PASSWORD = 'Qazwsx1020!@';
 const STORAGE_KEY = 'site-authenticated';
 const storage = sessionStorage;
 
