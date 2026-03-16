@@ -1,6 +1,6 @@
 import Hero from '@/components/Hero';
 import CategoryCards from '@/components/CategoryCards';
-import { BestSellers, PlattersPreview } from '@/components/HomeSections';
+import { BestSellers } from '@/components/HomeSections';
 import MenuSection from '@/components/MenuSection';
 import MeetChef from '@/components/MeetChef';
 import WhyOrderSection from '@/components/WhyOrderSection';
@@ -14,7 +14,6 @@ const Index = () => {
       <CategoryCards />
       <BestSellers />
       <MenuSection />
-      <PlattersPreview />
       <MeetChef />
       <WhyOrderSection />
       <WhatsAppCTA />

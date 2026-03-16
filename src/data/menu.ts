@@ -4,6 +4,10 @@ import sushiRoll1 from '@/assets/sushi-roll-1.jpg';
 import sushiRoll2 from '@/assets/sushi-roll-2.jpg';
 import sushiRoll3 from '@/assets/sushi-roll-3.jpg';
 import noodlesImg from '@/assets/noodles.jpg';
+import noodleChickenTeriyaki from '@/assets/noodle-chicken-teriyaki.jpg';
+import noodleSpicyBeef from '@/assets/noodle-spicy-beef.jpg';
+import noodleShrimpPadthai from '@/assets/noodle-shrimp-padthai.jpg';
+import noodleVeggieLomein from '@/assets/noodle-veggie-lomein.jpg';
 import kitchenAsadoaki from '@/assets/kitchen-asadoaki.jpg';
 import kitchenCrispySalmon from '@/assets/kitchen-crispy-salmon.jpg';
 import kitchenAvocadoSalad from '@/assets/kitchen-avocado-salad.jpg';
@@ -134,25 +138,33 @@ const kitchenItems: MenuItem[] = kitchenData.map((item, i) => ({
   sortOrder: i + 1,
 }));
 
-const noodleItem: MenuItem = {
-  id: 'noodle-bowl',
-  name: 'Build Your Noodle Bowl',
-  name_he: 'בנו את קערת הנודלס',
-  name_ar: 'ابنِ وعاء النودلز',
-  slug: 'build-your-noodle-bowl',
+const noodlesData = [
+  { name: 'Build Your Noodle Bowl', name_he: 'בנו את קערת הנודלס', name_ar: 'ابنِ وعاء النودلز', desc: 'Choose your base, toppings, and sauce', desc_he: 'בחרו בסיס, תוספות ורוטב', desc_ar: 'اختر القاعدة والإضافات والصلصة', price: 38, img: noodlesImg, customizable: true },
+  { name: 'Chicken Teriyaki Noodles', name_he: 'נודלס עוף טריאקי', name_ar: 'نودلز دجاج ترياكي', desc: 'Udon noodles with grilled teriyaki chicken', desc_he: 'נודלס אודון עם עוף טריאקי צלוי', desc_ar: 'نودلز أودون مع دجاج ترياكي مشوي', price: 46, img: noodleChickenTeriyaki, customizable: false },
+  { name: 'Spicy Beef Ramen', name_he: 'ראמן בקר חריף', name_ar: 'رامن لحم بقري حار', desc: 'Rich spicy broth with sliced beef & soft egg', desc_he: 'מרק חריף עשיר עם בקר פרוס וביצה רכה', desc_ar: 'مرق حار غني مع شرائح لحم بقري وبيض طري', price: 52, img: noodleSpicyBeef, customizable: false },
+  { name: 'Shrimp Pad Thai', name_he: 'פאד תאי שרימפס', name_ar: 'باد تاي روبيان', desc: 'Rice noodles with shrimp, peanuts & lime', desc_he: 'נודלס אורז עם שרימפס, בוטנים ולימון', desc_ar: 'نودلز أرز مع روبيان وفول سوداني وليمون', price: 48, img: noodleShrimpPadthai, customizable: false },
+  { name: 'Veggie Lo Mein', name_he: 'לו מיין ירקות', name_ar: 'لو مين خضار', desc: 'Stir-fried egg noodles with seasonal vegetables', desc_he: 'נודלס ביצים מוקפצים עם ירקות עונתיים', desc_ar: 'نودلز البيض المقلية مع خضروات موسمية', price: 38, img: noodleVeggieLomein, customizable: false },
+];
+
+const noodleItems: MenuItem[] = noodlesData.map((item, i) => ({
+  id: i === 0 ? 'noodle-bowl' : `noodle-${i + 1}`,
+  name: item.name,
+  name_he: item.name_he,
+  name_ar: item.name_ar,
+  slug: item.name.toLowerCase().replace(/\s+/g, '-'),
   categoryId: 'noodles',
-  description: 'Choose your base, toppings, and sauce',
-  description_he: 'בחרו בסיס, תוספות ורוטב',
-  description_ar: 'اختر القاعدة والإضافات والصلصة',
-  price: 38,
-  image: noodlesImg,
-  tags: ['noodles', 'customizable'],
+  description: item.desc,
+  description_he: item.desc_he,
+  description_ar: item.desc_ar,
+  price: item.price,
+  image: item.img,
+  tags: ['noodles', ...(item.customizable ? ['customizable'] : [])],
   isAvailable: true,
-  isCustomizable: true,
+  isCustomizable: item.customizable,
   options: [],
-  isFeatured: true,
-  sortOrder: 1,
-};
+  isFeatured: i < 2,
+  sortOrder: i + 1,
+}));
 
 export const noodleBases = [
   { id: 'egg-noodles', name: 'Egg Noodles', name_he: 'נודלס ביצים', name_ar: 'نودلز البيض', priceModifier: 0 },
@@ -289,7 +301,7 @@ const drinkItems: MenuItem[] = drinksData.map((item, i) => ({
 export const menuItems: MenuItem[] = [
   ...sushiRolls,
   ...kitchenItems,
-  noodleItem,
+  ...noodleItems,
   ...platters,
   ...drinkItems,
 ];
