@@ -67,7 +67,7 @@ const Footer = () => {
         <div className="grid grid-cols-2 gap-4 text-center mb-6">
           <div>
             <h4 className="font-bold text-xs mb-1.5">{t.footer.contact}</h4>
-            <p className="text-xs text-accent-foreground/60">📞 052-620-4159</p>
+            <a href="tel:+972526204159" onClick={() => trackPhoneClick()} className="text-xs text-accent-foreground/60 hover:text-primary transition-colors">📞 052-620-4159</a>
             <p className="text-xs text-accent-foreground/60 mt-0.5">📍 {t.footer.address}</p>
           </div>
           <div>
