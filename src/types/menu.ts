@@ -21,6 +21,7 @@ export interface OptionGroup {
   title_he?: string;
   title_ar?: string;
   title_en?: string;
+  title_ru?: string;
   type: 'single' | 'multiple';
   required: boolean;
   choices: OptionChoice[];
