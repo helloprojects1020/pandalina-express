@@ -93,6 +93,7 @@ const Footer = () => {
             href="https://wa.me/972526204159"
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => trackWhatsAppClick('footer')}
             className="hover:scale-110 transition-transform duration-200"
             aria-label="WhatsApp"
           >

@@ -26,8 +26,17 @@ const MenuSection = () => {
     }
   };
 
+  // Track menu_view when the section scrolls into view
+  const menuRef = useCallback((node: HTMLDivElement | null) => {
+    if (!node || tracked) return;
+    const obs = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { trackMenuView(); setTracked(true); obs.disconnect(); }
+    }, { threshold: 0.2 });
+    obs.observe(node);
+  }, [tracked]);
+
   return (
-    <div id="menu">
+    <div id="menu" ref={menuRef}>
       <CategoryNav activeCategory={activeCategory} onSelect={setActiveCategory} />
 
       {/* Category previews (excluding platters — shown separately above) */}
