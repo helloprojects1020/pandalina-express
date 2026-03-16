@@ -6,6 +6,7 @@ import { useCartStore } from '@/store/cartStore';
 import { useI18n } from '@/i18n/context';
 import { localizedName, localizedDescription, localizedTitle } from '@/lib/localize';
 import Recommendations from './Recommendations';
+import { handleImageError } from '@/lib/imageFallback';
 
 interface ProductModalProps {
   item: MenuItem | null;
