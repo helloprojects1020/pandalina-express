@@ -46,7 +46,7 @@ const ProductCard = ({ item, onOpen, variant = 'default' }: ProductCardProps) =>
       <div className={`overflow-hidden bg-secondary ${isPremium ? 'aspect-[16/10]' : 'aspect-square rounded-xl'}`}>
         <img
           src={item.image}
-          alt={item.name}
+          alt={localizedName(item, locale)}
           className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
           loading="lazy"
         />
