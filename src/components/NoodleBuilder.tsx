@@ -14,7 +14,7 @@ interface NoodleBuilderProps {
 }
 
 const NoodleBuilder = ({ open, onClose }: NoodleBuilderProps) => {
-  const { t, isRTL } = useI18n();
+  const { t, isRTL, locale } = useI18n();
   const [step, setStep] = useState(0);
   const [config, setConfig] = useState<NoodleConfig>({ base: null, toppings: [], sauce: null });
   const addItem = useCartStore((s) => s.addItem);
