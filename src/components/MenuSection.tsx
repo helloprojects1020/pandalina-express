@@ -39,10 +39,8 @@ const MenuSection = () => {
     <div id="menu" ref={menuRef}>
       <CategoryNav activeCategory={activeCategory} onSelect={setActiveCategory} />
 
-      {/* Category previews (excluding platters — shown separately above) */}
-      {categories
-        .filter((cat) => cat.id !== 'platters')
-        .map((cat) => {
+      {/* Category previews */}
+      {categories.map((cat) => {
           const items = getItemsByCategory(cat.id);
           const previewItems = items.slice(0, 4);
           const categoryLabel =
