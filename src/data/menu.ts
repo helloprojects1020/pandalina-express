@@ -21,7 +21,7 @@ export const categories: MenuCategory[] = [
   { id: 'platters', name: 'Platters', name_he: 'מגשים', name_ar: 'أطباق للمشاركة', slug: 'platters', description: 'Sharing trays & party platters', description_he: 'מגשים למסיבות ואירועים', description_ar: 'صواني مشاركة وأطباق حفلات', image: platterImg, sortOrder: 2 },
   { id: 'kitchen', name: 'Kitchen', name_he: 'מטבח', name_ar: 'المطبخ', slug: 'kitchen', description: 'Hot dishes & specials', description_he: 'מנות חמות ומיוחדות', description_ar: 'أطباق ساخنة ومميزة', image: kitchen1, sortOrder: 3 },
   { id: 'noodles', name: 'Noodles', name_he: 'נודלס', name_ar: 'نودلز', slug: 'noodles', description: 'Build your own noodle bowl', description_he: 'בנו את קערת הנודלס שלכם', description_ar: 'ابنِ وعاء النودلز الخاص بك', image: noodlesImg, sortOrder: 4 },
-  { id: 'drinks', name: 'Drinks', name_he: 'שתייה', name_ar: 'مشروبات', slug: 'drinks', description: 'Soft drinks, beer & wine', description_he: 'שתייה קלה, בירה ויין', description_ar: 'مشروبات غازية، بيرة ونبيذ', image: kitchen3, sortOrder: 5 },
+  { id: 'drinks', name: 'Drinks', name_he: 'שתייה', name_ar: 'مشروبات', slug: 'drinks', description: 'Soft drinks, beer & wine', description_he: 'שתייה קלה, בירה ויין', description_ar: 'مشروبات غازية، بيرة ونبيذ', image: drinksCategoryImg, sortOrder: 5 },
 ];
 
 /* ── Sushi roll translations ── */
