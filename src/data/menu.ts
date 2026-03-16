@@ -42,11 +42,11 @@ const rollImages = [sushiRoll1, sushiRoll2, sushiRoll3];
 const pickRollImg = (i: number) => rollImages[i % rollImages.length];
 
 export const categories: MenuCategory[] = [
-  { id: 'sushi-rolls', name: 'Sushi Rolls', name_he: 'רולים', name_ar: 'لفائف السوشي', slug: 'sushi-rolls', description: 'Signature sushi rolls', description_he: 'רולים מיוחדים של השף', description_ar: 'لفائف السوشي المميزة', image: sushiRoll1, sortOrder: 1 },
-  { id: 'platters', name: 'Platters', name_he: 'מגשים', name_ar: 'أطباق للمشاركة', slug: 'platters', description: 'Sharing trays & party platters', description_he: 'מגשים למסיבות ואירועים', description_ar: 'صواني مشاركة وأطباق حفلات', image: platterFamily, sortOrder: 2 },
-  { id: 'kitchen', name: 'Kitchen', name_he: 'מטבח', name_ar: 'المطبخ', slug: 'kitchen', description: 'Hot dishes & specials', description_he: 'מנות חמות ומיוחדות', description_ar: 'أطباق ساخنة ومميزة', image: kitchenAsadoaki, sortOrder: 3 },
-  { id: 'noodles', name: 'Noodles', name_he: 'נודלס', name_ar: 'نودلز', slug: 'noodles', description: 'Build your own noodle bowl', description_he: 'בנו את קערת הנודלס שלכם', description_ar: 'ابنِ وعاء النودلز الخاص بك', image: noodlesImg, sortOrder: 4 },
-  { id: 'drinks', name: 'Drinks', name_he: 'שתייה', name_ar: 'مشروبات', slug: 'drinks', description: 'Soft drinks, beer & wine', description_he: 'שתייה קלה, בירה ויין', description_ar: 'مشروبات غازية، بيرة ونبيذ', image: drinksCategoryImg, sortOrder: 5 },
+  { id: 'sushi-rolls', name: 'Sushi Rolls', name_he: 'רולים', name_ar: 'لفائف السوشي', name_ru: 'Роллы', slug: 'sushi-rolls', description: 'Signature sushi rolls', description_he: 'רולים מיוחדים של השף', description_ar: 'لفائف السوشي المميزة', description_ru: 'Фирменные суши-роллы', image: sushiRoll1, sortOrder: 1 },
+  { id: 'platters', name: 'Platters', name_he: 'מגשים', name_ar: 'أطباق للمشاركة', name_ru: 'Сеты', slug: 'platters', description: 'Sharing trays & party platters', description_he: 'מגשים למסיבות ואירועים', description_ar: 'صواني مشاركة وأطباق حفلات', description_ru: 'Сеты для компании и вечеринок', image: platterFamily, sortOrder: 2 },
+  { id: 'kitchen', name: 'Kitchen', name_he: 'מטבח', name_ar: 'المطبخ', name_ru: 'Кухня', slug: 'kitchen', description: 'Hot dishes & specials', description_he: 'מנות חמות ומיוחדות', description_ar: 'أطباق ساخنة ومميزة', description_ru: 'Горячие блюда и спецпредложения', image: kitchenAsadoaki, sortOrder: 3 },
+  { id: 'noodles', name: 'Noodles', name_he: 'נודלס', name_ar: 'نودلز', name_ru: 'Лапша', slug: 'noodles', description: 'Build your own noodle bowl', description_he: 'בנו את קערת הנודלס שלכם', description_ar: 'ابنِ وعاء النودلز الخاص بك', description_ru: 'Собери свою миску лапши', image: noodlesImg, sortOrder: 4 },
+  { id: 'drinks', name: 'Drinks', name_he: 'שתייה', name_ar: 'مشروبات', name_ru: 'Напитки', slug: 'drinks', description: 'Soft drinks, beer & wine', description_he: 'שתייה קלה, בירה ויין', description_ar: 'مشروبات غازية، بيرة ونبيذ', description_ru: 'Безалкогольные, пиво и вино', image: drinksCategoryImg, sortOrder: 5 },
 ];
 
 /* ── Sushi roll translations ── */
