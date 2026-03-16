@@ -50,23 +50,23 @@ export const categories: MenuCategory[] = [
 ];
 
 /* ── Sushi roll translations ── */
-const sushiRollsData: { name: string; name_he: string; name_ar: string }[] = [
-  { name: 'Crunchy Roll', name_he: 'קראנצ׳י רול', name_ar: 'كرانشي رول' },
-  { name: 'Sumo Roll', name_he: 'סומו רול', name_ar: 'سومو رول' },
-  { name: 'Hulk Roll', name_he: 'האלק רול', name_ar: 'هالك رول' },
-  { name: 'Volcano Roll', name_he: 'וולקנו רול', name_ar: 'فولكانو رول' },
-  { name: 'King Kong Roll', name_he: 'קינג קונג רול', name_ar: 'كينغ كونغ رول' },
-  { name: 'Kung Fu Panda Roll', name_he: 'קונג פו פנדה רול', name_ar: 'كونغ فو باندا رول' },
-  { name: 'Ninja Roll', name_he: 'נינג׳ה רול', name_ar: 'نينجا رول' },
-  { name: 'Godzilla Roll', name_he: 'גודזילה רול', name_ar: 'غودزيلا رول' },
-  { name: 'Louis Vuitton', name_he: 'לואי ויטון', name_ar: 'لوي فيتون' },
-  { name: 'Dragon Roll', name_he: 'דרגון רול', name_ar: 'دراغون رول' },
-  { name: 'Double Salmon Roll', name_he: 'דאבל סלמון רול', name_ar: 'دبل سالمون رول' },
-  { name: 'Spider Roll', name_he: 'ספיידר רול', name_ar: 'سبايدر رول' },
-  { name: 'Buddha Roll', name_he: 'בודהה רול', name_ar: 'بودا رول' },
-  { name: 'Mr. Orange Roll', name_he: 'מיסטר אורנג׳ רול', name_ar: 'مستر أورانج رول' },
-  { name: 'Tony', name_he: 'טוני', name_ar: 'توني' },
-  { name: 'Tony-S', name_he: 'טוני-S', name_ar: 'توني-S' },
+const sushiRollsData: { name: string; name_he: string; name_ar: string; name_ru: string }[] = [
+  { name: 'Crunchy Roll', name_he: 'קראנצ׳י רול', name_ar: 'كرانشي رول', name_ru: 'Кранчи ролл' },
+  { name: 'Sumo Roll', name_he: 'סומו רול', name_ar: 'سومو رول', name_ru: 'Сумо ролл' },
+  { name: 'Hulk Roll', name_he: 'האלק רול', name_ar: 'هالك رول', name_ru: 'Халк ролл' },
+  { name: 'Volcano Roll', name_he: 'וולקנו רול', name_ar: 'فولكانو رول', name_ru: 'Вулкан ролл' },
+  { name: 'King Kong Roll', name_he: 'קינג קונג רול', name_ar: 'كينغ كونغ رول', name_ru: 'Кинг Конг ролл' },
+  { name: 'Kung Fu Panda Roll', name_he: 'קונג פו פנדה רול', name_ar: 'كونغ فو باندا رول', name_ru: 'Кунг-фу Панда ролл' },
+  { name: 'Ninja Roll', name_he: 'נינג׳ה רול', name_ar: 'نينجا رول', name_ru: 'Ниндзя ролл' },
+  { name: 'Godzilla Roll', name_he: 'גודזילה רול', name_ar: 'غودزيلا رول', name_ru: 'Годзилла ролл' },
+  { name: 'Louis Vuitton', name_he: 'לואי ויטון', name_ar: 'لوي فيتون', name_ru: 'Луи Виттон' },
+  { name: 'Dragon Roll', name_he: 'דרגון רול', name_ar: 'دراغون رول', name_ru: 'Дракон ролл' },
+  { name: 'Double Salmon Roll', name_he: 'דאבל סלמון רול', name_ar: 'دبل سالمون رول', name_ru: 'Дабл Лосось ролл' },
+  { name: 'Spider Roll', name_he: 'ספיידר רול', name_ar: 'سبايدر رول', name_ru: 'Спайдер ролл' },
+  { name: 'Buddha Roll', name_he: 'בודהה רול', name_ar: 'بودا رول', name_ru: 'Будда ролл' },
+  { name: 'Mr. Orange Roll', name_he: 'מיסטר אורנג׳ רול', name_ar: 'مستر أورانج رول', name_ru: 'Мистер Оранж ролл' },
+  { name: 'Tony', name_he: 'טוני', name_ar: 'توني', name_ru: 'Тони' },
+  { name: 'Tony-S', name_he: 'טוני-S', name_ar: 'توني-S', name_ru: 'Тони-S' },
 ];
 
 const sushiExtras = [
