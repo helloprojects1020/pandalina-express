@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Pencil, Trash2, Loader2, ImageIcon, Star, Sparkles } from 'lucide-react';
+import { Plus, Pencil, Trash2, Loader2, ImageIcon, Star, Sparkles, X } from 'lucide-react';
 
 type MenuItemRow = {
   id: string;
