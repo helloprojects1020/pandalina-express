@@ -103,15 +103,15 @@ const sushiRolls: MenuItem[] = sushiRollsData.map((roll, i) => ({
 }));
 
 const kitchenData = [
-  { name: 'Asadoaki', name_he: 'אסאדואקי', name_ar: 'أسادواكي', desc: 'Grilled beef with Asian glaze', desc_he: 'בקר צלוי עם זיגוג אסייתי', desc_ar: 'لحم بقري مشوي مع تزجيج آسيوي', price: 52, img: kitchen2 },
-  { name: 'Crispy Salmon', name_he: 'סלמון קריספי', name_ar: 'سالمون مقرمش', desc: 'Pan-seared crispy skin salmon', desc_he: 'סלמון עם עור פריך על המחבת', desc_ar: 'سالمون بقشرة مقرمشة', price: 58, img: kitchen2 },
-  { name: 'Avocado Salad', name_he: 'סלט אבוקדו', name_ar: 'سلطة أفوكادو', desc: 'Fresh avocado with sesame dressing', desc_he: 'אבוקדו טרי עם רוטב שומשום', desc_ar: 'أفوكادو طازج مع صلصة السمسم', price: 38, img: kitchen2 },
-  { name: 'Beef Broccoli', name_he: 'בקר וברוקולי', name_ar: 'لحم بقري مع بروكلي', desc: 'Wok-tossed beef with broccoli', desc_he: 'בקר מוקפץ בווק עם ברוקולי', desc_ar: 'لحم بقري مقلي مع بروكلي', price: 48, img: kitchen2 },
-  { name: 'Egg Roll', name_he: 'אגרול', name_ar: 'لفائف البيض', desc: 'Crispy golden egg rolls', desc_he: 'אגרולים פריכים ומוזהבים', desc_ar: 'لفائف بيض ذهبية مقرمشة', price: 28, img: kitchen1 },
-  { name: 'Crispy Shrimp Tempura', name_he: 'טמפורה שרימפס', name_ar: 'تمبورا الروبيان المقرمشة', desc: 'Lightly battered tempura shrimp', desc_he: 'שרימפס טמפורה קלה ופריכה', desc_ar: 'روبيان تمبورا خفيف ومقرمش', price: 45, img: kitchen1 },
-  { name: 'Chicken Popcorn', name_he: 'פופקורן עוף', name_ar: 'فشار الدجاج', desc: 'Bite-sized crispy chicken', desc_he: 'חתיכות עוף פריכות בגודל ביס', desc_ar: 'قطع دجاج مقرمشة بحجم القضمة', price: 35, img: kitchen1 },
-  { name: 'Chicken Bao', name_he: "באו צ'יקן", name_ar: 'باو الدجاج', desc: 'Steamed bao with teriyaki chicken', desc_he: 'באו מאודה עם עוף טריאקי', desc_ar: 'باو مطهو على البخار مع دجاج ترياكي', price: 32, img: kitchen3 },
-  { name: 'Salmon Teriyaki', name_he: 'סלמון טריאקי', name_ar: 'سالمون ترياكي', desc: 'Grilled salmon with teriyaki glaze', desc_he: 'סלמון צלוי עם זיגוג טריאקי', desc_ar: 'سالمون مشوي مع تزجيج ترياكي', price: 56, img: kitchen2 },
+  { name: 'Asadoaki', name_he: 'אסאדואקי', name_ar: 'أسادواكي', desc: 'Grilled beef with Asian glaze', desc_he: 'בקר צלוי עם זיגוג אסייתי', desc_ar: 'لحم بقري مشوي مع تزجيج آسيوي', price: 52, img: kitchenAsadoaki },
+  { name: 'Crispy Salmon', name_he: 'סלמון קריספי', name_ar: 'سالمون مقرمش', desc: 'Pan-seared crispy skin salmon', desc_he: 'סלמון עם עור פריך על המחבת', desc_ar: 'سالمون بقشرة مقرمشة', price: 58, img: kitchenCrispySalmon },
+  { name: 'Avocado Salad', name_he: 'סלט אבוקדו', name_ar: 'سلطة أفوكادو', desc: 'Fresh avocado with sesame dressing', desc_he: 'אבוקדו טרי עם רוטב שומשום', desc_ar: 'أفوكادو طازج مع صلصة السمسم', price: 38, img: kitchenAvocadoSalad },
+  { name: 'Beef Broccoli', name_he: 'בקר וברוקולי', name_ar: 'لحم بقري مع بروكلي', desc: 'Wok-tossed beef with broccoli', desc_he: 'בקר מוקפץ בווק עם ברוקולי', desc_ar: 'لحم بقري مقلي مع بروكلي', price: 48, img: kitchenBeefBroccoli },
+  { name: 'Egg Roll', name_he: 'אגרול', name_ar: 'لفائف البيض', desc: 'Crispy golden egg rolls', desc_he: 'אגרולים פריכים ומוזהבים', desc_ar: 'لفائف بيض ذهبية مقرمشة', price: 28, img: kitchenEggRoll },
+  { name: 'Crispy Shrimp Tempura', name_he: 'טמפורה שרימפס', name_ar: 'تمبورا الروبيان المقرمشة', desc: 'Lightly battered tempura shrimp', desc_he: 'שרימפס טמפורה קלה ופריכה', desc_ar: 'روبيان تمبورا خفيف ومقرمش', price: 45, img: kitchenShrimpTempura },
+  { name: 'Chicken Popcorn', name_he: 'פופקורן עוף', name_ar: 'فشار الدجاج', desc: 'Bite-sized crispy chicken', desc_he: 'חתיכות עוף פריכות בגודל ביס', desc_ar: 'قطع دجاج مقرمشة بحجم القضمة', price: 35, img: kitchenChickenPopcorn },
+  { name: 'Chicken Bao', name_he: "באו צ'יקן", name_ar: 'باو الدجاج', desc: 'Steamed bao with teriyaki chicken', desc_he: 'באו מאודה עם עוף טריאקי', desc_ar: 'باو مطهو على البخار مع دجاج ترياكي', price: 32, img: kitchenChickenBao },
+  { name: 'Salmon Teriyaki', name_he: 'סלמון טריאקי', name_ar: 'سالمون ترياكي', desc: 'Grilled salmon with teriyaki glaze', desc_he: 'סלמון צלוי עם זיגוג טריאקי', desc_ar: 'سالمون مشوي مع تزجيج ترياكي', price: 56, img: kitchenSalmonTeriyaki },
 ];
 
 const kitchenItems: MenuItem[] = kitchenData.map((item, i) => ({
