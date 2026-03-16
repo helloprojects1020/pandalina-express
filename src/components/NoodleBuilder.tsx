@@ -175,7 +175,7 @@ const NoodleBuilder = ({ open, onClose }: NoodleBuilderProps) => {
               )}
 
               <div className="text-end">
-                <p className="text-xs text-muted-foreground">{t.noodle.total}</p>
+                <p className="text-xs text-muted-foreground">{t.noodle.step_of}</p>
                 <p className="font-display text-lg text-primary">₪{total}</p>
               </div>
 
