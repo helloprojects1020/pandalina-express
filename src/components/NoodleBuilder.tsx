@@ -194,7 +194,7 @@ const NoodleBuilder = ({ open, onClose }: NoodleBuilderProps) => {
                   disabled={!canNext}
                   className="h-11 px-5 rounded-full bg-primary text-primary-foreground font-semibold text-sm disabled:opacity-40"
                 >
-                  {t.noodle.add}
+                  {t.noodle.add_to_cart}
                 </button>
               )}
             </div>
