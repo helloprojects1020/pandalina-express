@@ -4,6 +4,7 @@ import { X, Minus, Plus } from 'lucide-react';
 import type { MenuItem, CartItemOption, OptionChoice } from '@/types/menu';
 import { useCartStore } from '@/store/cartStore';
 import { useI18n } from '@/i18n/context';
+import { localizedName, localizedDescription, localizedTitle } from '@/lib/localize';
 import Recommendations from './Recommendations';
 
 interface ProductModalProps {
