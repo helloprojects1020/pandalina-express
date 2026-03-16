@@ -2,11 +2,12 @@ import { createContext, useContext, useState, useEffect, useCallback, type React
 import en from './locales/en';
 import he from './locales/he';
 import ar from './locales/ar';
+import ru from './locales/ru';
 import type { Translations } from './locales/en';
 
-export type Locale = 'en' | 'he' | 'ar';
+export type Locale = 'en' | 'he' | 'ar' | 'ru';
 
-const locales: Record<Locale, Translations> = { en, he, ar };
+const locales: Record<Locale, Translations> = { en, he, ar, ru };
 
 interface I18nContextType {
   locale: Locale;
