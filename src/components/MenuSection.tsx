@@ -8,6 +8,7 @@ import CategoryNav from './CategoryNav';
 import ProductCard from './ProductCard';
 import ProductModal from './ProductModal';
 import NoodleBuilder from './NoodleBuilder';
+import { trackMenuView } from '@/lib/analytics';
 
 const MenuSection = () => {
   const { t, locale } = useI18n();
