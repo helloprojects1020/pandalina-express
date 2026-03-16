@@ -9,7 +9,7 @@ import ProductCard from '@/components/ProductCard';
 import ProductModal from '@/components/ProductModal';
 import NoodleBuilder from '@/components/NoodleBuilder';
 import Footer from '@/components/Footer';
-const DRINKS_VIDEO_URL = '/__l5e/assets-v1/817a1e40-a110-44a2-b863-22c9c08a70c6/category-drinks.mp4';
+const DRINKS_VIDEO_URL = '/videos/category-drinks.mp4';
 
 /* Category-specific hero videos – locally hosted for reliability */
 const categoryVideos: Record<string, string> = {
