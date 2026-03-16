@@ -40,32 +40,32 @@ export const generateWhatsAppLink = (
     .join('\n');
 
   const lines = [
-    `*🐼 הזמנה חדשה — פנדלינה*`,
+    `🐼 הזמנה חדשה — פנדלינה`,
     ``,
-    `*שם מלא:* ${customer.name}`,
-    `*טלפון:* ${customer.phone}`,
-    `*סוג הזמנה:* ${orderTypeLabel}`,
+    `שם מלא: ${customer.name}`,
+    `טלפון: ${customer.phone}`,
+    `סוג הזמנה: ${orderTypeLabel}`,
   ];
 
   if (customer.orderType === 'delivery' && customer.address) {
-    lines.push(`*כתובת:* ${customer.address}`);
+    lines.push(`כתובת: ${customer.address}`);
   }
 
   if (prepTime && PREP_LABELS[prepTime]) {
-    lines.push(`*זמן הכנה:* ${PREP_LABELS[prepTime]}`);
+    lines.push(`זמן הכנה: ${PREP_LABELS[prepTime]}`);
   }
 
-  lines.push('', `*פריטים:*`, itemLines, '');
-  lines.push(`*סכום ביניים:* ₪${subtotal}`);
+  lines.push('', `פריטים:`, itemLines, '');
+  lines.push(`סכום ביניים: ₪${subtotal}`);
 
   if (customer.orderType === 'delivery') {
-    lines.push(`*דמי משלוח:* ₪${deliveryFee}`);
+    lines.push(`דמי משלוח: ₪${deliveryFee}`);
   }
 
-  lines.push(`*סה״כ:* ₪${total}`);
+  lines.push(`סה״כ: ₪${total}`);
 
   if (customer.notes) {
-    lines.push('', `*הערות:* ${customer.notes}`);
+    lines.push('', `הערות: ${customer.notes}`);
   }
 
   const text = encodeURIComponent(lines.join('\n'));
