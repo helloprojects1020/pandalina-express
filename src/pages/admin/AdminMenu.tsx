@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Pencil, Trash2, GripVertical, Loader2, ImageIcon } from 'lucide-react';
+import { Plus, Pencil, Trash2, GripVertical, Loader2, ImageIcon, X } from 'lucide-react';
 
 type Category = {
   id: string;
