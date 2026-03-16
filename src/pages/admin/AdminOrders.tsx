@@ -91,7 +91,7 @@ const AdminOrders = () => {
     setDetailLoading(false);
   };
 
-  const updateStatus = async (orderId: string, status: string) => {
+  const updateStatus = async (orderId: string, status: OrderStatus) => {
     await supabase.from('orders').update({ status }).eq('id', orderId);
     toast({ title: `Order marked as ${status}` });
     fetchOrders();
