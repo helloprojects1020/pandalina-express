@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { categories, getItemsByCategory } from '@/data/menu';
 import type { MenuItem } from '@/types/menu';
 import { useI18n } from '@/i18n/context';
+import { localizedDescription } from '@/lib/localize';
 import CategoryNav from './CategoryNav';
 import ProductCard from './ProductCard';
 import ProductModal from './ProductModal';
