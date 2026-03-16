@@ -25,7 +25,7 @@ const BADGE_MAP: Record<string, { emoji: string; label: string }> = {
 const ProductCard = ({ item, onOpen, variant = 'default' }: ProductCardProps) => {
   const { t, locale } = useI18n();
   const addItem = useCartStore((s) => s.addItem);
-  const badge = BADGE_MAP[item.id];
+  const isPremium = variant === 'premium';
   const badge = BADGE_MAP[item.id];
 
   const hasOptions = item.options.length > 0 || item.isCustomizable;
