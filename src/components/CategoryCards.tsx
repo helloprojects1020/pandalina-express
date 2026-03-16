@@ -1,10 +1,11 @@
 import { useNavigate } from 'react-router-dom';
-import { categories } from '@/data/menu';
+import { useMenu } from '@/hooks/useMenu';
 import { useI18n } from '@/i18n/context';
 
 const CategoryCards = () => {
   const { t } = useI18n();
   const navigate = useNavigate();
+  const { categories } = useMenu();
 
   return (
     <section className="py-10 px-4 max-w-screen-xl mx-auto">

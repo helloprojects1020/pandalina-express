@@ -1,7 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
-import { categories, getItemsByCategory } from '@/data/menu';
+import { useMenu } from '@/hooks/useMenu';
 import type { MenuItem } from '@/types/menu';
 import { useI18n } from '@/i18n/context';
 import { localizedDescription } from '@/lib/localize';
@@ -9,7 +9,6 @@ import ProductCard from '@/components/ProductCard';
 import ProductModal from '@/components/ProductModal';
 import NoodleBuilder from '@/components/NoodleBuilder';
 import Footer from '@/components/Footer';
-const DRINKS_VIDEO_URL = '/videos/category-drinks.mp4';
 
 /* Category-specific hero videos – locally hosted for reliability */
 const categoryVideos: Record<string, string> = {
@@ -17,17 +16,17 @@ const categoryVideos: Record<string, string> = {
   platters: '/videos/category-platters.mp4',
   kitchen: '/videos/category-kitchen.mp4',
   noodles: '/videos/category-noodles.mp4',
-  drinks: DRINKS_VIDEO_URL,
+  drinks: '/videos/category-drinks.mp4',
 };
 
 const CategoryPage = () => {
   const { slug } = useParams<{ slug: string }>();
   const { t, locale } = useI18n();
+  const { categories, getItemsByCategory } = useMenu();
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [noodleOpen, setNoodleOpen] = useState(false);
 
   const category = categories.find((c) => c.slug === slug);
-
   const videoSrc = category ? categoryVideos[category.id] : undefined;
 
   if (!category) {
@@ -47,7 +46,7 @@ const CategoryPage = () => {
     t.categories[category.id as keyof typeof t.categories] || category.name;
 
   const handleOpenItem = (item: MenuItem) => {
-    if (item.categoryId === 'noodles' && item.id === 'noodle-bowl') {
+    if (item.categoryId === 'noodles' && item.slug === 'build-your-noodle-bowl') {
       setNoodleOpen(true);
     } else {
       setSelectedItem(item);
@@ -58,7 +57,6 @@ const CategoryPage = () => {
     <div className="min-h-screen bg-background">
       {/* Hero banner with video */}
       <div className="relative h-56 md:h-72 overflow-hidden bg-black">
-        {/* Category video — immediate, no fallback image */}
         {videoSrc && (
           <video
             src={videoSrc}
@@ -70,13 +68,10 @@ const CategoryPage = () => {
             className="absolute inset-0 w-full h-full object-cover"
           />
         )}
-
-        {/* Dark overlay for readability */}
         <div
           className="absolute inset-0"
           style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.6), rgba(0,0,0,0.25), rgba(0,0,0,0.35))' }}
         />
-
         <div className="absolute bottom-0 start-0 end-0 p-4 md:p-8 max-w-screen-xl mx-auto">
           <Link
             to="/"
@@ -115,7 +110,6 @@ const CategoryPage = () => {
       </section>
 
       <Footer />
-
       <ProductModal item={selectedItem} onClose={() => setSelectedItem(null)} />
       <NoodleBuilder open={noodleOpen} onClose={() => setNoodleOpen(false)} />
     </div>

@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { categories, getItemsByCategory } from '@/data/menu';
+import { useMenu } from '@/hooks/useMenu';
 import type { MenuItem } from '@/types/menu';
 import { useI18n } from '@/i18n/context';
 import { localizedDescription } from '@/lib/localize';
@@ -13,13 +13,14 @@ import { trackMenuView } from '@/lib/analytics';
 const MenuSection = () => {
   const { t, locale } = useI18n();
   const navigate = useNavigate();
-  const [activeCategory, setActiveCategory] = useState(categories[0].id);
+  const { categories, getItemsByCategory } = useMenu();
+  const [activeCategory, setActiveCategory] = useState(categories[0]?.id ?? '');
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [noodleOpen, setNoodleOpen] = useState(false);
   const [tracked, setTracked] = useState(false);
 
   const handleOpenItem = (item: MenuItem) => {
-    if (item.categoryId === 'noodles' && item.id === 'noodle-bowl') {
+    if (item.categoryId === 'noodles' && item.slug === 'build-your-noodle-bowl') {
       setNoodleOpen(true);
     } else {
       setSelectedItem(item);
