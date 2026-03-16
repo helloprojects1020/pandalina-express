@@ -5,6 +5,7 @@ import { noodleBases, noodleToppings, noodleSauces } from '@/data/menu';
 import type { OptionChoice, NoodleConfig } from '@/types/menu';
 import { useCartStore } from '@/store/cartStore';
 import { useI18n } from '@/i18n/context';
+import { localizedName } from '@/lib/localize';
 import noodlesImg from '@/assets/noodles.jpg';
 
 interface NoodleBuilderProps {
