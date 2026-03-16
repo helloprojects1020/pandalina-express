@@ -1,5 +1,6 @@
 import logoImg from '@/assets/logo.png';
 import { useI18n } from '@/i18n/context';
+import { trackWhatsAppClick, trackPhoneClick } from '@/lib/analytics';
 
 const InstagramIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" className={className} fill="none">
