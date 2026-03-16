@@ -13,7 +13,7 @@ interface ProductModalProps {
 }
 
 const ProductModal = ({ item, onClose }: ProductModalProps) => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [quantity, setQuantity] = useState(1);
   const [selectedOptions, setSelectedOptions] = useState<CartItemOption[]>([]);
   const [notes, setNotes] = useState('');
