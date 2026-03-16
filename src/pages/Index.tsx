@@ -14,7 +14,6 @@ const Index = () => {
       <CategoryCards />
       <BestSellers />
       <MenuSection />
-      <PlattersPreview />
       <MeetChef />
       <WhyOrderSection />
       <WhatsAppCTA />
