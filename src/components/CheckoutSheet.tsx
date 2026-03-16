@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import type { ElementType, KeyboardEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, MapPin, User, Phone, MessageSquare, Truck, Store, UtensilsCrossed, Clock } from 'lucide-react';
@@ -23,8 +23,8 @@ const CheckoutSheet = () => {
   } = useCartStore();
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [viewportHeight, setViewportHeight] = useState<number | null>(null);
 
+  const contentRef = useRef<HTMLDivElement>(null);
   const nameInputRef = useRef<HTMLInputElement>(null);
   const phoneInputRef = useRef<HTMLInputElement>(null);
   const addressInputRef = useRef<HTMLInputElement>(null);
@@ -40,46 +40,27 @@ const CheckoutSheet = () => {
     { type: 'eat-in', label: t.checkout.eat_in, icon: UtensilsCrossed },
   ];
 
+  // Lock body scroll when open
   useEffect(() => {
     if (!isCheckoutOpen) return;
-
-    const updateViewportHeight = () => {
-      const nextHeight = Math.floor(window.visualViewport?.height ?? window.innerHeight);
-      setViewportHeight(nextHeight);
-    };
-
-    updateViewportHeight();
-
-    const visualViewport = window.visualViewport;
-    window.addEventListener('resize', updateViewportHeight);
-    window.addEventListener('orientationchange', updateViewportHeight);
-    visualViewport?.addEventListener('resize', updateViewportHeight);
-    visualViewport?.addEventListener('scroll', updateViewportHeight);
-
     const originalBodyOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-
     return () => {
-      window.removeEventListener('resize', updateViewportHeight);
-      window.removeEventListener('orientationchange', updateViewportHeight);
-      visualViewport?.removeEventListener('resize', updateViewportHeight);
-      visualViewport?.removeEventListener('scroll', updateViewportHeight);
       document.body.style.overflow = originalBodyOverflow;
-      setViewportHeight(null);
     };
   }, [isCheckoutOpen]);
 
-  const keepFieldVisible = (element: FocusableField | null) => {
+  const scrollToField = useCallback((element: FocusableField | null) => {
     if (!element) return;
     window.setTimeout(() => {
-      element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
-    }, 120);
-  };
+      element.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+    }, 300);
+  }, []);
 
   const focusField = (element: FocusableField | null) => {
     if (!element) return;
     element.focus();
-    keepFieldVisible(element);
+    scrollToField(element);
   };
 
   const handleNextField = (event: KeyboardEvent<HTMLInputElement>, nextField: FocusableField | null) => {
@@ -150,8 +131,8 @@ const CheckoutSheet = () => {
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', stiffness: 400, damping: 35 }}
-            style={viewportHeight ? { height: `${viewportHeight}px`, maxHeight: `${viewportHeight}px` } : undefined}
             className="fixed inset-x-0 bottom-0 z-50 w-full max-w-full rounded-t-3xl bg-card flex flex-col overflow-hidden overflow-x-hidden md:left-1/2 md:max-w-lg md:-translate-x-1/2"
+            style={{ maxHeight: '92dvh' }}
           >
             {/* Header */}
             <div className="flex flex-shrink-0 items-center justify-between px-5 pt-5 pb-3">
@@ -162,16 +143,19 @@ const CheckoutSheet = () => {
             </div>
 
             {/* Content */}
-            <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain px-5 pb-4 [-webkit-overflow-scrolling:touch]">
+            <div
+              ref={contentRef}
+              className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain px-5 pb-4 [-webkit-overflow-scrolling:touch]"
+            >
               {/* Order Type */}
-              <div className="mb-5">
+              <div className="mb-4">
                 <label className="font-bold text-sm text-foreground block mb-2">{t.checkout.order_type}</label>
                 <div className="grid grid-cols-3 gap-2">
                   {orderTypes.map(({ type, label, icon: Icon }) => (
                     <button
                       key={type}
                       onClick={() => setOrderType(type)}
-                      className={`h-14 rounded-2xl flex flex-col items-center justify-center gap-1 text-xs font-semibold transition-all active:scale-[0.98] ${
+                      className={`h-12 rounded-2xl flex flex-col items-center justify-center gap-0.5 text-xs font-semibold transition-all active:scale-[0.98] ${
                         customerDetails.orderType === type
                           ? 'bg-primary text-primary-foreground'
                           : 'bg-secondary text-secondary-foreground'
@@ -185,17 +169,17 @@ const CheckoutSheet = () => {
               </div>
 
               {/* Preparation Time */}
-              <div className="mb-5">
+              <div className="mb-4">
                 <label className="font-bold text-sm text-foreground flex items-center gap-2 mb-2">
                   <Clock className="w-4 h-4 text-primary" />
                   זמן הכנה
                 </label>
-                <div className="flex flex-col gap-2">
+                <div className="flex gap-2 overflow-x-auto scrollbar-hide">
                   {PREP_OPTIONS.map((opt) => (
                     <button
                       key={opt.id}
                       onClick={() => setPrepTime(prepTime === opt.id ? '' : opt.id)}
-                      className={`h-11 px-4 rounded-xl text-sm font-semibold transition-all active:scale-[0.98] ${
+                      className={`flex-shrink-0 h-9 px-3 rounded-xl text-xs font-semibold transition-all active:scale-[0.98] whitespace-nowrap ${
                         prepTime === opt.id
                           ? 'bg-primary text-primary-foreground'
                           : 'bg-secondary text-secondary-foreground'
@@ -208,16 +192,16 @@ const CheckoutSheet = () => {
               </div>
 
               {/* Fields */}
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 {/* Name */}
                 <div>
-                  <div className={`flex items-center gap-3 h-12 px-4 rounded-xl bg-secondary min-w-0 ${errors.name ? 'ring-2 ring-destructive' : ''}`}>
+                  <div className={`flex items-center gap-3 h-11 px-4 rounded-xl bg-secondary min-w-0 ${errors.name ? 'ring-2 ring-destructive' : ''}`}>
                     <User className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                     <input
                       ref={nameInputRef}
                       value={customerDetails.name}
                       onChange={(e) => handleNameChange(e.target.value)}
-                      onFocus={(e) => keepFieldVisible(e.currentTarget)}
+                      onFocus={(e) => scrollToField(e.currentTarget)}
                       onKeyDown={(e) => handleNextField(e, phoneInputRef.current)}
                       placeholder={t.checkout.name_placeholder}
                       maxLength={100}
@@ -233,13 +217,13 @@ const CheckoutSheet = () => {
 
                 {/* Phone */}
                 <div>
-                  <div className={`flex items-center gap-3 h-12 px-4 rounded-xl bg-secondary min-w-0 ${errors.phone ? 'ring-2 ring-destructive' : ''}`}>
+                  <div className={`flex items-center gap-3 h-11 px-4 rounded-xl bg-secondary min-w-0 ${errors.phone ? 'ring-2 ring-destructive' : ''}`}>
                     <Phone className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                     <input
                       ref={phoneInputRef}
                       value={customerDetails.phone}
                       onChange={(e) => handlePhoneChange(e.target.value)}
-                      onFocus={(e) => keepFieldVisible(e.currentTarget)}
+                      onFocus={(e) => scrollToField(e.currentTarget)}
                       onKeyDown={(e) => handleNextField(e, showDelivery ? addressInputRef.current : notesInputRef.current)}
                       placeholder={t.checkout.phone_placeholder}
                       type="tel"
@@ -256,7 +240,7 @@ const CheckoutSheet = () => {
                 {/* Address (delivery only) */}
                 {showDelivery && (
                   <div>
-                    <div className={`flex items-center gap-3 h-12 px-4 rounded-xl bg-secondary min-w-0 ${errors.address ? 'ring-2 ring-destructive' : ''}`}>
+                    <div className={`flex items-center gap-3 h-11 px-4 rounded-xl bg-secondary min-w-0 ${errors.address ? 'ring-2 ring-destructive' : ''}`}>
                       <MapPin className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                       <input
                         ref={addressInputRef}
@@ -265,7 +249,7 @@ const CheckoutSheet = () => {
                           setCustomerDetails({ address: e.target.value });
                           setErrors((p) => ({ ...p, address: '' }));
                         }}
-                        onFocus={(e) => keepFieldVisible(e.currentTarget)}
+                        onFocus={(e) => scrollToField(e.currentTarget)}
                         onKeyDown={(e) => handleNextField(e, notesInputRef.current)}
                         placeholder={t.checkout.address_placeholder}
                         maxLength={200}
@@ -281,23 +265,23 @@ const CheckoutSheet = () => {
                 )}
 
                 {/* Notes */}
-                <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-secondary min-w-0">
+                <div className="flex items-start gap-3 px-4 py-2.5 rounded-xl bg-secondary min-w-0">
                   <MessageSquare className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5" />
                   <textarea
                     ref={notesInputRef}
                     value={customerDetails.notes}
                     onChange={(e) => setCustomerDetails({ notes: e.target.value })}
-                    onFocus={(e) => keepFieldVisible(e.currentTarget)}
+                    onFocus={(e) => scrollToField(e.currentTarget)}
                     placeholder={t.checkout.notes_placeholder}
                     maxLength={500}
                     enterKeyHint="done"
-                    className="flex-1 min-w-0 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none resize-none h-16"
+                    className="flex-1 min-w-0 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none resize-none h-14"
                   />
                 </div>
               </div>
 
               {/* Summary */}
-              <div className="mt-5 space-y-2">
+              <div className="mt-4 space-y-1.5">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">{t.cart.subtotal}</span>
                   <span className="text-foreground font-semibold">₪{subtotal}</span>
@@ -316,10 +300,10 @@ const CheckoutSheet = () => {
             </div>
 
             {/* Footer */}
-            <div className="flex-shrink-0 px-5 py-4 border-t border-border bg-card safe-bottom">
+            <div className="flex-shrink-0 px-5 py-3 border-t border-border bg-card safe-bottom">
               <button
                 onClick={handleSend}
-                className="w-full h-14 rounded-full bg-[#25D366] text-primary-foreground font-bold text-sm active:scale-95 transition-transform flex items-center justify-center gap-2"
+                className="w-full h-12 rounded-full bg-[#25D366] text-primary-foreground font-bold text-sm active:scale-95 transition-transform flex items-center justify-center gap-2"
               >
                 {t.checkout.send_whatsapp} — ₪{total}
               </button>

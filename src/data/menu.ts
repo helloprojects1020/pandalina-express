@@ -17,6 +17,7 @@ export const categories: MenuCategory[] = [
   { id: 'platters', name: 'Platters', name_he: 'מגשים', name_ar: 'أطباق للمشاركة', slug: 'platters', description: 'Sharing trays & party platters', description_he: 'מגשים למסיבות ואירועים', description_ar: 'صواني مشاركة وأطباق حفلات', image: platterImg, sortOrder: 2 },
   { id: 'kitchen', name: 'Kitchen', name_he: 'מטבח', name_ar: 'المطبخ', slug: 'kitchen', description: 'Hot dishes & specials', description_he: 'מנות חמות ומיוחדות', description_ar: 'أطباق ساخنة ومميزة', image: kitchen1, sortOrder: 3 },
   { id: 'noodles', name: 'Noodles', name_he: 'נודלס', name_ar: 'نودلز', slug: 'noodles', description: 'Build your own noodle bowl', description_he: 'בנו את קערת הנודלס שלכם', description_ar: 'ابنِ وعاء النودلز الخاص بك', image: noodlesImg, sortOrder: 4 },
+  { id: 'drinks', name: 'Drinks', name_he: 'שתייה', name_ar: 'مشروبات', slug: 'drinks', description: 'Soft drinks, beer & wine', description_he: 'שתייה קלה, בירה ויין', description_ar: 'مشروبات غازية، بيرة ونبيذ', image: kitchen3, sortOrder: 5 },
 ];
 
 /* ── Sushi roll translations ── */
@@ -192,11 +193,58 @@ const platters: MenuItem[] = plattersData.map((item, i) => ({
   sortOrder: i + 1,
 }));
 
+/* ── Drinks ── */
+const drinksData = [
+  // Soft drinks
+  { name: 'Coca Cola', name_he: 'קוקה קולה', name_ar: 'كوكا كولا', desc: 'Classic Coca Cola', desc_he: 'קוקה קולה קלאסית', desc_ar: 'كوكا كولا كلاسيكية', price: 12, tags: ['soft-drink'] },
+  { name: 'Coca Cola Zero', name_he: 'קוקה קולה זירו', name_ar: 'كوكا كولا زيرو', desc: 'Zero sugar', desc_he: 'ללא סוכר', desc_ar: 'بدون سكر', price: 12, tags: ['soft-drink'] },
+  { name: 'Sprite', name_he: 'ספרייט', name_ar: 'سبرايت', desc: 'Lemon-lime soda', desc_he: 'סודה בטעם לימון', desc_ar: 'مشروب غازي بنكهة الليمون', price: 12, tags: ['soft-drink'] },
+  { name: 'Fanta', name_he: 'פנטה', name_ar: 'فانتا', desc: 'Orange soda', desc_he: 'סודה בטעם תפוז', desc_ar: 'مشروب غازي بنكهة البرتقال', price: 12, tags: ['soft-drink'] },
+  { name: 'Sparkling Water', name_he: 'מים מוגזים', name_ar: 'مياه فوارة', desc: 'Sparkling mineral water', desc_he: 'מים מינרלים מוגזים', desc_ar: 'مياه معدنية فوارة', price: 10, tags: ['soft-drink'] },
+  { name: 'Mineral Water', name_he: 'מים מינרלים', name_ar: 'مياه معدنية', desc: 'Still mineral water', desc_he: 'מים מינרלים שקטים', desc_ar: 'مياه معدنية ساكنة', price: 8, tags: ['soft-drink'] },
+  { name: 'Fuse Tea', name_he: 'פיוז טי', name_ar: 'فيوز تي', desc: 'Iced tea', desc_he: 'תה קר', desc_ar: 'شاي مثلج', price: 12, tags: ['soft-drink'] },
+  // Beer
+  { name: 'Goldstar', name_he: 'גולדסטאר', name_ar: 'غولدستار', desc: 'Israeli lager', desc_he: 'לאגר ישראלי', desc_ar: 'بيرة إسرائيلية', price: 22, tags: ['beer'] },
+  { name: 'Maccabi', name_he: 'מכבי', name_ar: 'مكابي', desc: 'Premium lager', desc_he: 'לאגר פרימיום', desc_ar: 'بيرة فاخرة', price: 22, tags: ['beer'] },
+  { name: 'Heineken', name_he: 'הייניקן', name_ar: 'هاينكن', desc: 'Dutch premium lager', desc_he: 'לאגר הולנדי פרימיום', desc_ar: 'بيرة هولندية فاخرة', price: 25, tags: ['beer'] },
+  { name: 'Corona', name_he: 'קורונה', name_ar: 'كورونا', desc: 'Mexican pale lager', desc_he: 'לאגר מקסיקני', desc_ar: 'بيرة مكسيكية', price: 25, tags: ['beer'] },
+  { name: 'Asahi', name_he: 'אסאהי', name_ar: 'أساهي', desc: 'Japanese rice lager', desc_he: 'לאגר יפני', desc_ar: 'بيرة يابانية', price: 28, tags: ['beer'] },
+  { name: 'Sapporo', name_he: 'סאפורו', name_ar: 'سابورو', desc: 'Premium Japanese beer', desc_he: 'בירה יפנית פרימיום', desc_ar: 'بيرة يابانية فاخرة', price: 28, tags: ['beer'] },
+  // Wine
+  { name: 'Red Wine (Glass)', name_he: 'יין אדום (כוס)', name_ar: 'نبيذ أحمر (كأس)', desc: 'House red wine glass', desc_he: 'כוס יין אדום של הבית', desc_ar: 'كأس نبيذ أحمر', price: 32, tags: ['wine'] },
+  { name: 'Red Wine (Bottle)', name_he: 'יין אדום (בקבוק)', name_ar: 'نبيذ أحمر (زجاجة)', desc: 'House red wine bottle', desc_he: 'בקבוק יין אדום של הבית', desc_ar: 'زجاجة نبيذ أحمر', price: 110, tags: ['wine'] },
+  { name: 'White Wine (Glass)', name_he: 'יין לבן (כוס)', name_ar: 'نبيذ أبيض (كأس)', desc: 'House white wine glass', desc_he: 'כוס יין לבן של הבית', desc_ar: 'كأس نبيذ أبيض', price: 32, tags: ['wine'] },
+  { name: 'White Wine (Bottle)', name_he: 'יין לבן (בקבוק)', name_ar: 'نبيذ أبيض (زجاجة)', desc: 'House white wine bottle', desc_he: 'בקבוק יין לבן של הבית', desc_ar: 'زجاجة نبيذ أبيض', price: 110, tags: ['wine'] },
+  { name: 'Rosé Wine (Glass)', name_he: 'יין רוזה (כוס)', name_ar: 'نبيذ وردي (كأس)', desc: 'House rosé wine glass', desc_he: 'כוס יין רוזה של הבית', desc_ar: 'كأس نبيذ وردي', price: 32, tags: ['wine'] },
+  { name: 'Rosé Wine (Bottle)', name_he: 'יין רוזה (בקבוק)', name_ar: 'نبيذ وردي (زجاجة)', desc: 'House rosé wine bottle', desc_he: 'בקבוק יין רוזה של הבית', desc_ar: 'زجاجة نبيذ وردي', price: 110, tags: ['wine'] },
+];
+
+const drinkItems: MenuItem[] = drinksData.map((item, i) => ({
+  id: `drink-${i + 1}`,
+  name: item.name,
+  name_he: item.name_he,
+  name_ar: item.name_ar,
+  slug: item.name.toLowerCase().replace(/\s+/g, '-'),
+  categoryId: 'drinks',
+  description: item.desc,
+  description_he: item.desc_he,
+  description_ar: item.desc_ar,
+  price: item.price,
+  image: kitchen3,
+  tags: ['drinks', ...item.tags],
+  isAvailable: true,
+  isCustomizable: false,
+  options: [],
+  isFeatured: false,
+  sortOrder: i + 1,
+}));
+
 export const menuItems: MenuItem[] = [
   ...sushiRolls,
   ...kitchenItems,
   noodleItem,
   ...platters,
+  ...drinkItems,
 ];
 
 export const featuredItems = menuItems.filter(item => item.isFeatured);

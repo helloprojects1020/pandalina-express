@@ -9,20 +9,23 @@ const PREP_LABELS: Record<string, string> = {
   '30min': 'מוכן בעוד 30 דקות',
 };
 
+const ORDER_TYPE_HE: Record<string, string> = {
+  pickup: 'איסוף עצמי',
+  delivery: 'משלוח',
+  'eat-in': 'ישיבה במקום',
+};
+
 export const generateWhatsAppLink = (
   items: CartItem[],
   customer: CustomerDetails,
   subtotal: number,
   deliveryFee: number,
   total: number,
-  t: Translations,
+  _t: Translations,
   prepTime?: string
 ): string => {
-  const orderTypeLabel = {
-    pickup: t.wa.pickup,
-    delivery: t.wa.delivery,
-    'eat-in': t.wa.eat_in,
-  }[customer.orderType];
+  // Always Hebrew labels for the restaurant
+  const orderTypeLabel = ORDER_TYPE_HE[customer.orderType] || customer.orderType;
 
   const itemLines = items
     .map((item) => {
@@ -37,32 +40,32 @@ export const generateWhatsAppLink = (
     .join('\n');
 
   const lines = [
-    `*${t.wa.new_order}*`,
+    `*🐼 הזמנה חדשה — פנדלינה*`,
     ``,
-    `*${t.wa.customer}:* ${customer.name}`,
-    `*${t.wa.phone}:* ${customer.phone}`,
-    `*${t.wa.order_type}:* ${orderTypeLabel}`,
+    `*שם מלא:* ${customer.name}`,
+    `*טלפון:* ${customer.phone}`,
+    `*סוג הזמנה:* ${orderTypeLabel}`,
   ];
 
   if (customer.orderType === 'delivery' && customer.address) {
-    lines.push(`*${t.wa.address}:* ${customer.address}`);
+    lines.push(`*כתובת:* ${customer.address}`);
   }
 
   if (prepTime && PREP_LABELS[prepTime]) {
     lines.push(`*זמן הכנה:* ${PREP_LABELS[prepTime]}`);
   }
 
-  lines.push('', `*${t.wa.items}:*`, itemLines, '');
-  lines.push(`*${t.wa.subtotal}:* ₪${subtotal}`);
+  lines.push('', `*פריטים:*`, itemLines, '');
+  lines.push(`*סכום ביניים:* ₪${subtotal}`);
 
   if (customer.orderType === 'delivery') {
-    lines.push(`*${t.wa.delivery_fee}:* ₪${deliveryFee}`);
+    lines.push(`*דמי משלוח:* ₪${deliveryFee}`);
   }
 
-  lines.push(`*${t.wa.total}:* ₪${total}`);
+  lines.push(`*סה״כ:* ₪${total}`);
 
   if (customer.notes) {
-    lines.push('', `*${t.wa.notes}:* ${customer.notes}`);
+    lines.push('', `*הערות:* ${customer.notes}`);
   }
 
   const text = encodeURIComponent(lines.join('\n'));
