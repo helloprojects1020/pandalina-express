@@ -9,6 +9,7 @@ import ProductCard from '@/components/ProductCard';
 import ProductModal from '@/components/ProductModal';
 import NoodleBuilder from '@/components/NoodleBuilder';
 import Footer from '@/components/Footer';
+import drinksVideoAsset from '/videos/category-drinks.mp4.asset.json';
 
 /* Category-specific hero videos – locally hosted for reliability */
 const categoryVideos: Record<string, string> = {
@@ -16,6 +17,7 @@ const categoryVideos: Record<string, string> = {
   platters: '/videos/category-platters.mp4',
   kitchen: '/videos/category-kitchen.mp4',
   noodles: '/videos/category-noodles.mp4',
+  drinks: drinksVideoAsset.url,
 };
 
 const CategoryPage = () => {

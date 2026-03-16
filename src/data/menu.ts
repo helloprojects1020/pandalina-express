@@ -223,6 +223,12 @@ const drinksData = [
   { name: 'Rosé Wine (Bottle)', name_he: 'יין רוזה (בקבוק)', name_ar: 'نبيذ وردي (زجاجة)', desc: 'House rosé wine bottle', desc_he: 'בקבוק יין רוזה של הבית', desc_ar: 'زجاجة نبيذ وردي', price: 110, tags: ['wine'] },
 ];
 
+const drinkImageMap: Record<string, string> = {
+  'soft-drink': drinkSoftImg,
+  beer: drinkBeerImg,
+  wine: drinkWineImg,
+};
+
 const drinkItems: MenuItem[] = drinksData.map((item, i) => ({
   id: `drink-${i + 1}`,
   name: item.name,
@@ -234,7 +240,7 @@ const drinkItems: MenuItem[] = drinksData.map((item, i) => ({
   description_he: item.desc_he,
   description_ar: item.desc_ar,
   price: item.price,
-  image: kitchen3,
+  image: drinkImageMap[item.tags[0]] || drinkSoftImg,
   tags: ['drinks', ...item.tags],
   isAvailable: true,
   isCustomizable: false,
