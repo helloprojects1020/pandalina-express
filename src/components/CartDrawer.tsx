@@ -67,12 +67,12 @@ const CartDrawer = () => {
                     <div key={item.id} className="flex gap-3 bg-secondary/50 rounded-2xl p-3">
                       <img
                         src={item.menuItem.image}
-                        alt={item.menuItem.name}
+                        alt={localizedName(item.menuItem, locale)}
                         className="w-16 h-16 rounded-xl object-cover flex-shrink-0"
                       />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-1">
-                          <h3 className="font-bold text-sm text-foreground truncate">{item.menuItem.name}</h3>
+                          <h3 className="font-bold text-sm text-foreground truncate">{localizedName(item.menuItem, locale)}</h3>
                           <button
                             onClick={() => handleEdit(item.id)}
                             className="h-7 w-7 flex-shrink-0 flex items-center justify-center rounded-full bg-card text-muted-foreground hover:text-primary active:scale-95 transition-colors"
