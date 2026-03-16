@@ -20,7 +20,7 @@ const categoryVideos: Record<string, string> = {
 
 const CategoryPage = () => {
   const { slug } = useParams<{ slug: string }>();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [noodleOpen, setNoodleOpen] = useState(false);
 
