@@ -30,9 +30,10 @@ export const BestSellers = () => {
 
 /** Platters preview for the homepage */
 export const PlattersPreview = () => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const navigate = useNavigate();
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
+  const plattersCategory = categories.find(c => c.id === 'platters');
   const items = getItemsByCategory('platters');
   const preview = items.slice(0, 2);
 
