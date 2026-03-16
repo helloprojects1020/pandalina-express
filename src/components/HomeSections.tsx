@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { featuredItems, getItemsByCategory } from '@/data/menu';
+import { featuredItems, getItemsByCategory, categories } from '@/data/menu';
 import type { MenuItem } from '@/types/menu';
 import { useI18n } from '@/i18n/context';
+import { localizedDescription } from '@/lib/localize';
 import ProductCard from './ProductCard';
 import ProductModal from './ProductModal';
 import NoodleBuilder from './NoodleBuilder';
@@ -29,9 +30,10 @@ export const BestSellers = () => {
 
 /** Platters preview for the homepage */
 export const PlattersPreview = () => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const navigate = useNavigate();
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
+  const plattersCategory = categories.find(c => c.id === 'platters');
   const items = getItemsByCategory('platters');
   const preview = items.slice(0, 2);
 
@@ -42,7 +44,7 @@ export const PlattersPreview = () => {
           <h2 className="text-xl md:text-2xl tracking-tighter uppercase text-foreground mb-1">
             {t.categories.platters}
           </h2>
-          <p className="text-sm text-muted-foreground">Sharing trays & party platters</p>
+          <p className="text-sm text-muted-foreground">{plattersCategory ? localizedDescription(plattersCategory, locale) : ''}</p>
         </div>
         <button
           onClick={() => navigate('/category/platters')}

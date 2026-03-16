@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import { categories, getItemsByCategory } from '@/data/menu';
 import type { MenuItem } from '@/types/menu';
 import { useI18n } from '@/i18n/context';
+import { localizedDescription } from '@/lib/localize';
 import ProductCard from '@/components/ProductCard';
 import ProductModal from '@/components/ProductModal';
 import NoodleBuilder from '@/components/NoodleBuilder';
@@ -19,7 +20,7 @@ const categoryVideos: Record<string, string> = {
 
 const CategoryPage = () => {
   const { slug } = useParams<{ slug: string }>();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [noodleOpen, setNoodleOpen] = useState(false);
 
@@ -86,7 +87,7 @@ const CategoryPage = () => {
             {categoryLabel}
           </h1>
           <p className="text-sm text-primary-foreground/60 mt-1">
-            {category.description}
+            {localizedDescription(category, locale)}
           </p>
         </div>
       </div>

@@ -1,4 +1,13 @@
-export interface OptionChoice {
+export interface LocalizedFields {
+  name_he?: string;
+  name_ar?: string;
+  name_en?: string;
+  description_he?: string;
+  description_ar?: string;
+  description_en?: string;
+}
+
+export interface OptionChoice extends LocalizedFields {
   id: string;
   name: string;
   priceModifier: number;
@@ -7,12 +16,15 @@ export interface OptionChoice {
 export interface OptionGroup {
   id: string;
   title: string;
+  title_he?: string;
+  title_ar?: string;
+  title_en?: string;
   type: 'single' | 'multiple';
   required: boolean;
   choices: OptionChoice[];
 }
 
-export interface MenuItem {
+export interface MenuItem extends LocalizedFields {
   id: string;
   name: string;
   slug: string;
@@ -28,7 +40,7 @@ export interface MenuItem {
   sortOrder: number;
 }
 
-export interface MenuCategory {
+export interface MenuCategory extends LocalizedFields {
   id: string;
   name: string;
   slug: string;

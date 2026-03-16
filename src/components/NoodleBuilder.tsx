@@ -5,6 +5,7 @@ import { noodleBases, noodleToppings, noodleSauces } from '@/data/menu';
 import type { OptionChoice, NoodleConfig } from '@/types/menu';
 import { useCartStore } from '@/store/cartStore';
 import { useI18n } from '@/i18n/context';
+import { localizedName } from '@/lib/localize';
 import noodlesImg from '@/assets/noodles.jpg';
 
 interface NoodleBuilderProps {
@@ -13,7 +14,7 @@ interface NoodleBuilderProps {
 }
 
 const NoodleBuilder = ({ open, onClose }: NoodleBuilderProps) => {
-  const { t, isRTL } = useI18n();
+  const { t, isRTL, locale } = useI18n();
   const [step, setStep] = useState(0);
   const [config, setConfig] = useState<NoodleConfig>({ base: null, toppings: [], sauce: null });
   const addItem = useCartStore((s) => s.addItem);
@@ -127,7 +128,7 @@ const NoodleBuilder = ({ open, onClose }: NoodleBuilderProps) => {
                         config.base?.id === base.id ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'
                       }`}
                     >
-                      {base.name}
+                      {localizedName(base, locale)}
                     </button>
                   ))}
                 </div>
@@ -145,7 +146,7 @@ const NoodleBuilder = ({ open, onClose }: NoodleBuilderProps) => {
                           : 'bg-secondary text-secondary-foreground'
                       }`}
                     >
-                      {topping.name}
+                      {localizedName(topping, locale)}
                       {topping.priceModifier > 0 && ` +₪${topping.priceModifier}`}
                     </button>
                   ))}
@@ -162,7 +163,7 @@ const NoodleBuilder = ({ open, onClose }: NoodleBuilderProps) => {
                         config.sauce?.id === sauce.id ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'
                       }`}
                     >
-                      {sauce.name}
+                      {localizedName(sauce, locale)}
                     </button>
                   ))}
                 </div>

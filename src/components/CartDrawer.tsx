@@ -2,10 +2,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Minus, Plus, Trash2, ShoppingBag, Pencil } from 'lucide-react';
 import { useCartStore } from '@/store/cartStore';
 import { useI18n } from '@/i18n/context';
+import { localizedName } from '@/lib/localize';
 import Recommendations from './Recommendations';
 
 const CartDrawer = () => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { items, isCartOpen, setCartOpen, setCheckoutOpen, removeItem, updateQuantity, getSubtotal, getItemCount, setEditingCartItemId } =
     useCartStore();
 
@@ -66,12 +67,12 @@ const CartDrawer = () => {
                     <div key={item.id} className="flex gap-3 bg-secondary/50 rounded-2xl p-3">
                       <img
                         src={item.menuItem.image}
-                        alt={item.menuItem.name}
+                        alt={localizedName(item.menuItem, locale)}
                         className="w-16 h-16 rounded-xl object-cover flex-shrink-0"
                       />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-1">
-                          <h3 className="font-bold text-sm text-foreground truncate">{item.menuItem.name}</h3>
+                          <h3 className="font-bold text-sm text-foreground truncate">{localizedName(item.menuItem, locale)}</h3>
                           <button
                             onClick={() => handleEdit(item.id)}
                             className="h-7 w-7 flex-shrink-0 flex items-center justify-center rounded-full bg-card text-muted-foreground hover:text-primary active:scale-95 transition-colors"
@@ -82,7 +83,7 @@ const CartDrawer = () => {
                         </div>
                         {item.selectedOptions.length > 0 && (
                           <p className="text-xs text-muted-foreground truncate">
-                            {item.selectedOptions.flatMap((o) => o.selectedChoices.map((c) => c.name)).join(', ')}
+                            {item.selectedOptions.flatMap((o) => o.selectedChoices.map((c) => localizedName(c, locale))).join(', ')}
                           </p>
                         )}
                         {item.notes && <p className="text-xs text-muted-foreground italic truncate">{item.notes}</p>}

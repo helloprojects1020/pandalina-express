@@ -3,13 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { categories, getItemsByCategory } from '@/data/menu';
 import type { MenuItem } from '@/types/menu';
 import { useI18n } from '@/i18n/context';
+import { localizedDescription } from '@/lib/localize';
 import CategoryNav from './CategoryNav';
 import ProductCard from './ProductCard';
 import ProductModal from './ProductModal';
 import NoodleBuilder from './NoodleBuilder';
 
 const MenuSection = () => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState(categories[0].id);
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
@@ -47,7 +48,7 @@ const MenuSection = () => {
                   <h2 className="text-xl md:text-2xl tracking-tighter uppercase text-foreground mb-1">
                     {categoryLabel}
                   </h2>
-                  <p className="text-sm text-muted-foreground">{cat.description}</p>
+                  <p className="text-sm text-muted-foreground">{localizedDescription(cat, locale)}</p>
                 </div>
                 {items.length > previewItems.length && (
                   <button

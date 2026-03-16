@@ -4,6 +4,7 @@ import { X, Minus, Plus } from 'lucide-react';
 import type { MenuItem, CartItemOption, OptionChoice } from '@/types/menu';
 import { useCartStore } from '@/store/cartStore';
 import { useI18n } from '@/i18n/context';
+import { localizedName, localizedDescription, localizedTitle } from '@/lib/localize';
 import Recommendations from './Recommendations';
 
 interface ProductModalProps {
@@ -12,7 +13,7 @@ interface ProductModalProps {
 }
 
 const ProductModal = ({ item, onClose }: ProductModalProps) => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [quantity, setQuantity] = useState(1);
   const [selectedOptions, setSelectedOptions] = useState<CartItemOption[]>([]);
   const [notes, setNotes] = useState('');
@@ -109,7 +110,7 @@ const ProductModal = ({ item, onClose }: ProductModalProps) => {
           >
             {/* Image */}
             <div className="relative aspect-[16/10] overflow-hidden rounded-t-3xl flex-shrink-0">
-              <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+              <img src={item.image} alt={localizedName(item, locale)} className="w-full h-full object-cover" />
               <button
                 onClick={handleClose}
                 className="absolute top-4 end-4 h-9 w-9 rounded-full bg-card/80 backdrop-blur flex items-center justify-center active:scale-95"
@@ -120,29 +121,29 @@ const ProductModal = ({ item, onClose }: ProductModalProps) => {
 
             {/* Scrollable content */}
             <div className="flex-1 overflow-y-auto px-5 pt-4 pb-2">
-              <h2 className="font-display text-xl tracking-tight text-foreground">{item.name}</h2>
-              <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
+              <h2 className="font-display text-xl tracking-tight text-foreground">{localizedName(item, locale)}</h2>
+              <p className="text-sm text-muted-foreground mt-1">{localizedDescription(item, locale)}</p>
               <p className="font-display text-2xl text-primary mt-2">₪{item.price}</p>
 
               {/* Options */}
               {item.options.map((group) => (
                 <div key={group.id} className="mt-5">
                   <h3 className="font-bold text-sm text-foreground mb-2">
-                    {group.title}
+                    {localizedTitle(group, locale)}
                     {group.required && <span className="text-primary ms-1">*</span>}
                   </h3>
                   <div className="flex flex-wrap gap-2">
                     {group.choices.map((choice) => (
                       <button
                         key={choice.id}
-                        onClick={() => toggleChoice(group.id, group.title, group.type, choice)}
+                        onClick={() => toggleChoice(group.id, localizedTitle(group, locale), group.type, choice)}
                         className={`h-9 px-4 rounded-full text-sm font-medium transition-all active:scale-95 ${
                           isChoiceSelected(group.id, choice.id)
                             ? 'bg-primary text-primary-foreground'
                             : 'bg-secondary text-secondary-foreground'
                         }`}
                       >
-                        {choice.name}
+                        {localizedName(choice, locale)}
                         {choice.priceModifier > 0 && ` +₪${choice.priceModifier}`}
                       </button>
                     ))}
