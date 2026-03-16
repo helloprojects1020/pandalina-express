@@ -168,7 +168,7 @@ const NoodleBuilder = ({ open, onClose }: NoodleBuilderProps) => {
                   className="h-11 px-5 rounded-full bg-secondary text-secondary-foreground font-semibold text-sm flex items-center gap-1"
                 >
                   <PrevIcon className="w-4 h-4" />
-                  {t.noodle.back}
+                  {t.noodle.next}
                 </button>
               ) : (
                 <div />
