@@ -4,6 +4,7 @@ import { localizedName, localizedDescription } from '@/lib/localize';
 import { useCartStore } from '@/store/cartStore';
 import { Plus } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { handleImageError } from '@/lib/imageFallback';
 
 interface ProductCardProps {
   item: MenuItem;
