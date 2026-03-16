@@ -11,23 +11,20 @@ interface ProductCardProps {
   variant?: 'default' | 'premium';
 }
 
-const BEST_SELLER_IDS = ['sushi-1', 'sushi-4', 'sushi-11', 'sushi-8'];
-
 const BADGE_MAP: Record<string, { emoji: string; label: string }> = {
-  'sushi-1': { emoji: '⭐', label: 'Most Popular' },
-  'sushi-4': { emoji: '🔥', label: "Chef's Choice" },
-  'sushi-8': { emoji: '👑', label: 'Top Pick' },
-  'kitchen-1': { emoji: '🔥', label: "Chef's Choice" },
-  'kitchen-2': { emoji: '⭐', label: 'Most Popular' },
-  'platter-1': { emoji: '⭐', label: 'Most Popular' },
-  'platter-2': { emoji: '👑', label: 'Top Pick' },
-  'noodle-bowl': { emoji: '🔥', label: "Chef's Choice" },
+  'crunchy-roll': { emoji: '⭐', label: 'Most Popular' },
+  'dragon-roll': { emoji: '🔥', label: "Chef's Choice" },
+  'rainbow-roll': { emoji: '👑', label: 'Top Pick' },
+  'asadoaki': { emoji: '🔥', label: "Chef's Choice" },
+  'crispy-salmon': { emoji: '⭐', label: 'Most Popular' },
+  'family-sushi-platter': { emoji: '⭐', label: 'Most Popular' },
+  'party-sushi-tray': { emoji: '👑', label: 'Top Pick' },
+  'build-your-noodle-bowl': { emoji: '🔥', label: "Chef's Choice" },
 };
 
 const ProductCard = ({ item, onOpen, variant = 'default' }: ProductCardProps) => {
   const { t, locale } = useI18n();
   const addItem = useCartStore((s) => s.addItem);
-  const isBestSeller = BEST_SELLER_IDS.includes(item.id);
   const isPremium = variant === 'premium';
   const badge = BADGE_MAP[item.id];
 
