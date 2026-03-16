@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { categories, getItemsByCategory } from '@/data/menu';
 import type { MenuItem } from '@/types/menu';

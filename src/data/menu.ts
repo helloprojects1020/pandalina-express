@@ -209,7 +209,7 @@ const platters: MenuItem[] = plattersData.map((item, i) => ({
   description_he: item.desc_he,
   description_ar: item.desc_ar,
   price: item.price,
-  image: platterImg,
+  image: item.img,
   tags: ['platter', 'sharing'],
   isAvailable: true,
   isCustomizable: false,
