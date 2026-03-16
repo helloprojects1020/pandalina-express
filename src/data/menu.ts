@@ -242,27 +242,27 @@ const platters: MenuItem[] = plattersData.map((item, i) => ({
 /* ── Drinks ── */
 const drinksData = [
   // Soft drinks
-  { name: 'Coca Cola', name_he: 'קוקה קולה', name_ar: 'كوكا كولا', desc: 'Classic Coca Cola', desc_he: 'קוקה קולה קלאסית', desc_ar: 'كوكا كولا كلاسيكية', price: 12, tags: ['soft-drink'] },
-  { name: 'Coca Cola Zero', name_he: 'קוקה קולה זירו', name_ar: 'كوكا كولا زيرو', desc: 'Zero sugar', desc_he: 'ללא סוכר', desc_ar: 'بدون سكر', price: 12, tags: ['soft-drink'] },
-  { name: 'Sprite', name_he: 'ספרייט', name_ar: 'سبرايت', desc: 'Lemon-lime soda', desc_he: 'סודה בטעם לימון', desc_ar: 'مشروب غازي بنكهة الليمون', price: 12, tags: ['soft-drink'] },
-  { name: 'Fanta', name_he: 'פנטה', name_ar: 'فانتا', desc: 'Orange soda', desc_he: 'סודה בטעם תפוז', desc_ar: 'مشروب غازي بنكهة البرتقال', price: 12, tags: ['soft-drink'] },
-  { name: 'Sparkling Water', name_he: 'מים מוגזים', name_ar: 'مياه فوارة', desc: 'Sparkling mineral water', desc_he: 'מים מינרלים מוגזים', desc_ar: 'مياه معدنية فوارة', price: 10, tags: ['soft-drink'] },
-  { name: 'Mineral Water', name_he: 'מים מינרלים', name_ar: 'مياه معدنية', desc: 'Still mineral water', desc_he: 'מים מינרלים שקטים', desc_ar: 'مياه معدنية ساكنة', price: 8, tags: ['soft-drink'] },
-  { name: 'Fuse Tea', name_he: 'פיוז טי', name_ar: 'فيوز تي', desc: 'Iced tea', desc_he: 'תה קר', desc_ar: 'شاي مثلج', price: 12, tags: ['soft-drink'] },
+  { name: 'Coca Cola', name_he: 'קוקה קולה', name_ar: 'كوكا كولا', name_ru: 'Кока-Кола', desc: 'Classic Coca Cola', desc_he: 'קוקה קולה קלאסית', desc_ar: 'كوكا كولا كلاسيكية', desc_ru: 'Классическая Кока-Кола', price: 12, tags: ['soft-drink'] },
+  { name: 'Coca Cola Zero', name_he: 'קוקה קולה זירו', name_ar: 'كوكا كولا زيرو', name_ru: 'Кока-Кола Зеро', desc: 'Zero sugar', desc_he: 'ללא סוכר', desc_ar: 'بدون سكر', desc_ru: 'Без сахара', price: 12, tags: ['soft-drink'] },
+  { name: 'Sprite', name_he: 'ספרייט', name_ar: 'سبرايت', name_ru: 'Спрайт', desc: 'Lemon-lime soda', desc_he: 'סודה בטעם לימון', desc_ar: 'مشروب غازي بنكهة الليمون', desc_ru: 'Лимонная газировка', price: 12, tags: ['soft-drink'] },
+  { name: 'Fanta', name_he: 'פנטה', name_ar: 'فانتا', name_ru: 'Фанта', desc: 'Orange soda', desc_he: 'סודה בטעם תפוז', desc_ar: 'مشروب غازي بنكهة البرتقال', desc_ru: 'Апельсиновая газировка', price: 12, tags: ['soft-drink'] },
+  { name: 'Sparkling Water', name_he: 'מים מוגזים', name_ar: 'مياه فوارة', name_ru: 'Газированная вода', desc: 'Sparkling mineral water', desc_he: 'מים מינרלים מוגזים', desc_ar: 'مياه معدنية فوارة', desc_ru: 'Газированная минеральная вода', price: 10, tags: ['soft-drink'] },
+  { name: 'Mineral Water', name_he: 'מים מינרלים', name_ar: 'مياه معدنية', name_ru: 'Минеральная вода', desc: 'Still mineral water', desc_he: 'מים מינרלים שקטים', desc_ar: 'مياه معدنية ساكنة', desc_ru: 'Негазированная минеральная вода', price: 8, tags: ['soft-drink'] },
+  { name: 'Fuse Tea', name_he: 'פיוז טי', name_ar: 'فيوز تي', name_ru: 'Фьюз Ти', desc: 'Iced tea', desc_he: 'תה קר', desc_ar: 'شاي مثلج', desc_ru: 'Холодный чай', price: 12, tags: ['soft-drink'] },
   // Beer
-  { name: 'Goldstar', name_he: 'גולדסטאר', name_ar: 'غولدستار', desc: 'Israeli lager', desc_he: 'לאגר ישראלי', desc_ar: 'بيرة إسرائيلية', price: 22, tags: ['beer'] },
-  { name: 'Maccabi', name_he: 'מכבי', name_ar: 'مكابي', desc: 'Premium lager', desc_he: 'לאגר פרימיום', desc_ar: 'بيرة فاخرة', price: 22, tags: ['beer'] },
-  { name: 'Heineken', name_he: 'הייניקן', name_ar: 'هاينكن', desc: 'Dutch premium lager', desc_he: 'לאגר הולנדי פרימיום', desc_ar: 'بيرة هولندية فاخرة', price: 25, tags: ['beer'] },
-  { name: 'Corona', name_he: 'קורונה', name_ar: 'كورونا', desc: 'Mexican pale lager', desc_he: 'לאגר מקסיקני', desc_ar: 'بيرة مكسيكية', price: 25, tags: ['beer'] },
-  { name: 'Asahi', name_he: 'אסאהי', name_ar: 'أساهي', desc: 'Japanese rice lager', desc_he: 'לאגר יפני', desc_ar: 'بيرة يابانية', price: 28, tags: ['beer'] },
-  { name: 'Sapporo', name_he: 'סאפורו', name_ar: 'سابورو', desc: 'Premium Japanese beer', desc_he: 'בירה יפנית פרימיום', desc_ar: 'بيرة يابانية فاخرة', price: 28, tags: ['beer'] },
+  { name: 'Goldstar', name_he: 'גולדסטאר', name_ar: 'غولدستار', name_ru: 'Голдстар', desc: 'Israeli lager', desc_he: 'לאגר ישראלי', desc_ar: 'بيرة إسرائيلية', desc_ru: 'Израильский лагер', price: 22, tags: ['beer'] },
+  { name: 'Maccabi', name_he: 'מכבי', name_ar: 'مكابي', name_ru: 'Маккаби', desc: 'Premium lager', desc_he: 'לאגר פרימיום', desc_ar: 'بيرة فاخرة', desc_ru: 'Премиум лагер', price: 22, tags: ['beer'] },
+  { name: 'Heineken', name_he: 'הייניקן', name_ar: 'هاينكن', name_ru: 'Хайнекен', desc: 'Dutch premium lager', desc_he: 'לאגר הולנדי פרימיום', desc_ar: 'بيرة هولندية فاخرة', desc_ru: 'Голландский премиум лагер', price: 25, tags: ['beer'] },
+  { name: 'Corona', name_he: 'קורונה', name_ar: 'كورونا', name_ru: 'Корона', desc: 'Mexican pale lager', desc_he: 'לאגר מקסיקני', desc_ar: 'بيرة مكسيكية', desc_ru: 'Мексиканский лагер', price: 25, tags: ['beer'] },
+  { name: 'Asahi', name_he: 'אסאהי', name_ar: 'أساهي', name_ru: 'Асахи', desc: 'Japanese rice lager', desc_he: 'לאגר יפני', desc_ar: 'بيرة يابانية', desc_ru: 'Японский рисовый лагер', price: 28, tags: ['beer'] },
+  { name: 'Sapporo', name_he: 'סאפורו', name_ar: 'سابورو', name_ru: 'Саппоро', desc: 'Premium Japanese beer', desc_he: 'בירה יפנית פרימיום', desc_ar: 'بيرة يابانية فاخرة', desc_ru: 'Премиум японское пиво', price: 28, tags: ['beer'] },
   // Wine
-  { name: 'Red Wine (Glass)', name_he: 'יין אדום (כוס)', name_ar: 'نبيذ أحمر (كأس)', desc: 'House red wine glass', desc_he: 'כוס יין אדום של הבית', desc_ar: 'كأس نبيذ أحمر', price: 32, tags: ['wine'] },
-  { name: 'Red Wine (Bottle)', name_he: 'יין אדום (בקבוק)', name_ar: 'نبيذ أحمر (زجاجة)', desc: 'House red wine bottle', desc_he: 'בקבוק יין אדום של הבית', desc_ar: 'زجاجة نبيذ أحمر', price: 110, tags: ['wine'] },
-  { name: 'White Wine (Glass)', name_he: 'יין לבן (כוס)', name_ar: 'نبيذ أبيض (كأس)', desc: 'House white wine glass', desc_he: 'כוס יין לבן של הבית', desc_ar: 'كأس نبيذ أبيض', price: 32, tags: ['wine'] },
-  { name: 'White Wine (Bottle)', name_he: 'יין לבן (בקבוק)', name_ar: 'نبيذ أبيض (زجاجة)', desc: 'House white wine bottle', desc_he: 'בקבוק יין לבן של הבית', desc_ar: 'زجاجة نبيذ أبيض', price: 110, tags: ['wine'] },
-  { name: 'Rosé Wine (Glass)', name_he: 'יין רוזה (כוס)', name_ar: 'نبيذ وردي (كأس)', desc: 'House rosé wine glass', desc_he: 'כוס יין רוזה של הבית', desc_ar: 'كأس نبيذ وردي', price: 32, tags: ['wine'] },
-  { name: 'Rosé Wine (Bottle)', name_he: 'יין רוזה (בקבוק)', name_ar: 'نبيذ وردي (زجاجة)', desc: 'House rosé wine bottle', desc_he: 'בקבוק יין רוזה של הבית', desc_ar: 'زجاجة نبيذ وردي', price: 110, tags: ['wine'] },
+  { name: 'Red Wine (Glass)', name_he: 'יין אדום (כוס)', name_ar: 'نبيذ أحمر (كأس)', name_ru: 'Красное вино (бокал)', desc: 'House red wine glass', desc_he: 'כוס יין אדום של הבית', desc_ar: 'كأس نبيذ أحمر', desc_ru: 'Бокал домашнего красного', price: 32, tags: ['wine'] },
+  { name: 'Red Wine (Bottle)', name_he: 'יין אדום (בקבוק)', name_ar: 'نبيذ أحمر (زجاجة)', name_ru: 'Красное вино (бутылка)', desc: 'House red wine bottle', desc_he: 'בקבוק יין אדום של הבית', desc_ar: 'زجاجة نبيذ أحمر', desc_ru: 'Бутылка домашнего красного', price: 110, tags: ['wine'] },
+  { name: 'White Wine (Glass)', name_he: 'יין לבן (כוס)', name_ar: 'نبيذ أبيض (كأس)', name_ru: 'Белое вино (бокал)', desc: 'House white wine glass', desc_he: 'כוס יין לבן של הבית', desc_ar: 'كأس نبيذ أبيض', desc_ru: 'Бокал домашнего белого', price: 32, tags: ['wine'] },
+  { name: 'White Wine (Bottle)', name_he: 'יין לבן (בקבוק)', name_ar: 'نبيذ أبيض (زجاجة)', name_ru: 'Белое вино (бутылка)', desc: 'House white wine bottle', desc_he: 'בקבוק יין לבן של הבית', desc_ar: 'زجاجة نبيذ أبيض', desc_ru: 'Бутылка домашнего белого', price: 110, tags: ['wine'] },
+  { name: 'Rosé Wine (Glass)', name_he: 'יין רוזה (כוס)', name_ar: 'نبيذ وردي (كأس)', name_ru: 'Розе (бокал)', desc: 'House rosé wine glass', desc_he: 'כוס יין רוזה של הבית', desc_ar: 'كأس نبيذ وردي', desc_ru: 'Бокал домашнего розе', price: 32, tags: ['wine'] },
+  { name: 'Rosé Wine (Bottle)', name_he: 'יין רוזה (בקבוק)', name_ar: 'نبيذ وردي (زجاجة)', name_ru: 'Розе (бутылка)', desc: 'House rosé wine bottle', desc_he: 'בקבוק יין רוזה של הבית', desc_ar: 'زجاجة نبيذ وردي', desc_ru: 'Бутылка домашнего розе', price: 110, tags: ['wine'] },
 ];
 
 const drinkImageMap: Record<string, string> = {
