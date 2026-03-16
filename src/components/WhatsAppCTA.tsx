@@ -1,4 +1,5 @@
 import { useI18n } from '@/i18n/context';
+import { trackWhatsAppClick } from '@/lib/analytics';
 import platterImg from '@/assets/platter.jpg';
 
 const WhatsAppCTA = () => {
