@@ -8,6 +8,10 @@ import kitchen1 from '@/assets/kitchen-1.jpg';
 import kitchen2 from '@/assets/kitchen-2.jpg';
 import kitchen3 from '@/assets/kitchen-3.jpg';
 import platterImg from '@/assets/platter.jpg';
+import drinksCategoryImg from '@/assets/drinks-category.jpg';
+import drinkSoftImg from '@/assets/drink-soft.jpg';
+import drinkBeerImg from '@/assets/drink-beer.jpg';
+import drinkWineImg from '@/assets/drink-wine.jpg';
 
 const rollImages = [sushiRoll1, sushiRoll2, sushiRoll3];
 const pickRollImg = (i: number) => rollImages[i % rollImages.length];
@@ -17,7 +21,7 @@ export const categories: MenuCategory[] = [
   { id: 'platters', name: 'Platters', name_he: 'מגשים', name_ar: 'أطباق للمشاركة', slug: 'platters', description: 'Sharing trays & party platters', description_he: 'מגשים למסיבות ואירועים', description_ar: 'صواني مشاركة وأطباق حفلات', image: platterImg, sortOrder: 2 },
   { id: 'kitchen', name: 'Kitchen', name_he: 'מטבח', name_ar: 'المطبخ', slug: 'kitchen', description: 'Hot dishes & specials', description_he: 'מנות חמות ומיוחדות', description_ar: 'أطباق ساخنة ومميزة', image: kitchen1, sortOrder: 3 },
   { id: 'noodles', name: 'Noodles', name_he: 'נודלס', name_ar: 'نودلز', slug: 'noodles', description: 'Build your own noodle bowl', description_he: 'בנו את קערת הנודלס שלכם', description_ar: 'ابنِ وعاء النودلز الخاص بك', image: noodlesImg, sortOrder: 4 },
-  { id: 'drinks', name: 'Drinks', name_he: 'שתייה', name_ar: 'مشروبات', slug: 'drinks', description: 'Soft drinks, beer & wine', description_he: 'שתייה קלה, בירה ויין', description_ar: 'مشروبات غازية، بيرة ونبيذ', image: kitchen3, sortOrder: 5 },
+  { id: 'drinks', name: 'Drinks', name_he: 'שתייה', name_ar: 'مشروبات', slug: 'drinks', description: 'Soft drinks, beer & wine', description_he: 'שתייה קלה, בירה ויין', description_ar: 'مشروبات غازية، بيرة ونبيذ', image: drinksCategoryImg, sortOrder: 5 },
 ];
 
 /* ── Sushi roll translations ── */
@@ -219,6 +223,12 @@ const drinksData = [
   { name: 'Rosé Wine (Bottle)', name_he: 'יין רוזה (בקבוק)', name_ar: 'نبيذ وردي (زجاجة)', desc: 'House rosé wine bottle', desc_he: 'בקבוק יין רוזה של הבית', desc_ar: 'زجاجة نبيذ وردي', price: 110, tags: ['wine'] },
 ];
 
+const drinkImageMap: Record<string, string> = {
+  'soft-drink': drinkSoftImg,
+  beer: drinkBeerImg,
+  wine: drinkWineImg,
+};
+
 const drinkItems: MenuItem[] = drinksData.map((item, i) => ({
   id: `drink-${i + 1}`,
   name: item.name,
@@ -230,7 +240,7 @@ const drinkItems: MenuItem[] = drinksData.map((item, i) => ({
   description_he: item.desc_he,
   description_ar: item.desc_ar,
   price: item.price,
-  image: kitchen3,
+  image: drinkImageMap[item.tags[0]] || drinkSoftImg,
   tags: ['drinks', ...item.tags],
   isAvailable: true,
   isCustomizable: false,

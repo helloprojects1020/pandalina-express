@@ -9,6 +9,7 @@ import ProductCard from '@/components/ProductCard';
 import ProductModal from '@/components/ProductModal';
 import NoodleBuilder from '@/components/NoodleBuilder';
 import Footer from '@/components/Footer';
+const DRINKS_VIDEO_URL = '/__l5e/assets-v1/6bcd0d68-890f-47c6-899b-52635f97d65c/category-drinks.mp4';
 
 /* Category-specific hero videos – locally hosted for reliability */
 const categoryVideos: Record<string, string> = {
@@ -16,6 +17,7 @@ const categoryVideos: Record<string, string> = {
   platters: '/videos/category-platters.mp4',
   kitchen: '/videos/category-kitchen.mp4',
   noodles: '/videos/category-noodles.mp4',
+  drinks: DRINKS_VIDEO_URL,
 };
 
 const CategoryPage = () => {
