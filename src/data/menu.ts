@@ -209,12 +209,12 @@ export const noodleSauces = [
 ];
 
 const plattersData = [
-  { name: 'Family Sushi Platter', name_he: 'מגש סושי משפחתי', name_ar: 'طبق سوشي عائلي', desc: '48 pieces of mixed sushi rolls — Perfect for sharing', desc_he: '48 חתיכות רולים מעורבים — מושלם לשיתוף', desc_ar: '48 قطعة من لفائف السوشي المتنوعة — مثالي للمشاركة', price: 199, badge: 'family', img: platterFamily },
-  { name: 'Party Sushi Tray', name_he: 'מגש סושי למסיבה', name_ar: 'صينية سوشي للحفلات', desc: '72 pieces assorted sushi — Chef selection', desc_he: '72 חתיכות סושי מגוון — בחירת השף', desc_ar: '72 قطعة سوشي متنوعة — اختيار الشيف', price: 289, badge: 'popular', img: platterParty },
-  { name: 'Premium Sushi Combo', name_he: 'קומבו סושי פרימיום', name_ar: 'كومبو سوشي مميز', desc: '60 pieces of signature rolls', desc_he: '60 חתיכות של רולים ייחודיים', desc_ar: '60 قطعة من اللفائف المميزة', price: 249, badge: 'premium', img: platterPremium },
-  { name: 'Large Sushi Celebration Tray', name_he: 'מגש סושי חגיגי גדול', name_ar: 'صينية سوشي احتفالية كبيرة', desc: '96 pieces of mixed sushi — Perfect for events', desc_he: '96 חתיכות סושי מעורב — מושלם לאירועים', desc_ar: '96 قطعة سوشي متنوعة — مثالية للمناسبات', price: 379, badge: 'premium', img: platterCelebration },
-  { name: 'Pandalina Party Platter', name_he: 'מגש מסיבה פנדלינה', name_ar: 'طبق حفلة باندالينا', desc: '40 pieces of mixed sushi rolls', desc_he: '40 חתיכות רולים מעורבים', desc_ar: '40 قطعة من لفائف السوشي المتنوعة', price: 189, badge: 'popular', img: platterPandalina },
-  { name: 'Date Night Box', name_he: 'קופסת ערב רומנטי', name_ar: 'علبة ليلة رومانسية', desc: '16 premium pieces for two', desc_he: '16 חתיכות פרימיום לזוג', desc_ar: '16 قطعة فاخرة لشخصين', price: 99, badge: 'family', img: platterDateNight },
+  { name: 'Family Sushi Platter', name_he: 'מגש סושי משפחתי', name_ar: 'طبق سوشي عائلي', name_ru: 'Семейный сет суши', desc: '48 pieces of mixed sushi rolls — Perfect for sharing', desc_he: '48 חתיכות רולים מעורבים — מושלם לשיתוף', desc_ar: '48 قطعة من لفائف السوشي المتنوعة — مثالي للمشاركة', desc_ru: '48 шт. ассорти роллов — идеально для компании', price: 199, badge: 'family', img: platterFamily },
+  { name: 'Party Sushi Tray', name_he: 'מגש סושי למסיבה', name_ar: 'صينية سوشي للحفلات', name_ru: 'Суши-сет для вечеринки', desc: '72 pieces assorted sushi — Chef selection', desc_he: '72 חתיכות סושי מגוון — בחירת השף', desc_ar: '72 قطعة سوشي متنوعة — اختيار الشيف', desc_ru: '72 шт. ассорти суши — выбор шефа', price: 289, badge: 'popular', img: platterParty },
+  { name: 'Premium Sushi Combo', name_he: 'קומבו סושי פרימיום', name_ar: 'كومبو سوشي مميز', name_ru: 'Премиум суши-комбо', desc: '60 pieces of signature rolls', desc_he: '60 חתיכות של רולים ייחודיים', desc_ar: '60 قطعة من اللفائف المميزة', desc_ru: '60 шт. фирменных роллов', price: 249, badge: 'premium', img: platterPremium },
+  { name: 'Large Sushi Celebration Tray', name_he: 'מגש סושי חגיגי גדול', name_ar: 'صينية سوشي احتفالية كبيرة', name_ru: 'Большой праздничный сет', desc: '96 pieces of mixed sushi — Perfect for events', desc_he: '96 חתיכות סושי מעורב — מושלם לאירועים', desc_ar: '96 قطعة سوشي متنوعة — مثالية للمناسبات', desc_ru: '96 шт. ассорти суши — для мероприятий', price: 379, badge: 'premium', img: platterCelebration },
+  { name: 'Pandalina Party Platter', name_he: 'מגש מסיבה פנדלינה', name_ar: 'طبق حفلة باندالينا', name_ru: 'Сет Пандалина', desc: '40 pieces of mixed sushi rolls', desc_he: '40 חתיכות רולים מעורבים', desc_ar: '40 قطعة من لفائف السوشي المتنوعة', desc_ru: '40 шт. ассорти роллов', price: 189, badge: 'popular', img: platterPandalina },
+  { name: 'Date Night Box', name_he: 'קופסת ערב רומנטי', name_ar: 'علبة ليلة رومانسية', name_ru: 'Романтический набор', desc: '16 premium pieces for two', desc_he: '16 חתיכות פרימיום לזוג', desc_ar: '16 قطعة فاخرة لشخصين', desc_ru: '16 премиальных шт. на двоих', price: 99, badge: 'family', img: platterDateNight },
 ];
 
 const platters: MenuItem[] = plattersData.map((item, i) => ({
@@ -222,11 +222,13 @@ const platters: MenuItem[] = plattersData.map((item, i) => ({
   name: item.name,
   name_he: item.name_he,
   name_ar: item.name_ar,
+  name_ru: item.name_ru,
   slug: item.name.toLowerCase().replace(/\s+/g, '-'),
   categoryId: 'platters',
   description: item.desc,
   description_he: item.desc_he,
   description_ar: item.desc_ar,
+  description_ru: item.desc_ru,
   price: item.price,
   image: item.img,
   tags: ['platter', 'sharing'],
