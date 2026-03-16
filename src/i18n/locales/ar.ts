@@ -29,6 +29,7 @@ const ar: Translations = {
     kitchen: 'المطبخ',
     noodles: 'نودلز',
     platters: 'أطباق',
+    drinks: 'مشروبات',
     view_all: 'عرض الكل ←',
   },
 
