@@ -163,7 +163,7 @@ const NoodleBuilder = ({ open, onClose }: NoodleBuilderProps) => {
                         config.sauce?.id === sauce.id ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'
                       }`}
                     >
-                      {sauce.name}
+                      {localizedName(sauce, locale)}
                     </button>
                   ))}
                 </div>

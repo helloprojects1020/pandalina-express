@@ -39,9 +39,9 @@ const Recommendations = ({ title, excludeIds = [], variant = 'modal' }: Recommen
             key={item.id}
             className="flex-shrink-0 w-28 bg-secondary/50 rounded-xl overflow-hidden"
           >
-            <img src={item.image} alt={item.name} className="w-full aspect-square object-cover" loading="lazy" />
+            <img src={item.image} alt={localizedName(item, locale)} className="w-full aspect-square object-cover" loading="lazy" />
             <div className="p-2">
-              <p className="text-xs font-semibold text-foreground line-clamp-1">{item.name}</p>
+              <p className="text-xs font-semibold text-foreground line-clamp-1">{localizedName(item, locale)}</p>
               <div className="flex items-center justify-between mt-1.5">
                 <span className="text-xs font-display text-primary">₪{item.price}</span>
                 <button

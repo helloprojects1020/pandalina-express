@@ -52,8 +52,8 @@ const ProductCard = ({ item, onOpen, variant = 'default' }: ProductCardProps) =>
         />
       </div>
       <div className={`flex flex-col flex-1 pb-1 ${isPremium ? 'px-4 py-3' : 'px-1'}`}>
-        <h3 className="font-bold text-sm leading-tight line-clamp-2 text-foreground">{item.name}</h3>
-        <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{item.description}</p>
+        <h3 className="font-bold text-sm leading-tight line-clamp-2 text-foreground">{localizedName(item, locale)}</h3>
+        <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{localizedDescription(item, locale)}</p>
         {isPremium && item.tags.includes('platter') && (
           <span className="text-[10px] text-primary font-semibold mt-1">{t.menu.premium_badge}</span>
         )}

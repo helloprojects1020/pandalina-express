@@ -83,7 +83,7 @@ const CartDrawer = () => {
                         </div>
                         {item.selectedOptions.length > 0 && (
                           <p className="text-xs text-muted-foreground truncate">
-                            {item.selectedOptions.flatMap((o) => o.selectedChoices.map((c) => c.name)).join(', ')}
+                            {item.selectedOptions.flatMap((o) => o.selectedChoices.map((c) => localizedName(c, locale))).join(', ')}
                           </p>
                         )}
                         {item.notes && <p className="text-xs text-muted-foreground italic truncate">{item.notes}</p>}

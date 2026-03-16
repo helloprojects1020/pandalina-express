@@ -129,21 +129,21 @@ const ProductModal = ({ item, onClose }: ProductModalProps) => {
               {item.options.map((group) => (
                 <div key={group.id} className="mt-5">
                   <h3 className="font-bold text-sm text-foreground mb-2">
-                    {group.title}
+                    {localizedTitle(group, locale)}
                     {group.required && <span className="text-primary ms-1">*</span>}
                   </h3>
                   <div className="flex flex-wrap gap-2">
                     {group.choices.map((choice) => (
                       <button
                         key={choice.id}
-                        onClick={() => toggleChoice(group.id, group.title, group.type, choice)}
+                        onClick={() => toggleChoice(group.id, localizedTitle(group, locale), group.type, choice)}
                         className={`h-9 px-4 rounded-full text-sm font-medium transition-all active:scale-95 ${
                           isChoiceSelected(group.id, choice.id)
                             ? 'bg-primary text-primary-foreground'
                             : 'bg-secondary text-secondary-foreground'
                         }`}
                       >
-                        {choice.name}
+                        {localizedName(choice, locale)}
                         {choice.priceModifier > 0 && ` +₪${choice.priceModifier}`}
                       </button>
                     ))}

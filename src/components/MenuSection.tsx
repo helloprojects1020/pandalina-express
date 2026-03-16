@@ -48,7 +48,7 @@ const MenuSection = () => {
                   <h2 className="text-xl md:text-2xl tracking-tighter uppercase text-foreground mb-1">
                     {categoryLabel}
                   </h2>
-                  <p className="text-sm text-muted-foreground">{cat.description}</p>
+                  <p className="text-sm text-muted-foreground">{localizedDescription(cat, locale)}</p>
                 </div>
                 {items.length > previewItems.length && (
                   <button

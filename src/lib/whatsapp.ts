@@ -27,7 +27,7 @@ export const generateWhatsAppLink = (
   const itemLines = items
     .map((item) => {
       const opts = item.selectedOptions
-        .flatMap((o) => o.selectedChoices.map((c) => c.name))
+        .flatMap((o) => o.selectedChoices.map((c) => c.name_he || c.name))
         .join(', ');
       const optsStr = opts ? ` (${opts})` : '';
       const notesStr = item.notes ? ` [${item.notes}]` : '';

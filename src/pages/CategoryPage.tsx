@@ -87,7 +87,7 @@ const CategoryPage = () => {
             {categoryLabel}
           </h1>
           <p className="text-sm text-primary-foreground/60 mt-1">
-            {category.description}
+            {localizedDescription(category, locale)}
           </p>
         </div>
       </div>
