@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useMenu } from '@/hooks/useMenu';
 import { useI18n } from '@/i18n/context';
+import { handleImageError } from '@/lib/imageFallback';
 
 const CategoryCards = () => {
   const { t } = useI18n();
