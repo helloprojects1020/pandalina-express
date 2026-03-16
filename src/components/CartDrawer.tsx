@@ -6,7 +6,7 @@ import { localizedName } from '@/lib/localize';
 import Recommendations from './Recommendations';
 
 const CartDrawer = () => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { items, isCartOpen, setCartOpen, setCheckoutOpen, removeItem, updateQuantity, getSubtotal, getItemCount, setEditingCartItemId } =
     useCartStore();
 
