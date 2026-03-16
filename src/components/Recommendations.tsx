@@ -4,6 +4,7 @@ import { useMenu } from '@/hooks/useMenu';
 import type { MenuItem } from '@/types/menu';
 import { localizedName } from '@/lib/localize';
 import { Plus } from 'lucide-react';
+import { handleImageError } from '@/lib/imageFallback';
 
 const RECOMMENDATION_SLUGS = ['egg-roll', 'chicken-popcorn', 'avocado-salad', 'crunchy-roll', 'chicken-bao', 'crispy-shrimp-tempura'];
 
@@ -40,7 +41,7 @@ const Recommendations = ({ title, excludeIds = [], variant = 'modal' }: Recommen
             key={item.id}
             className="flex-shrink-0 w-28 bg-secondary/50 rounded-xl overflow-hidden"
           >
-            <img src={item.image} alt={localizedName(item, locale)} className="w-full aspect-square object-cover" loading="lazy" />
+            <img src={item.image} alt={localizedName(item, locale)} className="w-full aspect-square object-cover" loading="lazy" onError={handleImageError} />
             <div className="p-2">
               <p className="text-xs font-semibold text-foreground line-clamp-1">{localizedName(item, locale)}</p>
               <div className="flex items-center justify-between mt-1.5">
