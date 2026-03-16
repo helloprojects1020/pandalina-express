@@ -31,7 +31,8 @@ export const generateWhatsAppLink = (
         .join(', ');
       const optsStr = opts ? ` (${opts})` : '';
       const notesStr = item.notes ? ` [${item.notes}]` : '';
-      return `• ${item.quantity}x ${item.menuItem.name}${optsStr}${notesStr} — ₪${item.lineTotal}`;
+      const itemName = item.menuItem.name_he || item.menuItem.name;
+      return `• ${item.quantity}x ${itemName}${optsStr}${notesStr} — ₪${item.lineTotal}`;
     })
     .join('\n');
 
