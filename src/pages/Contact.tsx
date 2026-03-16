@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useI18n } from '@/i18n/context';
 import { Phone, MapPin, Clock } from 'lucide-react';
 import Footer from '@/components/Footer';
+import { trackWhatsAppClick, trackPhoneClick } from '@/lib/analytics';
 
 const Contact = () => {
   const { t } = useI18n();
