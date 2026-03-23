@@ -2,7 +2,6 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import { supabase } from '@/integrations/supabase/client';
 import type { MenuItem, MenuCategory, OptionGroup, OptionChoice } from '@/types/menu';
 
-// Static image imports — used as fallback when DB has no image_url
 import sushiRoll1 from '@/assets/sushi-roll-1.jpg';
 import sushiRoll2 from '@/assets/sushi-roll-2.jpg';
 import sushiRoll3 from '@/assets/sushi-roll-3.jpg';
@@ -40,19 +39,20 @@ import drinkRedWineImg from '@/assets/drink-red-wine.jpg';
 import drinkWhiteWineImg from '@/assets/drink-white-wine.jpg';
 import drinkRoseWineImg from '@/assets/drink-rose-wine.jpg';
 
-// Fallback image maps (slug → local asset)
 const categoryImageMap: Record<string, string> = {
   'sushi-rolls': sushiRoll1,
   platters: platterFamily,
   kitchen: kitchenAsadoaki,
   noodles: noodlesImg,
   drinks: drinksCategoryImg,
+  salads: kitchenAvocadoSalad,
+  sandwiches: kitchenChickenBao,
 };
 
 const rollImages = [sushiRoll1, sushiRoll2, sushiRoll3];
 
 const itemImageMap: Record<string, string> = {
-  'asadoaki': kitchenAsadoaki, 'crispy-salmon': kitchenCrispySalmon,
+  asadoaki: kitchenAsadoaki, 'crispy-salmon': kitchenCrispySalmon,
   'avocado-salad': kitchenAvocadoSalad, 'beef-broccoli': kitchenBeefBroccoli,
   'egg-roll': kitchenEggRoll, 'crispy-shrimp-tempura': kitchenShrimpTempura,
   'chicken-popcorn': kitchenChickenPopcorn, 'chicken-bao': kitchenChickenBao,
@@ -64,12 +64,12 @@ const itemImageMap: Record<string, string> = {
   'premium-sushi-combo': platterPremium, 'large-sushi-celebration-tray': platterCelebration,
   'pandalina-party-platter': platterPandalina, 'date-night-box': platterDateNight,
   'coca-cola': drinkColaImg, 'coca-cola-zero': drinkColaImg,
-  'sprite': drinkSpriteImg, 'fanta': drinkFantaImg,
+  sprite: drinkSpriteImg, fanta: drinkFantaImg,
   'sparkling-water': drinkWaterImg, 'mineral-water': drinkWaterImg,
   'fuse-tea': drinkIcedTeaImg,
-  'goldstar': drinkGoldstarImg, 'maccabi': drinkGoldstarImg,
-  'heineken': drinkHeinekenImg, 'corona': drinkCoronaImg,
-  'asahi': drinkAsahiImg, 'sapporo': drinkAsahiImg,
+  goldstar: drinkGoldstarImg, maccabi: drinkGoldstarImg,
+  heineken: drinkHeinekenImg, corona: drinkCoronaImg,
+  asahi: drinkAsahiImg, sapporo: drinkAsahiImg,
   'red-wine-glass': drinkRedWineImg, 'red-wine-bottle': drinkRedWineImg,
   'white-wine-glass': drinkWhiteWineImg, 'white-wine-bottle': drinkWhiteWineImg,
   'rose-wine-glass': drinkRoseWineImg, 'rose-wine-bottle': drinkRoseWineImg,
@@ -84,158 +84,190 @@ interface MenuContextValue {
   noodleSauces: OptionChoice[];
   getItemsByCategory: (categorySlug: string) => MenuItem[];
   loading: boolean;
+  error: string | null;
+  restaurantId: string | null;
 }
 
 const MenuContext = createContext<MenuContextValue | undefined>(undefined);
 
-export const MenuProvider = ({ children }: { children: ReactNode }) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const db = supabase as any;
+
+const RESTAURANT_ID = '7f626704-fde0-468b-a8ff-256082c4a4a8';
+
+type MenuProviderProps = {
+  children: ReactNode;
+  restaurantSlug?: string;
+};
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const MenuProvider = ({ children }: MenuProviderProps) => {
   const [categories, setCategories] = useState<MenuCategory[]>([]);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [noodleBases, setNoodleBases] = useState<OptionChoice[]>([]);
   const [noodleToppings, setNoodleToppings] = useState<OptionChoice[]>([]);
   const [noodleSauces, setNoodleSauces] = useState<OptionChoice[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchMenu = async () => {
-      // Fetch categories, items, and options in parallel
-      const [catRes, itemRes, optRes] = await Promise.all([
-        supabase.from('categories').select('*').eq('is_active', true).order('sort_order'),
-        supabase.from('menu_items').select('*').eq('is_active', true).order('sort_order'),
-        supabase.from('menu_item_options').select('*').order('sort_order'),
-      ]);
+      try {
+        const [catRes, itemRes, optGroupRes, optValRes] = await Promise.all([
+          db.from('categories')
+            .select('id, restaurant_id, name_he, slug, sort_order, is_active')
+            .eq('restaurant_id', RESTAURANT_ID)
+            .eq('is_active', true)
+            .order('sort_order'),
+          db.from('menu_items')
+            .select('id, restaurant_id, category_id, name_he, slug, price, image_url, is_active, is_bestseller, sort_order')
+            .eq('restaurant_id', RESTAURANT_ID)
+            .eq('is_active', true)
+            .order('sort_order'),
+          db.from('menu_item_options')
+            .select('id, menu_item_id, name, min_select, max_select, is_required, sort_order, is_active')
+            .eq('is_active', true)
+            .order('sort_order'),
+          db.from('menu_item_option_values')
+            .select('id, option_id, name, name_he, name_ar, price_modifier, sort_order, is_active')
+            .eq('is_active', true)
+            .order('sort_order'),
+        ]);
 
-      // Map categories
-      const cats: MenuCategory[] = (catRes.data ?? []).map(c => ({
-        id: c.slug,
-        name: c.name_en ?? c.name_he,
-        name_he: c.name_he,
-        name_ar: c.name_ar ?? undefined,
-        name_en: c.name_en ?? undefined,
-        name_ru: c.name_ru ?? undefined,
-        slug: c.slug,
-        description: c.description_en ?? c.description_he ?? '',
-        description_he: c.description_he ?? undefined,
-        description_ar: c.description_ar ?? undefined,
-        description_en: c.description_en ?? undefined,
-        description_ru: c.description_ru ?? undefined,
-        image: c.image_url ?? categoryImageMap[c.slug] ?? sushiRoll1,
-        sortOrder: c.sort_order,
-      }));
+        const categoryRows = catRes.data ?? [];
+        const itemRows = itemRes.data ?? [];
+        const optionGroups = optGroupRes.data ?? [];
+        const optionValues = optValRes.data ?? [];
 
-      // Group options by menu_item UUID
-      const optionsByItem = new Map<string, typeof optRes.data>();
-      for (const opt of (optRes.data ?? [])) {
-        const arr = optionsByItem.get(opt.menu_item_id) ?? [];
-        arr.push(opt);
-        optionsByItem.set(opt.menu_item_id, arr);
-      }
+        const itemIdSet = new Set(itemRows.map((i: { id: string }) => i.id));
+        const filteredGroups = optionGroups.filter((g: { menu_item_id: string }) => itemIdSet.has(g.menu_item_id));
+        const groupIdSet = new Set(filteredGroups.map((g: { id: string }) => g.id));
+        const filteredValues = optionValues.filter((v: { option_id: string }) => groupIdSet.has(v.option_id));
 
-      // Map menu items
-      let sushiIdx = 0;
-      const items: MenuItem[] = (itemRes.data ?? []).map(item => {
-        const catRow = catRes.data?.find(c => c.id === item.category_id);
-        const catSlug = catRow?.slug ?? '';
-        const isSushi = catSlug === 'sushi-rolls';
-
-        // Build options
-        const rawOpts = optionsByItem.get(item.id) ?? [];
-        const grouped = new Map<string, { group_he: string; group_en: string; group_ar: string | null; group_ru: string | null; choices: OptionChoice[] }>();
-        for (const o of rawOpts) {
-          const key = o.group_name_he;
-          if (!grouped.has(key)) {
-            grouped.set(key, { group_he: o.group_name_he, group_en: o.group_name_en ?? o.group_name_he, group_ar: o.group_name_ar, group_ru: o.group_name_ru, choices: [] });
-          }
-          grouped.get(key)!.choices.push({
-            id: o.id,
-            name: o.option_name_en ?? o.option_name_he,
-            name_he: o.option_name_he,
-            name_ar: o.option_name_ar ?? undefined,
-            name_en: o.option_name_en ?? undefined,
-            name_ru: o.option_name_ru ?? undefined,
-            priceModifier: Number(o.price_add),
-          });
-        }
-
-        const options: OptionGroup[] = Array.from(grouped.entries()).map(([, g]) => ({
-          id: g.group_en.toLowerCase().replace(/\s+/g, '-'),
-          title: g.group_en,
-          title_he: g.group_he,
-          title_ar: g.group_ar ?? undefined,
-          title_en: g.group_en ?? undefined,
-          title_ru: g.group_ru ?? undefined,
-          type: 'multiple' as const,
-          required: false,
-          choices: g.choices,
+        const cats: MenuCategory[] = categoryRows.map((c: { id: string; slug: string; name_he: string; sort_order: number }) => ({
+          id: c.slug ?? c.id,
+          name: c.name_he ?? c.slug,
+          name_he: c.name_he ?? undefined,
+          slug: c.slug ?? c.id,
+          description: '',
+          image: categoryImageMap[c.slug ?? ''] ?? sushiRoll1,
+          sortOrder: c.sort_order ?? 0,
         }));
 
-        // Image fallback
-        let image = item.image_url;
-        if (!image) {
-          if (isSushi) {
-            image = rollImages[sushiIdx % rollImages.length];
-            sushiIdx++;
-          } else {
-            image = itemImageMap[item.slug] ?? sushiRoll1;
-          }
+        const valuesByGroupId = new Map<string, typeof filteredValues>();
+        for (const v of filteredValues) {
+          const arr = valuesByGroupId.get(v.option_id) ?? [];
+          arr.push(v);
+          valuesByGroupId.set(v.option_id, arr);
         }
 
-        return {
-          id: item.slug,
-          name: item.name_en ?? item.name_he,
-          name_he: item.name_he,
-          name_ar: item.name_ar ?? undefined,
-          name_en: item.name_en ?? undefined,
-          name_ru: item.name_ru ?? undefined,
-          slug: item.slug,
-          categoryId: catSlug,
-          description: item.description_en ?? item.description_he ?? '',
-          description_he: item.description_he ?? undefined,
-          description_ar: item.description_ar ?? undefined,
-          description_en: item.description_en ?? undefined,
-          description_ru: item.description_ru ?? undefined,
-          price: Number(item.price),
-          image: image!,
-          tags: [catSlug],
-          isAvailable: item.is_active,
-          isCustomizable: options.length > 0,
-          options,
-          isFeatured: item.is_bestseller,
-          sortOrder: item.sort_order,
-        };
-      });
+        const groupsByItemId = new Map<string, typeof filteredGroups>();
+        for (const g of filteredGroups) {
+          const arr = groupsByItemId.get(g.menu_item_id) ?? [];
+          arr.push(g);
+          groupsByItemId.set(g.menu_item_id, arr);
+        }
 
-      // Extract noodle builder options from the "build-your-noodle-bowl" item
-      const noodleItem = items.find(i => i.slug === 'build-your-noodle-bowl');
-      if (noodleItem) {
-        const baseGroup = noodleItem.options.find(g => g.title_he === 'בסיס');
-        const toppingGroup = noodleItem.options.find(g => g.title_he === 'תוספות');
-        const sauceGroup = noodleItem.options.find(g => g.title_he === 'רוטב');
-        setNoodleBases(baseGroup?.choices ?? []);
-        setNoodleToppings(toppingGroup?.choices ?? []);
-        setNoodleSauces(sauceGroup?.choices ?? []);
+        const categoryById = new Map(categoryRows.map((c: { id: string; slug: string }) => [c.id, c]));
+
+        let sushiIdx = 0;
+        const items: MenuItem[] = itemRows.map((item: {
+          id: string; slug: string; name_he: string; category_id: string;
+          price: number; image_url: string | null; is_active: boolean;
+          is_bestseller: boolean; sort_order: number;
+        }) => {
+          const category = item.category_id ? categoryById.get(item.category_id) : undefined;
+          const categorySlug = (category as { slug?: string } | undefined)?.slug ?? '';
+          const isSushi = categorySlug === 'sushi-rolls';
+
+          const rawGroups = groupsByItemId.get(item.id) ?? [];
+          const options: OptionGroup[] = rawGroups.map((group: { id: string; name: string; max_select: number; is_required: boolean }) => {
+            const rawValues = valuesByGroupId.get(group.id) ?? [];
+            const choices: OptionChoice[] = rawValues.map((v: { id: string; name_he: string; name: string; name_ar?: string; price_modifier: number }) => ({
+              id: v.id,
+              name: v.name_he ?? v.name,
+              name_he: v.name_he ?? v.name,
+              name_ar: v.name_ar ?? undefined,
+              name_en: v.name,
+              priceModifier: Number(v.price_modifier ?? 0),
+            }));
+            return {
+              id: group.id,
+              title: group.name,
+              title_he: group.name,
+              title_en: group.name,
+              type: (group.max_select ?? 1) === 1 ? 'single' as const : 'multiple' as const,
+              required: !!group.is_required,
+              choices,
+            };
+          });
+
+          let image = item.image_url;
+          if (!image) {
+            if (isSushi) { image = rollImages[sushiIdx % rollImages.length]; sushiIdx++; }
+            else { image = itemImageMap[item.slug ?? ''] ?? sushiRoll1; }
+          }
+
+          return {
+            id: item.id,
+            slug: item.slug ?? item.id,
+            name: item.name_he ?? item.slug ?? item.id,
+            name_he: item.name_he ?? undefined,
+            categoryId: categorySlug,
+            description: '',
+            price: Number(item.price ?? 0),
+            image: image!,
+            tags: categorySlug ? [categorySlug] : [],
+            isAvailable: !!item.is_active,
+            isCustomizable: options.length > 0,
+            options,
+            isFeatured: !!item.is_bestseller,
+            sortOrder: item.sort_order ?? 0,
+            menuItem: item,
+          };
+        });
+
+        const noodleItem = items.find(i => i.slug === 'build-your-noodle-bowl');
+        if (noodleItem) {
+          const baseGroup = noodleItem.options.find(g => g.title_he === 'בסיס' || g.title === 'Base');
+          const toppingGroup = noodleItem.options.find(g => g.title_he === 'תוספות' || g.title === 'Toppings');
+          const sauceGroup = noodleItem.options.find(g => g.title_he === 'רוטב' || g.title === 'Sauce');
+          setNoodleBases(baseGroup?.choices ?? []);
+          setNoodleToppings(toppingGroup?.choices ?? []);
+          setNoodleSauces(sauceGroup?.choices ?? []);
+        }
+
+        setCategories(cats);
+        setMenuItems(items);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Failed to load menu';
+        setError(message);
+      } finally {
+        setLoading(false);
       }
-
-      setCategories(cats);
-      setMenuItems(items);
-      setLoading(false);
     };
 
     fetchMenu();
   }, []);
 
   const featuredItems = menuItems.filter(i => i.isFeatured);
-  const getItemsByCategory = (categoryId: string) =>
-    menuItems.filter(i => i.categoryId === categoryId).sort((a, b) => a.sortOrder - b.sortOrder);
+  const getItemsByCategory = (categorySlug: string) =>
+    menuItems.filter(i => i.categoryId === categorySlug).sort((a, b) => a.sortOrder - b.sortOrder);
 
   return (
-    <MenuContext.Provider value={{ categories, menuItems, featuredItems, noodleBases, noodleToppings, noodleSauces, getItemsByCategory, loading }}>
+    <MenuContext.Provider value={{
+      categories, menuItems, featuredItems,
+      noodleBases, noodleToppings, noodleSauces,
+      getItemsByCategory, loading, error,
+      restaurantId: RESTAURANT_ID,
+    }}>
       {children}
     </MenuContext.Provider>
   );
 };
 
-export const useMenu = () => {
+// eslint-disable-next-line react-refresh/only-export-components
+export const useMenu = (): MenuContextValue => {
   const ctx = useContext(MenuContext);
   if (!ctx) throw new Error('useMenu must be used within MenuProvider');
   return ctx;

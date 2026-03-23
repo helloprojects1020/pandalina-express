@@ -1,318 +1,320 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
-import type { ElementType, KeyboardEvent } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, MapPin, User, Phone, MessageSquare, Truck, Store, UtensilsCrossed, Clock } from 'lucide-react';
 import { useCartStore } from '@/store/cartStore';
-import { generateWhatsAppLink } from '@/lib/whatsapp';
-import { useI18n } from '@/i18n/context';
-import type { OrderType } from '@/types/menu';
+import { supabase } from "@/integrations/supabase/client";
+import { createOrder } from "@/lib/createOrder";
+import { useState, useMemo, useEffect } from "react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { useMenu } from "@/hooks/useMenu";
 
-const PREP_OPTIONS = [
-  { id: 'now', label: 'התחילו להכין' },
-  { id: '20min', label: 'מוכן בעוד 20 דקות' },
-  { id: '30min', label: 'מוכן בעוד 30 דקות' },
-];
+const DEFAULT_WHATSAPP_PHONE = "972526204159";
+const DEFAULT_DELIVERY_FEE = 20;
 
-type FocusableField = HTMLInputElement | HTMLTextAreaElement;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const db = supabase as any;
 
-const CheckoutSheet = () => {
-  const { t } = useI18n();
-  const {
-    items, isCheckoutOpen, setCheckoutOpen, customerDetails, setCustomerDetails,
-    setOrderType, getSubtotal, getTotal, deliveryFee, prepTime, setPrepTime,
-  } = useCartStore();
+type RestaurantSettings = {
+  whatsapp_phone: string;
+  delivery_fee: number;
+  min_order_amount: number;
+  accepts_delivery: boolean;
+  accepts_pickup: boolean;
+  accepts_dine_in: boolean;
+  is_open: boolean;
+  online_payment_enabled: boolean;
+};
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function formatPrice(value: number): string { return `₪${value}`; }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function getItemResolvedName(item: any): string {
+  return item?.menuItem?.name_he || item?.menuItem?.name || item?.name || "פריט";
+}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function getItemResolvedBasePrice(item: any): number {
+  return Number(item?.menuItem?.price ?? item?.price ?? 0);
+}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function getItemOptions(item: any) {
+  if (Array.isArray(item?.selectedOptions)) return item.selectedOptions;
+  if (Array.isArray(item?.options)) return item.options;
+  return [];
+}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function getItemTotal(item: any): number {
+  const basePrice = getItemResolvedBasePrice(item);
+  const options = getItemOptions(item);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const extra = options.reduce((sum: number, opt: any) => sum + Number(opt?.priceDelta ?? opt?.price ?? 0), 0);
+  return (basePrice + extra) * Number(item?.quantity || 1);
+}
 
-  const contentRef = useRef<HTMLDivElement>(null);
-  const nameInputRef = useRef<HTMLInputElement>(null);
-  const phoneInputRef = useRef<HTMLInputElement>(null);
-  const addressInputRef = useRef<HTMLInputElement>(null);
-  const notesInputRef = useRef<HTMLTextAreaElement>(null);
+function buildWhatsappMessage(params: {
+  restaurantName: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  customerDetails: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  items: any[];
+  subtotal: number;
+  deliveryFee: number;
+  total: number;
+  arrivalTime: string;
+}): string {
+  const { restaurantName, customerDetails, items, subtotal, deliveryFee, total, arrivalTime } = params;
+  const lines: string[] = [];
+  lines.push(`🍽️ הזמנה חדשה — ${restaurantName}`);
+  lines.push("");
+  lines.push(`שם מלא: ${customerDetails.name}`);
+  lines.push(`טלפון: ${customerDetails.phone}`);
+  const orderTypeText = customerDetails.orderType === "pickup" ? "איסוף עצמי" :
+    customerDetails.orderType === "delivery" ? "משלוח" : "ישיבה במקום";
+  lines.push(`סוג הזמנה: ${orderTypeText}`);
+  if (customerDetails.orderType === "delivery" && customerDetails.address?.trim())
+    lines.push(`כתובת: ${customerDetails.address.trim()}`);
+  if (arrivalTime && customerDetails.orderType !== "delivery") {
+    const arrivalText = arrivalTime === "now" ? "בדרך מגיע" :
+      arrivalTime === "20min" ? "מגיע בעוד 20 דקות" : "מגיע בעוד 40 דקות";
+    lines.push(`זמן הגעה: ${arrivalText}`);
+  }
+  lines.push(""); lines.push("פריטים:");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  items.forEach((item: any) => {
+    const itemName = getItemResolvedName(item);
+    const options = getItemOptions(item);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const optionsText = options.length > 0 ? ` (${options.map((opt: any) => opt?.name || opt?.optionValueName || "בחירה").join(", ")})` : "";
+    lines.push(`• ${itemName}${optionsText}, ${item.quantity}x — ${formatPrice(getItemTotal(item))}`);
+    if (item?.notes?.trim()) lines.push(`  הערות: ${item.notes.trim()}`);
+  });
+  lines.push("");
+  lines.push(`סכום ביניים: ${formatPrice(subtotal)}`);
+  if (deliveryFee > 0) lines.push(`משלוח: ${formatPrice(deliveryFee)}`);
+  lines.push(`סה"כ: ${formatPrice(total)}`);
+  if (customerDetails.notes?.trim()) { lines.push(""); lines.push(`הערות: ${customerDetails.notes.trim()}`); }
+  return lines.join("\n");
+}
 
-  const subtotal = getSubtotal();
-  const total = getTotal();
-  const showDelivery = customerDetails.orderType === 'delivery';
+export default function CheckoutSheet() {
+  const { items, isCheckoutOpen, setCheckoutOpen, customerDetails, setCustomerDetails, setOrderType, clearCart } = useCartStore();
+  const { restaurantId } = useMenu();
 
-  const orderTypes: { type: OrderType; label: string; icon: ElementType }[] = [
-    { type: 'pickup', label: t.checkout.pickup, icon: Store },
-    { type: 'delivery', label: t.checkout.delivery, icon: Truck },
-    { type: 'eat-in', label: t.checkout.eat_in, icon: UtensilsCrossed },
-  ];
+  const safeItems = Array.isArray(items) ? items : [];
+  const [submitting, setSubmitting] = useState(false);
+  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [arrivalTime, setArrivalTime] = useState<"now" | "20min" | "40min" | "">("");
+  const [settings, setSettings] = useState<RestaurantSettings>({
+    whatsapp_phone: DEFAULT_WHATSAPP_PHONE,
+    delivery_fee: DEFAULT_DELIVERY_FEE,
+    min_order_amount: 0,
+    accepts_delivery: true,
+    accepts_pickup: true,
+    accepts_dine_in: true,
+    is_open: true,
+    online_payment_enabled: false,
+  });
 
-  // Lock body scroll when open
   useEffect(() => {
-    if (!isCheckoutOpen) return;
-    const originalBodyOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = originalBodyOverflow;
+    if (!restaurantId) return;
+    const fetchSettings = async () => {
+      const { data } = await db.from('restaurant_settings').select('*').eq('restaurant_id', restaurantId).maybeSingle();
+      if (data) {
+        setSettings({
+          whatsapp_phone: data.whatsapp ?? data.whatsapp_number ?? DEFAULT_WHATSAPP_PHONE,
+          delivery_fee: Number(data.delivery_fee ?? DEFAULT_DELIVERY_FEE),
+          min_order_amount: Number(data.min_order_amount ?? data.minimum_order ?? 0),
+          accepts_delivery: data.delivery_enabled ?? data.is_delivery ?? true,
+          accepts_pickup: data.pickup_enabled ?? data.is_pickup ?? true,
+          accepts_dine_in: data.dine_in_enabled ?? data.is_dinein ?? true,
+          is_open: data.is_accepting_orders ?? true,
+          online_payment_enabled: data.online_payment_enabled ?? false,
+        });
+      }
     };
-  }, [isCheckoutOpen]);
+    fetchSettings();
+  }, [restaurantId]);
 
-  const scrollToField = useCallback((element: FocusableField | null) => {
-    if (!element) return;
-    window.setTimeout(() => {
-      element.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
-    }, 300);
-  }, []);
+  const subtotal = useMemo(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    () => safeItems.reduce((sum, item: any) => sum + (item.lineTotal || getItemTotal(item)), 0),
+    [safeItems]
+  );
 
-  const focusField = (element: FocusableField | null) => {
-    if (!element) return;
-    element.focus();
-    scrollToField(element);
-  };
-
-  const handleNextField = (event: KeyboardEvent<HTMLInputElement>, nextField: FocusableField | null) => {
-    if (event.key !== 'Enter') return;
-    event.preventDefault();
-    focusField(nextField);
-  };
-
-  const handlePhoneChange = (value: string) => {
-    const cleaned = value.replace(/[^0-9+\-\s]/g, '');
-    setCustomerDetails({ phone: cleaned });
-    setErrors((p) => ({ ...p, phone: '' }));
-  };
-
-  const handleNameChange = (value: string) => {
-    const cleaned = value.replace(/[0-9]/g, '');
-    setCustomerDetails({ name: cleaned });
-    setErrors((p) => ({ ...p, name: '' }));
-  };
+  const fee = customerDetails.orderType === "delivery" ? settings.delivery_fee : 0;
+  const total = subtotal + fee;
+  const belowMinimum = settings.min_order_amount > 0 && subtotal < settings.min_order_amount;
 
   const validate = () => {
-    const e: Record<string, string> = {};
-
-    const name = customerDetails.name.trim();
-    if (!name) {
-      e.name = t.lang === 'he' ? 'שם הוא שדה חובה' : t.lang === 'ar' ? 'الاسم مطلوب' : 'Name is required';
-    } else if (name.length < 2) {
-      e.name = t.lang === 'he' ? 'השם קצר מדי' : t.lang === 'ar' ? 'الاسم قصير جداً' : 'Name is too short';
-    }
-
-    const phone = customerDetails.phone.trim();
-    if (!phone) {
-      e.phone = t.lang === 'he' ? 'טלפון הוא שדה חובה' : t.lang === 'ar' ? 'الهاتف مطلوب' : 'Phone is required';
-    } else if (phone.replace(/[\s\-+]/g, '').length < 7) {
-      e.phone = t.lang === 'he' ? 'מספר טלפון לא תקין' : t.lang === 'ar' ? 'رقم هاتف غير صالح' : 'Enter a valid phone number';
-    }
-
-    if (showDelivery && !customerDetails.address.trim()) {
-      e.address = t.lang === 'he' ? 'כתובת היא שדה חובה' : t.lang === 'ar' ? 'العنوان مطلوب' : 'Address is required';
-    }
-
-    setErrors(e);
-    return Object.keys(e).length === 0;
+    if (safeItems.length === 0) throw new Error("העגלה ריקה");
+    if (!settings.is_open) throw new Error("המסעדה סגורה כרגע");
+    if (belowMinimum) throw new Error(`מינימום הזמנה הוא ${formatPrice(settings.min_order_amount)}`);
+    if (!customerDetails.name.trim() || customerDetails.name.trim().length < 2) throw new Error("יש להזין שם תקין");
+    if (!customerDetails.phone.trim() || customerDetails.phone.replace(/[^\d+]/g, "").length < 7) throw new Error("יש להזין טלפון תקין");
+    if (customerDetails.orderType === "delivery" && !customerDetails.address?.trim()) throw new Error("יש להזין כתובת למשלוח");
   };
 
-  const handleSend = () => {
-    if (!validate()) return;
-    const link = generateWhatsAppLink(items, customerDetails, subtotal, deliveryFee, total, t, prepTime);
-    window.open(link, '_blank');
+  const getRestaurant = async () => {
+    const { data: restaurant, error } = await db.from("restaurants").select("id, slug, name").eq("id", restaurantId).maybeSingle();
+    if (error) throw error;
+    if (!restaurant) throw new Error("המסעדה לא נמצאה");
+    return restaurant;
+  };
+
+  const resetForm = () => {
+    clearCart();
+    setCheckoutOpen(false);
+    setArrivalTime("");
+    setCustomerDetails({ name: "", phone: "", address: "", notes: "" });
+  };
+
+  const handleSend = async () => {
+    try {
+      setSubmitting(true);
+      validate();
+      const restaurant = await getRestaurant();
+      await createOrder({ restaurantId: restaurant.id, items: safeItems, customerDetails, subtotal, deliveryFee: fee, total });
+      const whatsappMessage = buildWhatsappMessage({ restaurantName: restaurant.name, customerDetails, items: safeItems, subtotal, deliveryFee: fee, total, arrivalTime });
+      const encoded = encodeURIComponent(whatsappMessage);
+      const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      const url = isMobile ? `https://wa.me/${settings.whatsapp_phone}?text=${encoded}` : `https://web.whatsapp.com/send?phone=${settings.whatsapp_phone}&text=${encoded}`;
+      window.open(url, "_blank");
+      resetForm();
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "שגיאה בשמירת ההזמנה");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleOnlinePayment = async () => {
+    try {
+      setPaymentLoading(true);
+      validate();
+      const restaurant = await getRestaurant();
+      const order = await createOrder({ restaurantId: restaurant.id, items: safeItems, customerDetails, subtotal, deliveryFee: fee, total });
+      const { data: sessionData, error: sessionError } = await supabase.functions.invoke('create-payment', {
+        body: {
+          order_id: order.id,
+          restaurant_id: restaurant.id,
+          amount: total,
+          success_url: `${window.location.origin}/payment/success`,
+          failure_url: `${window.location.origin}/payment/failure`,
+        },
+      });
+      if (sessionError) throw sessionError;
+      if (!sessionData?.payment_url) throw new Error("לא התקבל קישור לתשלום");
+      window.location.href = sessionData.payment_url;
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "שגיאה ביצירת תשלום");
+    } finally {
+      setPaymentLoading(false);
+    }
   };
 
   return (
-    <AnimatePresence>
-      {isCheckoutOpen && (
-        <>
-          <motion.div
-            key="checkout-overlay"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-foreground/40 backdrop-blur-sm"
-            onClick={() => setCheckoutOpen(false)}
-          />
+    <Sheet open={isCheckoutOpen} onOpenChange={setCheckoutOpen}>
+      <SheetContent side="right" className="w-full max-w-xl overflow-y-auto">
+        <SheetHeader>
+          <SheetTitle className="text-right">השלם את ההזמנה</SheetTitle>
+        </SheetHeader>
 
-          <motion.div
-            key="checkout-sheet"
-            initial={{ y: '100%' }}
-            animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            transition={{ type: 'spring', stiffness: 400, damping: 35 }}
-            className="fixed inset-x-0 bottom-0 z-50 w-full max-w-full rounded-t-3xl bg-card flex flex-col overflow-hidden overflow-x-hidden md:left-1/2 md:max-w-lg md:-translate-x-1/2"
-            style={{ maxHeight: '92dvh' }}
-          >
-            {/* Header */}
-            <div className="flex flex-shrink-0 items-center justify-between px-5 pt-5 pb-3">
-              <h2 className="font-display text-lg text-foreground">{t.checkout.title}</h2>
-              <button onClick={() => setCheckoutOpen(false)} className="h-9 w-9 rounded-full bg-secondary flex items-center justify-center active:scale-95">
-                <X className="w-5 h-5" />
-              </button>
+        <div className="mt-6 space-y-6" dir="rtl">
+          {!settings.is_open && (
+            <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-3 text-center">
+              <p className="text-sm font-semibold text-destructive">🔴 המסעדה סגורה כרגע</p>
             </div>
+          )}
 
-            {/* Content */}
-            <div
-              ref={contentRef}
-              className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain px-5 pb-4 [-webkit-overflow-scrolling:touch]"
-            >
-              {/* Order Type */}
-              <div className="mb-4">
-                <label className="font-bold text-sm text-foreground block mb-2">{t.checkout.order_type}</label>
-                <div className="grid grid-cols-3 gap-2">
-                  {orderTypes.map(({ type, label, icon: Icon }) => (
-                    <button
-                      key={type}
-                      onClick={() => setOrderType(type)}
-                      className={`h-12 rounded-2xl flex flex-col items-center justify-center gap-0.5 text-xs font-semibold transition-all active:scale-[0.98] ${
-                        customerDetails.orderType === type
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-secondary text-secondary-foreground'
-                      }`}
-                    >
-                      <Icon className="w-4 h-4" />
-                      {label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Preparation Time */}
-              <div className="mb-4">
-                <label className="font-bold text-sm text-foreground flex items-center gap-2 mb-2">
-                  <Clock className="w-4 h-4 text-primary" />
-                  זמן הכנה
-                </label>
-                <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-                  {PREP_OPTIONS.map((opt) => (
-                    <button
-                      key={opt.id}
-                      onClick={() => setPrepTime(prepTime === opt.id ? '' : opt.id)}
-                      className={`flex-shrink-0 h-9 px-3 rounded-xl text-xs font-semibold transition-all active:scale-[0.98] whitespace-nowrap ${
-                        prepTime === opt.id
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-secondary text-secondary-foreground'
-                      }`}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Fields */}
-              <div className="space-y-2.5">
-                {/* Name */}
-                <div>
-                  <div className={`flex items-center gap-3 h-11 px-4 rounded-xl bg-secondary min-w-0 ${errors.name ? 'ring-2 ring-destructive' : ''}`}>
-                    <User className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                    <input
-                      ref={nameInputRef}
-                      value={customerDetails.name}
-                      onChange={(e) => handleNameChange(e.target.value)}
-                      onFocus={(e) => scrollToField(e.currentTarget)}
-                      onKeyDown={(e) => handleNextField(e, phoneInputRef.current)}
-                      placeholder={t.checkout.name_placeholder}
-                      maxLength={100}
-                      autoComplete="name"
-                      type="text"
-                      inputMode="text"
-                      enterKeyHint="next"
-                      className="flex-1 min-w-0 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
-                    />
-                  </div>
-                  {errors.name && <p className="text-destructive text-xs mt-1 ps-4">{errors.name}</p>}
-                </div>
-
-                {/* Phone */}
-                <div>
-                  <div className={`flex items-center gap-3 h-11 px-4 rounded-xl bg-secondary min-w-0 ${errors.phone ? 'ring-2 ring-destructive' : ''}`}>
-                    <Phone className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                    <input
-                      ref={phoneInputRef}
-                      value={customerDetails.phone}
-                      onChange={(e) => handlePhoneChange(e.target.value)}
-                      onFocus={(e) => scrollToField(e.currentTarget)}
-                      onKeyDown={(e) => handleNextField(e, showDelivery ? addressInputRef.current : notesInputRef.current)}
-                      placeholder={t.checkout.phone_placeholder}
-                      type="tel"
-                      inputMode="tel"
-                      enterKeyHint="next"
-                      maxLength={20}
-                      autoComplete="tel"
-                      className="flex-1 min-w-0 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
-                    />
-                  </div>
-                  {errors.phone && <p className="text-destructive text-xs mt-1 ps-4">{errors.phone}</p>}
-                </div>
-
-                {/* Address (delivery only) */}
-                {showDelivery && (
-                  <div>
-                    <div className={`flex items-center gap-3 h-11 px-4 rounded-xl bg-secondary min-w-0 ${errors.address ? 'ring-2 ring-destructive' : ''}`}>
-                      <MapPin className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                      <input
-                        ref={addressInputRef}
-                        value={customerDetails.address}
-                        onChange={(e) => {
-                          setCustomerDetails({ address: e.target.value });
-                          setErrors((p) => ({ ...p, address: '' }));
-                        }}
-                        onFocus={(e) => scrollToField(e.currentTarget)}
-                        onKeyDown={(e) => handleNextField(e, notesInputRef.current)}
-                        placeholder={t.checkout.address_placeholder}
-                        maxLength={200}
-                        autoComplete="street-address"
-                        type="text"
-                        inputMode="text"
-                        enterKeyHint="next"
-                        className="flex-1 min-w-0 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
-                      />
-                    </div>
-                    {errors.address && <p className="text-destructive text-xs mt-1 ps-4">{errors.address}</p>}
-                  </div>
-                )}
-
-                {/* Notes */}
-                <div className="flex items-start gap-3 px-4 py-2.5 rounded-xl bg-secondary min-w-0">
-                  <MessageSquare className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5" />
-                  <textarea
-                    ref={notesInputRef}
-                    value={customerDetails.notes}
-                    onChange={(e) => setCustomerDetails({ notes: e.target.value })}
-                    onFocus={(e) => scrollToField(e.currentTarget)}
-                    placeholder={t.checkout.notes_placeholder}
-                    maxLength={500}
-                    enterKeyHint="done"
-                    className="flex-1 min-w-0 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none resize-none h-14"
-                  />
-                </div>
-              </div>
-
-              {/* Summary */}
-              <div className="mt-4 space-y-1.5">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">{t.cart.subtotal}</span>
-                  <span className="text-foreground font-semibold">₪{subtotal}</span>
-                </div>
-                {showDelivery && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{t.checkout.delivery_fee}</span>
-                    <span className="text-foreground font-semibold">₪{deliveryFee}</span>
-                  </div>
-                )}
-                <div className="flex justify-between text-base border-t border-border pt-2">
-                  <span className="font-bold text-foreground">{t.checkout.total}</span>
-                  <span className="font-display text-primary text-lg">₪{total}</span>
-                </div>
-              </div>
+          <div className="space-y-3">
+            <label className="block text-sm font-medium">סוג הזמנה</label>
+            <div className="grid grid-cols-3 gap-2">
+              {settings.accepts_dine_in && <Button type="button" variant={customerDetails.orderType === "eat-in" ? "default" : "outline"} onClick={() => setOrderType("eat-in")}>ישיבה במקום</Button>}
+              {settings.accepts_delivery && <Button type="button" variant={customerDetails.orderType === "delivery" ? "default" : "outline"} onClick={() => setOrderType("delivery")}>משלוח</Button>}
+              {settings.accepts_pickup && <Button type="button" variant={customerDetails.orderType === "pickup" ? "default" : "outline"} onClick={() => setOrderType("pickup")}>איסוף עצמי</Button>}
             </div>
+          </div>
 
-            {/* Footer */}
-            <div className="flex-shrink-0 px-5 py-3 border-t border-border bg-card safe-bottom">
-              <button
-                onClick={handleSend}
-                className="w-full h-12 rounded-full bg-[#25D366] text-primary-foreground font-bold text-sm active:scale-95 transition-transform flex items-center justify-center gap-2"
+          {customerDetails.orderType !== "delivery" && (
+            <div className="space-y-3">
+              <label className="block text-sm font-medium">מתי תגיע?</label>
+              <div className="grid grid-cols-3 gap-2">
+                <Button type="button" variant={arrivalTime === "now" ? "default" : "outline"} onClick={() => setArrivalTime("now")}>בדרך מגיע</Button>
+                <Button type="button" variant={arrivalTime === "20min" ? "default" : "outline"} onClick={() => setArrivalTime("20min")}>בעוד 20 דק׳</Button>
+                <Button type="button" variant={arrivalTime === "40min" ? "default" : "outline"} onClick={() => setArrivalTime("40min")}>בעוד 40 דק׳</Button>
+              </div>
+              <p className="text-xs text-muted-foreground text-right">⏱ זמן משוער להכנה: כ-15 דקות</p>
+            </div>
+          )}
+
+          <div className="space-y-3">
+            <label className="block text-sm font-medium">שם מלא</label>
+            <Input value={customerDetails.name} onChange={(e) => setCustomerDetails({ ...customerDetails, name: e.target.value.replace(/[^A-Za-z\u0590-\u05FF\u0600-\u06FF\s-]/g, "") })} placeholder="הכנס שם מלא" />
+          </div>
+
+          <div className="space-y-3">
+            <label className="block text-sm font-medium">טלפון</label>
+            <Input value={customerDetails.phone} onChange={(e) => setCustomerDetails({ ...customerDetails, phone: e.target.value.replace(/\D/g, "") })} placeholder="הכנס מספר טלפון" inputMode="tel" maxLength={10} />
+          </div>
+
+          {customerDetails.orderType === "delivery" && (
+            <div className="space-y-3">
+              <label className="block text-sm font-medium">כתובת</label>
+              <Input value={customerDetails.address} onChange={(e) => setCustomerDetails({ ...customerDetails, address: e.target.value })} placeholder="הכנס כתובת למשלוח" />
+            </div>
+          )}
+
+          <div className="space-y-3">
+            <label className="block text-sm font-medium">הערות</label>
+            <Textarea value={customerDetails.notes} onChange={(e) => setCustomerDetails({ ...customerDetails, notes: e.target.value })} placeholder="הערות נוספות להזמנה" rows={3} />
+          </div>
+
+          <div className="rounded-2xl border p-4 space-y-2">
+            <div className="flex items-center justify-between"><span>סכום ביניים</span><span>{formatPrice(subtotal)}</span></div>
+            {customerDetails.orderType === "delivery" && (
+              <div className="flex items-center justify-between text-sm text-muted-foreground">
+                <span>דמי משלוח</span><span>{formatPrice(settings.delivery_fee)}</span>
+              </div>
+            )}
+            {settings.min_order_amount > 0 && belowMinimum && (
+              <p className="text-xs text-destructive">מינימום הזמנה: {formatPrice(settings.min_order_amount)}</p>
+            )}
+            <div className="flex items-center justify-between text-lg font-bold border-t pt-2">
+              <span>סה"כ</span><span>{formatPrice(total)}</span>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <Button type="button" className="w-full" onClick={handleSend} disabled={submitting || safeItems.length === 0 || !settings.is_open || belowMinimum}>
+              {submitting ? "שולח..." : `📲 שלח הזמנה בוואטסאפ — ${formatPrice(total)}`}
+            </Button>
+
+            <div className="relative">
+              <Button
+                type="button"
+                variant="outline"
+                className={`w-full border-2 transition-all ${settings.online_payment_enabled ? "border-primary text-primary hover:bg-primary hover:text-primary-foreground" : "border-border bg-muted/40 text-foreground/70 cursor-not-allowed"}`}
+                onClick={settings.online_payment_enabled ? handleOnlinePayment : undefined}
+                disabled={paymentLoading || !settings.online_payment_enabled || safeItems.length === 0 || !settings.is_open || belowMinimum}
               >
-                {t.checkout.send_whatsapp} — ₪{total}
-              </button>
+                {paymentLoading ? "מעבד..." : `💳 שלם אונליין — ${formatPrice(total)}`}
+              </Button>
+              {!settings.online_payment_enabled && (
+                <>
+                  <span className="absolute -top-2 -right-2 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">בקרוב</span>
+                  <div className="text-center space-y-1.5 mt-2">
+                    <div className="flex items-center justify-center gap-2">
+                      {["אשראי", "Bit", "Apple Pay", "Google Pay"].map(method => (
+                        <span key={method} className="text-[11px] text-muted-foreground border border-border/60 rounded-md px-2 py-0.5 bg-muted/30">{method}</span>
+                      ))}
+                    </div>
+                    <p className="text-xs text-muted-foreground">💳 תשלום בכרטיס / Bit בקרוב</p>
+                  </div>
+                </>
+              )}
             </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+          </div>
+        </div>
+      </SheetContent>
+    </Sheet>
   );
-};
-
-export default CheckoutSheet;
+}

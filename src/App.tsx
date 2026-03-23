@@ -14,18 +14,21 @@ import PasswordGate from "@/components/PasswordGate";
 import EditProductModal from "@/components/EditProductModal";
 import ProtectedRoute from "@/components/admin/ProtectedRoute";
 import AdminLayout from "@/components/admin/AdminLayout";
-import Index from "./pages/Index.tsx";
-import About from "./pages/About.tsx";
-import Contact from "./pages/Contact.tsx";
-import CategoryPage from "./pages/CategoryPage.tsx";
-import NotFound from "./pages/NotFound.tsx";
-import AdminLogin from "./pages/admin/AdminLogin.tsx";
-import AdminDashboard from "./pages/admin/AdminDashboard.tsx";
-import AdminMenu from "./pages/admin/AdminMenu.tsx";
-import AdminMenuItems from "./pages/admin/AdminMenuItems.tsx";
-import AdminOptions from "./pages/admin/AdminOptions.tsx";
-import AdminOrders from "./pages/admin/AdminOrders.tsx";
-import AdminSettings from "./pages/admin/AdminSettings.tsx";
+import Index from "./pages/Index";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
+import CategoryPage from "./pages/CategoryPage";
+import NotFound from "./pages/NotFound";
+import AdminLogin from "./pages/admin/AdminLogin";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminMenu from "./pages/admin/AdminMenu";
+import AdminMenuItems from "./pages/admin/AdminMenuItems";
+import AdminOptions from "./pages/admin/AdminOptions";
+import AdminOrders from "./pages/admin/AdminOrders";
+import AdminSettings from "./pages/admin/AdminSettings";
+import KitchenScreen from "./pages/KitchenScreen";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentFailure from "./pages/PaymentFailure";
 
 const queryClient = new QueryClient();
 
@@ -50,42 +53,52 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <I18nProvider>
       <AuthProvider>
-        <MenuProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              {/* Admin routes — no PasswordGate, no SiteHeader */}
-              <Route path="/admin/login" element={<AdminLogin />} />
-              <Route
-                path="/admin"
-                element={
-                  <ProtectedRoute>
-                    <AdminLayout />
-                  </ProtectedRoute>
-                }
-              >
-                <Route index element={<AdminDashboard />} />
-                <Route path="menu" element={<AdminMenu />} />
-                <Route path="menu/items" element={<AdminMenuItems />} />
-                <Route path="menu/options" element={<AdminOptions />} />
-                <Route path="orders" element={<AdminOrders />} />
-                <Route path="settings" element={<AdminSettings />} />
-              </Route>
+        <MenuProvider restaurantSlug="pandalina">
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/admin/login" element={<AdminLogin />} />
+                <Route
+                  path="/admin"
+                  element={
+                    <ProtectedRoute>
+                      <AdminLayout />
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route index element={<AdminDashboard />} />
+                  <Route path="menu" element={<AdminMenu />} />
+                  <Route path="menu/items" element={<AdminMenuItems />} />
+                  <Route path="menu/options" element={<AdminOptions />} />
+                  <Route path="orders" element={<AdminOrders />} />
+                  <Route path="settings" element={<AdminSettings />} />
+                </Route>
 
-              {/* Public routes — with PasswordGate and SiteHeader */}
-              <Route
-                path="/*"
-                element={
-                  <PasswordGate>
-                    <AppLayout />
-                  </PasswordGate>
-                }
-              />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
+                <Route
+                  path="/kitchen"
+                  element={
+                    <ProtectedRoute>
+                      <KitchenScreen />
+                    </ProtectedRoute>
+                  }
+                />
+
+                <Route path="/payment/success" element={<PaymentSuccess />} />
+                <Route path="/payment/failure" element={<PaymentFailure />} />
+
+                <Route
+                  path="/*"
+                  element={
+                    <PasswordGate>
+                      <AppLayout />
+                    </PasswordGate>
+                  }
+                />
+              </Routes>
+            </BrowserRouter>
+          </TooltipProvider>
         </MenuProvider>
       </AuthProvider>
     </I18nProvider>
