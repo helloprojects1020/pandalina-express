@@ -1,16 +1,14 @@
 import { useParams, Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { useMenu } from '@/hooks/useMenu';
 import type { MenuItem } from '@/types/menu';
 import { useI18n } from '@/i18n/context';
-import { localizedDescription } from '@/lib/localize';
 import ProductCard from '@/components/ProductCard';
 import ProductModal from '@/components/ProductModal';
 import NoodleBuilder from '@/components/NoodleBuilder';
 import Footer from '@/components/Footer';
 
-/* Category-specific hero videos – locally hosted for reliability */
 const categoryVideos: Record<string, string> = {
   'sushi-rolls': '/videos/category-sushi.mp4',
   platters: '/videos/category-platters.mp4',
@@ -21,32 +19,34 @@ const categoryVideos: Record<string, string> = {
 
 const CategoryPage = () => {
   const { slug } = useParams<{ slug: string }>();
-  const { t, locale } = useI18n();
+  const { t } = useI18n();
   const { categories, getItemsByCategory } = useMenu();
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [noodleOpen, setNoodleOpen] = useState(false);
 
+  // גלול לראש הדף בכל כניסה לקטגוריה
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [slug]);
+
   const category = categories.find((c) => c.slug === slug);
-  const videoSrc = category ? categoryVideos[category.id] : undefined;
+  const videoSrc = slug ? categoryVideos[slug] : undefined;
 
   if (!category) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4 px-4">
-        <h1 className="text-2xl font-display text-foreground">Category not found</h1>
-        <Link to="/" className="text-primary underline text-sm">
-          ← Back to Home
-        </Link>
+        <h1 className="text-2xl font-bold text-foreground">קטגוריה לא נמצאה</h1>
+        <Link to="/" className="text-primary underline text-sm">← חזרה לתפריט</Link>
       </div>
     );
   }
 
-  const items = getItemsByCategory(category.id);
-  const isPlatters = category.id === 'platters';
-  const categoryLabel =
-    t.categories[category.id as keyof typeof t.categories] || category.name;
+  const items = getItemsByCategory(category.slug);
+  const isPlatters = category.slug === 'platters';
+  const categoryLabel = t.categories[category.slug as keyof typeof t.categories] || category.name_he || category.name;
 
   const handleOpenItem = (item: MenuItem) => {
-    if (item.categoryId === 'noodles' && item.slug === 'build-your-noodle-bowl') {
+    if (item.slug === 'build-your-noodle-bowl') {
       setNoodleOpen(true);
     } else {
       setSelectedItem(item);
@@ -55,8 +55,15 @@ const CategoryPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero banner with video */}
+      {/* Hero banner */}
       <div className="relative h-56 md:h-72 overflow-hidden bg-black">
+        {category.image && (
+          <img
+            src={category.image}
+            alt={categoryLabel}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        )}
         {videoSrc && (
           <video
             src={videoSrc}
@@ -83,30 +90,25 @@ const CategoryPage = () => {
           <h1 className="text-3xl md:text-4xl tracking-tighter uppercase text-primary-foreground">
             {categoryLabel}
           </h1>
-          <p className="text-sm text-primary-foreground/60 mt-1">
-            {localizedDescription(category, locale)}
-          </p>
         </div>
       </div>
 
       {/* Product grid */}
       <section className="py-8 px-4 max-w-screen-xl mx-auto">
-        <div
-          className={`grid gap-3 ${
-            isPlatters
-              ? 'grid-cols-1 md:grid-cols-2'
-              : 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
-          }`}
-        >
-          {items.map((item) => (
-            <ProductCard
-              key={item.id}
-              item={item}
-              onOpen={handleOpenItem}
-              variant={isPlatters ? 'premium' : 'default'}
-            />
-          ))}
-        </div>
+        {items.length === 0 ? (
+          <div className="text-center py-12 text-muted-foreground">אין פריטים בקטגוריה זו</div>
+        ) : (
+          <div className={`grid gap-3 ${isPlatters ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4'}`}>
+            {items.map((item) => (
+              <ProductCard
+                key={item.id}
+                item={item}
+                onOpen={handleOpenItem}
+                variant={isPlatters ? 'premium' : 'default'}
+              />
+            ))}
+          </div>
+        )}
       </section>
 
       <Footer />

@@ -6,7 +6,9 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useMenu } from "@/hooks/useMenu";
+import { useOpeningHours } from "@/hooks/useOpeningHours";
 
 const DEFAULT_WHATSAPP_PHONE = "972526204159";
 const DEFAULT_DELIVERY_FEE = 20;
@@ -21,8 +23,16 @@ type RestaurantSettings = {
   accepts_delivery: boolean;
   accepts_pickup: boolean;
   accepts_dine_in: boolean;
-  is_open: boolean;
   online_payment_enabled: boolean;
+};
+
+type DeliveryZone = {
+  id: string;
+  zone_name: string;
+  delivery_fee: number;
+  min_order: number;
+  active: boolean;
+  cities: string[];
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -50,6 +60,11 @@ function getItemTotal(item: any): number {
   return (basePrice + extra) * Number(item?.quantity || 1);
 }
 
+function findZoneByCity(city: string, zones: DeliveryZone[]): DeliveryZone | null {
+  if (!city) return null;
+  return zones.find(z => z.active && Array.isArray(z.cities) && z.cities.includes(city)) ?? null;
+}
+
 function buildWhatsappMessage(params: {
   restaurantName: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -60,8 +75,10 @@ function buildWhatsappMessage(params: {
   deliveryFee: number;
   total: number;
   arrivalTime: string;
+  selectedCity?: string;
+  zoneName?: string;
 }): string {
-  const { restaurantName, customerDetails, items, subtotal, deliveryFee, total, arrivalTime } = params;
+  const { restaurantName, customerDetails, items, subtotal, deliveryFee, total, arrivalTime, selectedCity, zoneName } = params;
   const lines: string[] = [];
   lines.push(`🍽️ הזמנה חדשה — ${restaurantName}`);
   lines.push("");
@@ -70,8 +87,11 @@ function buildWhatsappMessage(params: {
   const orderTypeText = customerDetails.orderType === "pickup" ? "איסוף עצמי" :
     customerDetails.orderType === "delivery" ? "משלוח" : "ישיבה במקום";
   lines.push(`סוג הזמנה: ${orderTypeText}`);
-  if (customerDetails.orderType === "delivery" && customerDetails.address?.trim())
-    lines.push(`כתובת: ${customerDetails.address.trim()}`);
+  if (customerDetails.orderType === "delivery") {
+    if (selectedCity) lines.push(`עיר: ${selectedCity}`);
+    if (customerDetails.address?.trim()) lines.push(`כתובת: ${customerDetails.address.trim()}`);
+    if (zoneName) lines.push(`אזור משלוח: ${zoneName}`);
+  }
   if (arrivalTime && customerDetails.orderType !== "delivery") {
     const arrivalText = arrivalTime === "now" ? "בדרך מגיע" :
       arrivalTime === "20min" ? "מגיע בעוד 20 דקות" : "מגיע בעוד 40 דקות";
@@ -98,11 +118,16 @@ function buildWhatsappMessage(params: {
 export default function CheckoutSheet() {
   const { items, isCheckoutOpen, setCheckoutOpen, customerDetails, setCustomerDetails, setOrderType, clearCart } = useCartStore();
   const { restaurantId } = useMenu();
+  const { isOpen } = useOpeningHours(restaurantId);
 
   const safeItems = Array.isArray(items) ? items : [];
   const [submitting, setSubmitting] = useState(false);
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [arrivalTime, setArrivalTime] = useState<"now" | "20min" | "40min" | "">("");
+  const [deliveryZones, setDeliveryZones] = useState<DeliveryZone[]>([]);
+  const [selectedCity, setSelectedCity] = useState('');
+  const [sharedLocation, setSharedLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [locating, setLocating] = useState(false);
   const [settings, setSettings] = useState<RestaurantSettings>({
     whatsapp_phone: DEFAULT_WHATSAPP_PHONE,
     delivery_fee: DEFAULT_DELIVERY_FEE,
@@ -110,29 +135,49 @@ export default function CheckoutSheet() {
     accepts_delivery: true,
     accepts_pickup: true,
     accepts_dine_in: true,
-    is_open: true,
     online_payment_enabled: false,
   });
 
   useEffect(() => {
     if (!restaurantId) return;
-    const fetchSettings = async () => {
-      const { data } = await db.from('restaurant_settings').select('*').eq('restaurant_id', restaurantId).maybeSingle();
-      if (data) {
+    const fetchAll = async () => {
+      const [settingsRes, zonesRes] = await Promise.all([
+        db.from('restaurant_settings').select('*').eq('restaurant_id', restaurantId).maybeSingle(),
+        db.from('delivery_zones').select('*').eq('restaurant_id', restaurantId),
+      ]);
+      if (settingsRes.data) {
+        const s = settingsRes.data;
         setSettings({
-          whatsapp_phone: data.whatsapp ?? data.whatsapp_number ?? DEFAULT_WHATSAPP_PHONE,
-          delivery_fee: Number(data.delivery_fee ?? DEFAULT_DELIVERY_FEE),
-          min_order_amount: Number(data.min_order_amount ?? data.minimum_order ?? 0),
-          accepts_delivery: data.delivery_enabled ?? data.is_delivery ?? true,
-          accepts_pickup: data.pickup_enabled ?? data.is_pickup ?? true,
-          accepts_dine_in: data.dine_in_enabled ?? data.is_dinein ?? true,
-          is_open: data.is_accepting_orders ?? true,
-          online_payment_enabled: data.online_payment_enabled ?? false,
+          whatsapp_phone: s.whatsapp_number ?? DEFAULT_WHATSAPP_PHONE,
+          delivery_fee: Number(s.delivery_fee ?? DEFAULT_DELIVERY_FEE),
+          min_order_amount: Number(s.minimum_order ?? s.min_order_amount ?? 0),
+          accepts_delivery: s.is_delivery_enabled ?? true,
+          accepts_pickup: s.is_pickup_enabled ?? true,
+          accepts_dine_in: s.is_dine_in_enabled ?? true,
+          online_payment_enabled: s.online_payment_enabled ?? false,
         });
       }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      setDeliveryZones((zonesRes.data ?? []).map((z: any) => ({
+        ...z,
+        active: z.active === true,
+        cities: Array.isArray(z.cities) ? z.cities : [],
+      })));
     };
-    fetchSettings();
+    fetchAll();
   }, [restaurantId]);
+
+  const availableCities = useMemo(() => {
+    const cities = new Set<string>();
+    deliveryZones.filter(z => z.active).forEach(z => {
+      z.cities.forEach(c => cities.add(c));
+    });
+    return Array.from(cities).sort((a, b) => a.localeCompare(b, 'he'));
+  }, [deliveryZones]);
+
+  const detectedZone = useMemo(() => {
+    return findZoneByCity(selectedCity, deliveryZones);
+  }, [selectedCity, deliveryZones]);
 
   const subtotal = useMemo(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -140,17 +185,24 @@ export default function CheckoutSheet() {
     [safeItems]
   );
 
-  const fee = customerDetails.orderType === "delivery" ? settings.delivery_fee : 0;
+  const fee = useMemo(() => {
+    if (customerDetails.orderType !== "delivery") return 0;
+    if (detectedZone) return detectedZone.delivery_fee;
+    return settings.delivery_fee;
+  }, [customerDetails.orderType, detectedZone, settings.delivery_fee]);
+
   const total = subtotal + fee;
-  const belowMinimum = settings.min_order_amount > 0 && subtotal < settings.min_order_amount;
+  const minOrder = detectedZone?.min_order || settings.min_order_amount;
+  const belowMinimum = minOrder > 0 && subtotal < minOrder;
+  const restaurantClosed = isOpen === false;
 
   const validate = () => {
     if (safeItems.length === 0) throw new Error("העגלה ריקה");
-    if (!settings.is_open) throw new Error("המסעדה סגורה כרגע");
-    if (belowMinimum) throw new Error(`מינימום הזמנה הוא ${formatPrice(settings.min_order_amount)}`);
+    if (restaurantClosed) throw new Error("המסעדה סגורה כרגע");
+    if (belowMinimum) throw new Error(`מינימום הזמנה הוא ${formatPrice(minOrder)}`);
     if (!customerDetails.name.trim() || customerDetails.name.trim().length < 2) throw new Error("יש להזין שם תקין");
     if (!customerDetails.phone.trim() || customerDetails.phone.replace(/[^\d+]/g, "").length < 7) throw new Error("יש להזין טלפון תקין");
-    if (customerDetails.orderType === "delivery" && !customerDetails.address?.trim()) throw new Error("יש להזין כתובת למשלוח");
+    if (customerDetails.orderType === "delivery" && !selectedCity) throw new Error("יש לבחור עיר למשלוח");
   };
 
   const getRestaurant = async () => {
@@ -160,26 +212,68 @@ export default function CheckoutSheet() {
     return restaurant;
   };
 
+  const shareLocation = () => {
+    if (!navigator.geolocation) { alert('הדפדפן שלך לא תומך בשיתוף מיקום'); return; }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => { setSharedLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }); setLocating(false); },
+      () => { alert('לא הצלחנו לקבל את המיקום שלך. אנא הזן כתובת ידנית.'); setLocating(false); },
+      { timeout: 10000 }
+    );
+  };
+
   const resetForm = () => {
     clearCart();
     setCheckoutOpen(false);
     setArrivalTime("");
+    setSelectedCity('');
+    setSharedLocation(null);
     setCustomerDetails({ name: "", phone: "", address: "", notes: "" });
   };
 
   const handleSend = async () => {
+    // ─── DEBUG ───────────────────────────────────────────────────────────────
+    console.log('🚀 handleSend START');
+    console.log('🚀 orderType:', customerDetails.orderType);
+    console.log('🚀 items count:', safeItems.length);
+    console.log('🚀 first item:', JSON.stringify(safeItems[0]));
+    // ─────────────────────────────────────────────────────────────────────────
     try {
       setSubmitting(true);
       validate();
+      console.log('🚀 validate passed');
       const restaurant = await getRestaurant();
-      await createOrder({ restaurantId: restaurant.id, items: safeItems, customerDetails, subtotal, deliveryFee: fee, total });
-      const whatsappMessage = buildWhatsappMessage({ restaurantName: restaurant.name, customerDetails, items: safeItems, subtotal, deliveryFee: fee, total, arrivalTime });
+      const detailsWithCity = {
+        ...customerDetails,
+        address: selectedCity + (customerDetails.address ? ` — ${customerDetails.address}` : ''),
+      };
+      console.log('🚀 calling createOrder...');
+      await createOrder({
+        restaurantId: restaurant.id,
+        items: safeItems,
+        customerDetails: detailsWithCity,
+        subtotal,
+        deliveryFee: fee,
+        total,
+        latitude: sharedLocation?.lat,
+        longitude: sharedLocation?.lng,
+      });
+      console.log('🚀 createOrder done');
+      const whatsappMessage = buildWhatsappMessage({
+        restaurantName: restaurant.name,
+        customerDetails,
+        items: safeItems,
+        subtotal, deliveryFee: fee, total, arrivalTime,
+        selectedCity,
+        zoneName: detectedZone?.zone_name,
+      });
       const encoded = encodeURIComponent(whatsappMessage);
       const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
       const url = isMobile ? `https://wa.me/${settings.whatsapp_phone}?text=${encoded}` : `https://web.whatsapp.com/send?phone=${settings.whatsapp_phone}&text=${encoded}`;
       window.open(url, "_blank");
       resetForm();
     } catch (error) {
+      console.error('🚀 handleSend error:', error);
       alert(error instanceof Error ? error.message : "שגיאה בשמירת ההזמנה");
     } finally {
       setSubmitting(false);
@@ -191,15 +285,13 @@ export default function CheckoutSheet() {
       setPaymentLoading(true);
       validate();
       const restaurant = await getRestaurant();
-      const order = await createOrder({ restaurantId: restaurant.id, items: safeItems, customerDetails, subtotal, deliveryFee: fee, total });
+      const detailsWithCity = {
+        ...customerDetails,
+        address: selectedCity + (customerDetails.address ? ` — ${customerDetails.address}` : ''),
+      };
+      const order = await createOrder({ restaurantId: restaurant.id, items: safeItems, customerDetails: detailsWithCity, subtotal, deliveryFee: fee, total });
       const { data: sessionData, error: sessionError } = await supabase.functions.invoke('create-payment', {
-        body: {
-          order_id: order.id,
-          restaurant_id: restaurant.id,
-          amount: total,
-          success_url: `${window.location.origin}/payment/success`,
-          failure_url: `${window.location.origin}/payment/failure`,
-        },
+        body: { order_id: order.id, restaurant_id: restaurant.id, amount: total, success_url: `${window.location.origin}/payment/success`, failure_url: `${window.location.origin}/payment/failure` },
       });
       if (sessionError) throw sessionError;
       if (!sessionData?.payment_url) throw new Error("לא התקבל קישור לתשלום");
@@ -219,9 +311,9 @@ export default function CheckoutSheet() {
         </SheetHeader>
 
         <div className="mt-6 space-y-6" dir="rtl">
-          {!settings.is_open && (
+          {restaurantClosed && (
             <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-3 text-center">
-              <p className="text-sm font-semibold text-destructive">🔴 המסעדה סגורה כרגע</p>
+              <p className="text-sm font-semibold text-destructive">🔴 המסעדה סגורה כרגע — לא ניתן לבצע הזמנה</p>
             </div>
           )}
 
@@ -246,6 +338,64 @@ export default function CheckoutSheet() {
             </div>
           )}
 
+          {customerDetails.orderType === "delivery" && (
+            <div className="space-y-3">
+              {availableCities.length > 0 && (
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium">עיר / ישוב *</label>
+                  <Select value={selectedCity} onValueChange={setSelectedCity}>
+                    <SelectTrigger><SelectValue placeholder="בחר עיר..." /></SelectTrigger>
+                    <SelectContent>
+                      {availableCities.map(city => <SelectItem key={city} value={city}>{city}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  {selectedCity && detectedZone && (
+                    <div className="flex items-center gap-2 bg-green-500/10 border border-green-200 rounded-lg px-3 py-2">
+                      <span className="text-xs text-green-700">
+                        📍 {detectedZone.zone_name} · משלוח: {detectedZone.delivery_fee === 0 ? 'חינם' : `₪${detectedZone.delivery_fee}`}
+                        {detectedZone.min_order > 0 && ` · מינימום: ₪${detectedZone.min_order}`}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+              <div className="space-y-1">
+                <label className="block text-sm font-medium">
+                  {availableCities.length > 0 ? 'רחוב ומספר בית' : 'כתובת מלאה'}
+                </label>
+                {sharedLocation ? (
+                  <div className="flex items-center gap-2 bg-green-500/10 border border-green-200 rounded-xl px-3 py-2.5">
+                    <span className="text-sm text-green-700 flex-1">✅ מיקום שותף בהצלחה</span>
+                    <button onClick={() => setSharedLocation(null)} className="text-xs text-muted-foreground underline">הזן כתובת במקום</button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2 items-start">
+                    <Input value={customerDetails.address} onChange={e => setCustomerDetails({ ...customerDetails, address: e.target.value })}
+                      placeholder={availableCities.length > 0 ? "רחוב הגפן 5" : "עיר, רחוב ומספר בית"} className="flex-1" />
+                    <button onClick={shareLocation} disabled={locating} title="שתף מיקום"
+                      className="shrink-0 w-11 h-10 rounded-xl bg-[#05C8F7]/10 border border-[#05C8F7]/30 flex items-center justify-center hover:bg-[#05C8F7]/20 transition-colors disabled:opacity-50">
+                      {locating ? (
+                        <svg className="w-5 h-5 animate-spin text-[#05C8F7]" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                        </svg>
+                      ) : (
+                        <svg viewBox="0 0 64 64" className="w-6 h-6" fill="none">
+                          <circle cx="32" cy="32" r="32" fill="#05C8F7"/>
+                          <path d="M32 10C21 10 12 19 12 30c0 8 5 15 12 18l8 6 8-6c7-3 12-10 12-18 0-11-9-20-20-20z" fill="white"/>
+                          <circle cx="32" cy="30" r="8" fill="#05C8F7"/>
+                          <circle cx="26" cy="38" r="3" fill="#333"/>
+                          <circle cx="38" cy="38" r="3" fill="#333"/>
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                )}
+                <p className="text-xs text-muted-foreground">💡 הזן כתובת ידנית או לחץ על האייקון לשיתוף מיקום מדויק</p>
+              </div>
+            </div>
+          )}
+
           <div className="space-y-3">
             <label className="block text-sm font-medium">שם מלא</label>
             <Input value={customerDetails.name} onChange={(e) => setCustomerDetails({ ...customerDetails, name: e.target.value.replace(/[^A-Za-z\u0590-\u05FF\u0600-\u06FF\s-]/g, "") })} placeholder="הכנס שם מלא" />
@@ -256,13 +406,6 @@ export default function CheckoutSheet() {
             <Input value={customerDetails.phone} onChange={(e) => setCustomerDetails({ ...customerDetails, phone: e.target.value.replace(/\D/g, "") })} placeholder="הכנס מספר טלפון" inputMode="tel" maxLength={10} />
           </div>
 
-          {customerDetails.orderType === "delivery" && (
-            <div className="space-y-3">
-              <label className="block text-sm font-medium">כתובת</label>
-              <Input value={customerDetails.address} onChange={(e) => setCustomerDetails({ ...customerDetails, address: e.target.value })} placeholder="הכנס כתובת למשלוח" />
-            </div>
-          )}
-
           <div className="space-y-3">
             <label className="block text-sm font-medium">הערות</label>
             <Textarea value={customerDetails.notes} onChange={(e) => setCustomerDetails({ ...customerDetails, notes: e.target.value })} placeholder="הערות נוספות להזמנה" rows={3} />
@@ -272,30 +415,26 @@ export default function CheckoutSheet() {
             <div className="flex items-center justify-between"><span>סכום ביניים</span><span>{formatPrice(subtotal)}</span></div>
             {customerDetails.orderType === "delivery" && (
               <div className="flex items-center justify-between text-sm text-muted-foreground">
-                <span>דמי משלוח</span><span>{formatPrice(settings.delivery_fee)}</span>
+                <span>דמי משלוח{detectedZone && <span className="text-xs mr-1">({detectedZone.zone_name})</span>}</span>
+                <span>{fee === 0 ? 'חינם' : formatPrice(fee)}</span>
               </div>
             )}
-            {settings.min_order_amount > 0 && belowMinimum && (
-              <p className="text-xs text-destructive">מינימום הזמנה: {formatPrice(settings.min_order_amount)}</p>
-            )}
+            {minOrder > 0 && belowMinimum && <p className="text-xs text-destructive">מינימום הזמנה: {formatPrice(minOrder)}</p>}
             <div className="flex items-center justify-between text-lg font-bold border-t pt-2">
               <span>סה"כ</span><span>{formatPrice(total)}</span>
             </div>
           </div>
 
           <div className="space-y-3">
-            <Button type="button" className="w-full" onClick={handleSend} disabled={submitting || safeItems.length === 0 || !settings.is_open || belowMinimum}>
+            <Button type="button" className="w-full" onClick={handleSend} disabled={submitting || safeItems.length === 0 || restaurantClosed || belowMinimum}>
               {submitting ? "שולח..." : `📲 שלח הזמנה בוואטסאפ — ${formatPrice(total)}`}
             </Button>
 
             <div className="relative">
-              <Button
-                type="button"
-                variant="outline"
+              <Button type="button" variant="outline"
                 className={`w-full border-2 transition-all ${settings.online_payment_enabled ? "border-primary text-primary hover:bg-primary hover:text-primary-foreground" : "border-border bg-muted/40 text-foreground/70 cursor-not-allowed"}`}
                 onClick={settings.online_payment_enabled ? handleOnlinePayment : undefined}
-                disabled={paymentLoading || !settings.online_payment_enabled || safeItems.length === 0 || !settings.is_open || belowMinimum}
-              >
+                disabled={paymentLoading || !settings.online_payment_enabled || safeItems.length === 0 || restaurantClosed || belowMinimum}>
                 {paymentLoading ? "מעבד..." : `💳 שלם אונליין — ${formatPrice(total)}`}
               </Button>
               {!settings.online_payment_enabled && (

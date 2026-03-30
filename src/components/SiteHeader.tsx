@@ -3,6 +3,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, ShoppingBag } from 'lucide-react';
 import { useI18n } from '@/i18n/context';
 import { useCartStore } from '@/store/cartStore';
+import { useMenu } from '@/hooks/useMenu';
+import { useOpeningHours } from '@/hooks/useOpeningHours';
 import LanguageSwitcher from './LanguageSwitcher';
 import logoImg from '@/assets/logo.png';
 
@@ -11,6 +13,8 @@ const SiteHeader = () => {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { setCartOpen, getItemCount } = useCartStore();
+  const { restaurantId } = useMenu();
+  const { isOpen, todayHours } = useOpeningHours(restaurantId);
   const count = getItemCount();
 
   const links = [
@@ -21,6 +25,28 @@ const SiteHeader = () => {
 
   return (
     <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-md border-b border-border">
+
+      {/* Banner סגור */}
+      {isOpen === false && (
+        <div className="bg-destructive/10 border-b border-destructive/20 text-center py-1.5 px-4">
+          <p className="text-xs font-semibold text-destructive">
+            🔴 המסעדה סגורה כרגע
+            {todayHours === null
+              ? ' · סגור היום'
+              : ` · שעות פתיחה היום: ${todayHours}`}
+          </p>
+        </div>
+      )}
+
+      {/* Banner פתוח — רק אם isOpen === true */}
+      {isOpen === true && todayHours && (
+        <div className="bg-green-500/10 border-b border-green-500/20 text-center py-1 px-4">
+          <p className="text-xs text-green-700">
+            🟢 פתוח עכשיו · שעות היום: {todayHours}
+          </p>
+        </div>
+      )}
+
       <div className="max-w-screen-xl mx-auto flex items-center justify-between h-14 px-4">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">

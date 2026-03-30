@@ -9,69 +9,93 @@ interface AuthState {
   restaurantId: string | null;
   restaurantSlug: string | null;
   loading: boolean;
+  setRestaurantId: (id: string) => void;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthState | undefined>(undefined);
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [restaurantId, setRestaurantId] = useState<string | null>(null);
-  const [restaurantSlug, setRestaurantSlug] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const db = supabase as any;
 
-  const checkAdminRole = useCallback(async (userId: string) => {
-    const { data } = await supabase
-      .from('user_roles')
-      .select('role, restaurant_id')
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const [user, setUser]                      = useState<User | null>(null);
+  const [session, setSession]                = useState<Session | null>(null);
+  const [isAdmin, setIsAdmin]                = useState(false);
+  const [restaurantId, setRestaurantIdState] = useState<string | null>(
+    () => localStorage.getItem('adminRestaurantId')
+  );
+  const [restaurantSlug, setRestaurantSlug]  = useState<string | null>(null);
+  const [loading, setLoading]                = useState(true);
+
+  // load slug whenever restaurantId changes
+  useEffect(() => {
+    if (!restaurantId) { setRestaurantSlug(null); return; }
+    db.from('restaurants')
+      .select('slug')
+      .eq('id', restaurantId)
+      .maybeSingle()
+      .then(({ data }: { data: { slug: string } | null }) =>
+        setRestaurantSlug(data?.slug ?? null)
+      );
+  }, [restaurantId]);
+
+  // ── Single source of truth: restaurant_users only ─────────────────────────
+  const loadRestaurantForUser = useCallback(async (userId: string) => {
+    const { data: ruData } = await db
+      .from('restaurant_users')
+      .select('restaurant_id')
       .eq('user_id', userId)
-      .eq('role', 'admin')
-      .maybeSingle();
-    setIsAdmin(!!data);
-    if (data?.restaurant_id) {
-      setRestaurantId(data.restaurant_id);
-      const { data: restaurant } = await supabase
-        .from('restaurants')
-        .select('slug')
-        .eq('id', data.restaurant_id)
-        .maybeSingle();
-      setRestaurantSlug(restaurant?.slug ?? null);
+      .eq('is_active', true) as { data: { restaurant_id: string }[] | null };
+
+    const rows = ruData ?? [];
+    if (rows.length > 0) {
+      setIsAdmin(true);
+      const saved    = localStorage.getItem('adminRestaurantId');
+      const validIds = rows.map((r: { restaurant_id: string }) => r.restaurant_id);
+      const activeId = saved && validIds.includes(saved) ? saved : validIds[0];
+      setRestaurantIdState(activeId);
+      localStorage.setItem('adminRestaurantId', activeId);
     } else {
-      setRestaurantId(null);
+      setIsAdmin(false);
+      setRestaurantIdState(null);
       setRestaurantSlug(null);
+      localStorage.removeItem('adminRestaurantId');
     }
+  }, []);
+
+  const setRestaurantId = useCallback((id: string) => {
+    setRestaurantIdState(id);
+    localStorage.setItem('adminRestaurantId', id);
   }, []);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          setTimeout(() => checkAdminRole(session.user.id), 0);
+      async (_event, sess) => {
+        setSession(sess);
+        setUser(sess?.user ?? null);
+        if (sess?.user) {
+          setTimeout(() => loadRestaurantForUser(sess.user.id), 0);
         } else {
           setIsAdmin(false);
-          setRestaurantId(null);
+          setRestaurantIdState(null);
           setRestaurantSlug(null);
+          localStorage.removeItem('adminRestaurantId');
         }
         setLoading(false);
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        checkAdminRole(session.user.id);
-      }
+    supabase.auth.getSession().then(({ data: { session: sess } }) => {
+      setSession(sess);
+      setUser(sess?.user ?? null);
+      if (sess?.user) loadRestaurantForUser(sess.user.id);
       setLoading(false);
     });
 
     return () => subscription.unsubscribe();
-  }, [checkAdminRole]);
+  }, [loadRestaurantForUser]);
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -81,12 +105,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signOut = async () => {
     await supabase.auth.signOut();
     setIsAdmin(false);
-    setRestaurantId(null);
+    setRestaurantIdState(null);
     setRestaurantSlug(null);
+    localStorage.removeItem('adminRestaurantId');
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, isAdmin, restaurantId, restaurantSlug, loading, signIn, signOut }}>
+    <AuthContext.Provider value={{
+      user, session, isAdmin,
+      restaurantId, restaurantSlug,
+      loading, setRestaurantId,
+      signIn, signOut,
+    }}>
       {children}
     </AuthContext.Provider>
   );

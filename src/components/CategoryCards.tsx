@@ -1,10 +1,11 @@
 import { useNavigate } from 'react-router-dom';
 import { useMenu } from '@/hooks/useMenu';
 import { useI18n } from '@/i18n/context';
+import { localizedName } from '@/lib/localize';
 import { handleImageError } from '@/lib/imageFallback';
 
 const CategoryCards = () => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const navigate = useNavigate();
   const { categories } = useMenu();
 
@@ -22,7 +23,7 @@ const CategoryCards = () => {
           >
             <img
               src={cat.image}
-              alt={t.categories[cat.id as keyof typeof t.categories] || cat.name}
+              alt={localizedName(cat, locale)}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               loading="lazy"
               onError={handleImageError}
@@ -30,7 +31,7 @@ const CategoryCards = () => {
             <div className="absolute inset-0 bg-gradient-to-t from-accent/80 to-transparent" />
             <div className="absolute bottom-0 start-0 end-0 p-3">
               <h3 className="font-display text-sm md:text-base tracking-tight text-accent-foreground">
-                {t.categories[cat.id as keyof typeof t.categories] || cat.name}
+                {localizedName(cat, locale)}
               </h3>
             </div>
           </button>
