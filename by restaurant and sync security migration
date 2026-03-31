@@ -1,0 +1,48 @@
+warning: in the working copy of 'supabase/migrations/20260331120000_fix_security.sql', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/supabase/migrations/20260331120000_fix_security.sql b/supabase/migrations/20260331120000_fix_security.sql[m
+[1mindex d4f0581..2c2d5da 100644[m
+[1m--- a/supabase/migrations/20260331120000_fix_security.sql[m
+[1m+++ b/supabase/migrations/20260331120000_fix_security.sql[m
+[36m@@ -164,19 +164,29 @@[m [mCREATE POLICY "Admins can manage own restaurant settings"[m
+ [m
+ [m
+ -- ── 10. user_roles ───────────────────────────────────────────[m
+[31m-[m
+[31m-DROP POLICY IF EXISTS "Admins can manage roles" ON public.user_roles;[m
+[31m-CREATE POLICY "Admins can manage own restaurant roles"[m
+[31m-  ON public.user_roles[m
+[31m-  FOR ALL TO authenticated[m
+[31m-  USING ([m
+[31m-    restaurant_id IS NOT NULL[m
+[31m-    AND public.is_restaurant_member(auth.uid(), restaurant_id)[m
+[31m-  )[m
+[31m-  WITH CHECK ([m
+[31m-    restaurant_id IS NOT NULL[m
+[31m-    AND public.is_restaurant_member(auth.uid(), restaurant_id)[m
+[31m-  );[m
+[32m+[m[32m-- Guarded: this table does not exist on all deployments.[m
+[32m+[m[32m-- If it exists, scope the admin policy to the member's own restaurant.[m
+[32m+[m[32m-- If it does not exist, skip silently.[m
+[32m+[m
+[32m+[m[32mDO $$[m
+[32m+[m[32mBEGIN[m
+[32m+[m[32m  DROP POLICY IF EXISTS "Admins can manage roles" ON public.user_roles;[m
+[32m+[m[32m  CREATE POLICY "Admins can manage own restaurant roles"[m
+[32m+[m[32m    ON public.user_roles[m
+[32m+[m[32m    FOR ALL TO authenticated[m
+[32m+[m[32m    USING ([m
+[32m+[m[32m      restaurant_id IS NOT NULL[m
+[32m+[m[32m      AND public.is_restaurant_member(auth.uid(), restaurant_id)[m
+[32m+[m[32m    )[m
+[32m+[m[32m    WITH CHECK ([m
+[32m+[m[32m      restaurant_id IS NOT NULL[m
+[32m+[m[32m      AND public.is_restaurant_member(auth.uid(), restaurant_id)[m
+[32m+[m[32m    );[m
+[32m+[m[32mEXCEPTION[m
+[32m+[m[32m  WHEN undefined_table THEN[m
+[32m+[m[32m    RAISE NOTICE 'user_roles does not exist, skipping policy update.';[m
+[32m+[m[32mEND[m
+[32m+[m[32m$$;[m
+ [m
+ [m
+ -- ── 11. storage: menu-images ─────────────────────────────────[m

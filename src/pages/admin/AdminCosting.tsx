@@ -94,7 +94,7 @@ const AdminCosting = () => {
     Promise.all([
       db.from('menu_items').select('id, name, name_he, price, category_id, image_url').eq('restaurant_id', restaurantId).order('name'),
       db.from('ingredients').select('*').eq('restaurant_id', restaurantId).order('name'),
-      db.from('menu_item_ingredients').select('*'),
+      db.from('menu_item_ingredients').select('*').eq('restaurant_id', restaurantId),
       db.from('suppliers').select('id, name').eq('restaurant_id', restaurantId),
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ]).then(([menuRes, ingRes, recipeRes, suppRes]: any[]) => {

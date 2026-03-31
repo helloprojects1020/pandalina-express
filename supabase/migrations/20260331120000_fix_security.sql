@@ -164,19 +164,29 @@ CREATE POLICY "Admins can manage own restaurant settings"
 
 
 -- ── 10. user_roles ───────────────────────────────────────────
+-- Guarded: this table does not exist on all deployments.
+-- If it exists, scope the admin policy to the member's own restaurant.
+-- If it does not exist, skip silently.
 
-DROP POLICY IF EXISTS "Admins can manage roles" ON public.user_roles;
-CREATE POLICY "Admins can manage own restaurant roles"
-  ON public.user_roles
-  FOR ALL TO authenticated
-  USING (
-    restaurant_id IS NOT NULL
-    AND public.is_restaurant_member(auth.uid(), restaurant_id)
-  )
-  WITH CHECK (
-    restaurant_id IS NOT NULL
-    AND public.is_restaurant_member(auth.uid(), restaurant_id)
-  );
+DO $$
+BEGIN
+  DROP POLICY IF EXISTS "Admins can manage roles" ON public.user_roles;
+  CREATE POLICY "Admins can manage own restaurant roles"
+    ON public.user_roles
+    FOR ALL TO authenticated
+    USING (
+      restaurant_id IS NOT NULL
+      AND public.is_restaurant_member(auth.uid(), restaurant_id)
+    )
+    WITH CHECK (
+      restaurant_id IS NOT NULL
+      AND public.is_restaurant_member(auth.uid(), restaurant_id)
+    );
+EXCEPTION
+  WHEN undefined_table THEN
+    RAISE NOTICE 'user_roles does not exist, skipping policy update.';
+END
+$$;
 
 
 -- ── 11. storage: menu-images ─────────────────────────────────
