@@ -300,7 +300,7 @@ export const MenuProvider = ({ children, restaurantSlug }: MenuProviderProps) =>
 
   // ── Step 3: inventory flags + out-of-stock items ───────────────────────────
   // Runs in parallel with the menu fetch (both triggered by restaurantId).
-  // If out_of_stock_ui_enabled is false the Set stays empty — no badge, no block.
+  // RPC is called when inventory_tracking_enabled OR out_of_stock_ui_enabled is true.
   useEffect(() => {
     if (!restaurantId) return;
 
@@ -311,14 +311,21 @@ export const MenuProvider = ({ children, restaurantSlug }: MenuProviderProps) =>
         .eq('restaurant_id', restaurantId)
         .maybeSingle();
 
-      if (!s) return;
+      const trackingEnabled = s?.inventory_tracking_enabled ?? false;
+      const uiEnabled = s?.out_of_stock_ui_enabled ?? false;
 
-      setInventoryTrackingEnabled(s.inventory_tracking_enabled ?? false);
+      setInventoryTrackingEnabled(trackingEnabled);
 
-      if (s.out_of_stock_ui_enabled) {
-        const { data: stockData } = await db
+      // Fetch out-of-stock items whenever either flag is on.
+      // Previously this only ran when out_of_stock_ui_enabled was true, so production
+      // environments with only inventory_tracking_enabled=true would never populate
+      // outOfStockIds — meaning blockOrdering was always false despite tracking being on.
+      if (trackingEnabled || uiEnabled) {
+        const { data: stockData, error: rpcError } = await db
           .rpc('get_out_of_stock_menu_items', { p_restaurant_id: restaurantId });
-        if (Array.isArray(stockData)) {
+        if (rpcError) {
+          console.error('[useMenu] get_out_of_stock_menu_items RPC error:', rpcError);
+        } else if (Array.isArray(stockData)) {
           setOutOfStockIds(
             new Set(stockData.map((r: { menu_item_id: string }) => r.menu_item_id)),
           );
