@@ -33,6 +33,9 @@ const ProductCard = ({ item, onOpen, variant = 'default' }: ProductCardProps) =>
 
   const isOutOfStock  = outOfStockIds.has(item.id);
   const blockOrdering = inventoryTrackingEnabled && isOutOfStock;
+  if (outOfStockIds.size > 0) {
+    console.log('[ProductCard]', item.slug, '| id:', item.id, '| blocked:', blockOrdering);
+  }
 
   const hasOptions = item.options.length > 0 || item.isCustomizable;
 

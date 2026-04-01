@@ -305,31 +305,35 @@ export const MenuProvider = ({ children, restaurantSlug }: MenuProviderProps) =>
     if (!restaurantId) return;
 
     const fetchStockFlags = async () => {
-      const { data: s } = await db
+      const { data: s, error: settingsError } = await db
         .from('restaurant_settings')
         .select('inventory_tracking_enabled, out_of_stock_ui_enabled')
         .eq('restaurant_id', restaurantId)
         .maybeSingle();
 
+      console.log('[useMenu] settings row:', s, 'error:', settingsError);
+
       const trackingEnabled = s?.inventory_tracking_enabled ?? false;
       const uiEnabled = s?.out_of_stock_ui_enabled ?? false;
 
+      console.log('[useMenu] trackingEnabled:', trackingEnabled, 'uiEnabled:', uiEnabled);
+
       setInventoryTrackingEnabled(trackingEnabled);
 
-      // Fetch out-of-stock items whenever either flag is on.
-      // Previously this only ran when out_of_stock_ui_enabled was true, so production
-      // environments with only inventory_tracking_enabled=true would never populate
-      // outOfStockIds — meaning blockOrdering was always false despite tracking being on.
-      if (trackingEnabled || uiEnabled) {
-        const { data: stockData, error: rpcError } = await db
-          .rpc('get_out_of_stock_menu_items', { p_restaurant_id: restaurantId });
-        if (rpcError) {
-          console.error('[useMenu] get_out_of_stock_menu_items RPC error:', rpcError);
-        } else if (Array.isArray(stockData)) {
-          setOutOfStockIds(
-            new Set(stockData.map((r: { menu_item_id: string }) => r.menu_item_id)),
-          );
-        }
+      // Always fetch out-of-stock list — the RPC is cheap and needed whenever
+      // either flag is on. Skipping it based on flags caused production bugs
+      // where the settings row existed but had stale/false defaults.
+      const { data: stockData, error: rpcError } = await db
+        .rpc('get_out_of_stock_menu_items', { p_restaurant_id: restaurantId });
+
+      console.log('[useMenu] RPC stockData:', stockData, 'error:', rpcError);
+
+      if (rpcError) {
+        console.error('[useMenu] get_out_of_stock_menu_items RPC error:', rpcError);
+      } else if (Array.isArray(stockData)) {
+        const ids = new Set(stockData.map((r: { menu_item_id: string }) => r.menu_item_id));
+        console.log('[useMenu] outOfStockIds built:', [...ids]);
+        setOutOfStockIds(ids);
       }
     };
 
