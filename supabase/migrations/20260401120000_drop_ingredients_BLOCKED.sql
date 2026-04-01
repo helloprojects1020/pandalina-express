@@ -1,0 +1,30 @@
+-- ============================================================
+-- DROP ingredients table — BLOCKED, DO NOT RUN YET
+-- ============================================================
+-- The `ingredients` table is still actively used by:
+--
+--   src/pages/admin/AdminCosting.tsx
+--     line  96: db.from('ingredients').select('*')             — fetch list
+--     line 234: db.from('ingredients').update(...)             — save edit
+--     line 240: db.from('ingredients').insert(...)             — create new
+--     line 250: db.from('ingredients').delete().eq('id', id)   — delete
+--
+-- AdminCosting uses `ingredients` for cost-tracking (cost_per_unit,
+-- supplier_id). The modern equivalent is `inventory_items`, which
+-- also has cost_per_unit and supplier_id fields.
+--
+-- REQUIRED BEFORE RUNNING THIS MIGRATION:
+--   1. Update AdminCosting.tsx to read/write `inventory_items`
+--      instead of `ingredients` for cost management.
+--   2. Verify that all existing `ingredients` rows have a
+--      corresponding `inventory_items` row (data migration).
+--   3. Drop the menu_item_ingredients FK to ingredients if it exists
+--      (check: does menu_item_ingredients.ingredient_id reference
+--      ingredients.id or inventory_items.id? — confirm in schema).
+--   4. Run this migration only after step 1-3 are complete.
+--
+-- ============================================================
+
+-- UNCOMMENT ONLY AFTER CODE IS UPDATED:
+
+-- DROP TABLE IF EXISTS public.ingredients CASCADE;
