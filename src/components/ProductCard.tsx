@@ -2,6 +2,7 @@ import type { MenuItem } from '@/types/menu';
 import { useI18n } from '@/i18n/context';
 import { localizedName, localizedDescription } from '@/lib/localize';
 import { useCartStore } from '@/store/cartStore';
+import { useMenu } from '@/hooks/useMenu';
 import { Plus } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { handleImageError } from '@/lib/imageFallback';
@@ -26,13 +27,18 @@ const BADGE_MAP: Record<string, { emoji: string; label: string }> = {
 const ProductCard = ({ item, onOpen, variant = 'default' }: ProductCardProps) => {
   const { t, locale } = useI18n();
   const addItem = useCartStore((s) => s.addItem);
+  const { outOfStockIds, inventoryTrackingEnabled } = useMenu();
   const isPremium = variant === 'premium';
   const badge = BADGE_MAP[item.id];
+
+  const isOutOfStock  = outOfStockIds.has(item.id);
+  const blockOrdering = inventoryTrackingEnabled && isOutOfStock;
 
   const hasOptions = item.options.length > 0 || item.isCustomizable;
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (blockOrdering) return;
     if (hasOptions) {
       onOpen(item);
     } else {
@@ -48,40 +54,80 @@ const ProductCard = ({ item, onOpen, variant = 'default' }: ProductCardProps) =>
     <div
       className={`group relative flex flex-col gap-2 bg-card rounded-2xl shadow-card border border-transparent text-start w-full ${
         isPremium ? 'p-0 overflow-hidden' : 'p-2'
-      }`}
+      } ${blockOrdering ? 'cursor-not-allowed' : ''}`}
     >
-      {/* Badge */}
-      {badge && (
+      {/* Promotional badge (non-stock) */}
+      {badge && !isOutOfStock && (
         <span className="absolute top-3 start-3 z-10 bg-accent text-accent-foreground text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
           <span>{badge.emoji}</span> {badge.label}
         </span>
       )}
 
-      {/* Clickable area: image + text opens modal */}
+      {/* Clickable image — always opens modal so user can read details */}
       <button
         onClick={() => onOpen(item)}
-        className={`overflow-hidden bg-secondary active:scale-[0.98] transition-transform ${isPremium ? 'aspect-[16/10]' : 'aspect-square rounded-xl'}`}
+        className={`relative overflow-hidden bg-secondary transition-transform ${
+          isPremium ? 'aspect-[16/10]' : 'aspect-square rounded-xl'
+        } ${isOutOfStock ? '' : 'active:scale-[0.98]'}`}
       >
         <img
           src={item.image}
           alt={localizedName(item, locale)}
-          className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+          className={`object-cover w-full h-full transition-transform duration-500 ${
+            isOutOfStock
+              ? 'grayscale opacity-60'
+              : 'group-hover:scale-105'
+          }`}
           loading="lazy"
           onError={handleImageError}
         />
+
+        {isOutOfStock ? (
+          <>
+            <div className="absolute inset-0 bg-black/40" />
+            <span className="absolute top-2 start-2 bg-destructive text-white text-xs font-bold px-2 py-1 rounded-md shadow-sm">
+              אזל מהמלאי
+            </span>
+          </>
+        ) : (
+          inventoryTrackingEnabled && (
+            <span className="absolute bottom-2 start-2 flex items-center gap-1 bg-black/40 backdrop-blur-sm text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-400 flex-shrink-0" />
+              זמין
+            </span>
+          )
+        )}
       </button>
-      <button onClick={() => onOpen(item)} className={`flex flex-col flex-1 pb-1 text-start ${isPremium ? 'px-4 py-3' : 'px-1'}`}>
-        <h3 className="font-bold text-sm leading-tight line-clamp-2 text-foreground">{localizedName(item, locale)}</h3>
-        <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{localizedDescription(item, locale)}</p>
+
+      {/* Text area */}
+      <button
+        onClick={() => onOpen(item)}
+        className={`flex flex-col flex-1 pb-1 text-start ${isPremium ? 'px-4 py-3' : 'px-1'}`}
+      >
+        <h3 className={`font-bold text-sm leading-tight line-clamp-2 ${isOutOfStock ? 'text-muted-foreground' : 'text-foreground'}`}>
+          {localizedName(item, locale)}
+        </h3>
+        <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
+          {localizedDescription(item, locale)}
+        </p>
         {isPremium && item.tags.includes('platter') && (
           <span className="text-[10px] text-primary font-semibold mt-1">{t.menu.premium_badge}</span>
         )}
       </button>
+
+      {/* Price + add button */}
       <div className={`flex items-center justify-between ${isPremium ? 'px-4 pb-3' : 'px-1 pb-1'}`}>
-        <span className="font-display text-primary text-base">₪{item.price}</span>
+        <span className={`font-display text-base ${isOutOfStock ? 'text-muted-foreground' : 'text-primary'}`}>
+          ₪{item.price}
+        </span>
         <button
           onClick={handleQuickAdd}
-          className="h-8 w-8 rounded-full bg-accent text-accent-foreground flex items-center justify-center active:scale-90 transition-transform"
+          disabled={blockOrdering}
+          className={`h-8 w-8 rounded-full flex items-center justify-center transition-transform ${
+            blockOrdering
+              ? 'bg-muted text-muted-foreground cursor-not-allowed pointer-events-none opacity-70'
+              : 'bg-accent text-accent-foreground active:scale-90'
+          }`}
           aria-label={t.product.quick_add}
         >
           <Plus className="w-4 h-4" />

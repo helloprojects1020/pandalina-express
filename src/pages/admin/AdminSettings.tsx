@@ -19,6 +19,8 @@ interface SettingsForm {
   delivery_fee: number;
   min_order_amount: number;
   opening_hours: Record<string, { open: string; close: string; closed: boolean }>;
+  inventory_tracking_enabled: boolean;
+  out_of_stock_ui_enabled: boolean;
 }
 
 const DAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
@@ -44,6 +46,8 @@ const AdminSettings = () => {
     whatsapp_number: '', delivery_enabled: true, pickup_enabled: true,
     dine_in_enabled: true, delivery_fee: 0, min_order_amount: 0,
     opening_hours: defaultHours(),
+    inventory_tracking_enabled: false,
+    out_of_stock_ui_enabled: false,
   });
   const [loading, setLoading]               = useState(true);
   const [saving, setSaving]                 = useState(false);
@@ -72,6 +76,8 @@ const AdminSettings = () => {
           delivery_fee:     Number(s.delivery_fee  ?? 0),
           min_order_amount: Number(s.minimum_order ?? 0),
           opening_hours:    (s.opening_hours as SettingsForm['opening_hours']) ?? defaultHours(),
+          inventory_tracking_enabled: s.inventory_tracking_enabled ?? false,
+          out_of_stock_ui_enabled:    s.out_of_stock_ui_enabled    ?? false,
         });
       }
       setLoading(false);
@@ -85,17 +91,19 @@ const AdminSettings = () => {
     setSaving(true);
 
     const { error } = await db.from('restaurant_settings').upsert({
-      restaurant_id:       restaurantId,
-      name:                restaurantName,
-      phone:               restaurantPhone,
-      whatsapp_number:     form.whatsapp_number,
-      is_delivery_enabled: form.delivery_enabled,
-      is_pickup_enabled:   form.pickup_enabled,
-      is_dine_in_enabled:  form.dine_in_enabled,
-      delivery_fee:        form.delivery_fee,
-      minimum_order:       form.min_order_amount,
-      opening_hours:       form.opening_hours,
-      updated_at:          new Date().toISOString(),
+      restaurant_id:               restaurantId,
+      name:                        restaurantName,
+      phone:                       restaurantPhone,
+      whatsapp_number:             form.whatsapp_number,
+      is_delivery_enabled:         form.delivery_enabled,
+      is_pickup_enabled:           form.pickup_enabled,
+      is_dine_in_enabled:          form.dine_in_enabled,
+      delivery_fee:                form.delivery_fee,
+      minimum_order:               form.min_order_amount,
+      opening_hours:               form.opening_hours,
+      inventory_tracking_enabled:  form.inventory_tracking_enabled,
+      out_of_stock_ui_enabled:     form.out_of_stock_ui_enabled,
+      updated_at:                  new Date().toISOString(),
     }, { onConflict: 'restaurant_id' });
 
     if (error) {
@@ -208,6 +216,41 @@ const AdminSettings = () => {
               </div>
             );
           })}
+        </div>
+      </section>
+
+      <section className="bg-card rounded-2xl p-6 shadow-sm space-y-4">
+        <div>
+          <h2 className="font-semibold text-foreground">ניהול מלאי</h2>
+          <p className="text-xs text-muted-foreground mt-1">
+            הגדרות אלו שולטות על מעקב המלאי ועל תצוגת פריטים חסרים. כבויות כברירת מחדל.
+          </p>
+        </div>
+        <div className="space-y-3">
+          <label className="flex items-center justify-between">
+            <div>
+              <span className="text-sm">מעקב מלאי אוטומטי</span>
+              <p className="text-xs text-muted-foreground">
+                בכל הזמנה יופחת המלאי אוטומטית לפי המתכון
+              </p>
+            </div>
+            <Switch
+              checked={form.inventory_tracking_enabled}
+              onCheckedChange={v => setForm(f => ({ ...f, inventory_tracking_enabled: v }))}
+            />
+          </label>
+          <label className="flex items-center justify-between">
+            <div>
+              <span className="text-sm">הצג פריטים חסרים בתפריט</span>
+              <p className="text-xs text-muted-foreground">
+                פריטים שנגמרו במלאי יסומנו כ"אזל" בתפריט הלקוח
+              </p>
+            </div>
+            <Switch
+              checked={form.out_of_stock_ui_enabled}
+              onCheckedChange={v => setForm(f => ({ ...f, out_of_stock_ui_enabled: v }))}
+            />
+          </label>
         </div>
       </section>
 

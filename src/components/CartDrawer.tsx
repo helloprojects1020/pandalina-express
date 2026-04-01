@@ -140,13 +140,14 @@ const CartDrawer = () => {
                   </div>
                 )}
 
-                {/* Recommendations in cart */}
-                {items.length > 0 && (
-                  <div className="mt-4">
-                    <Recommendations excludeIds={excludeIds} variant="cart" />
-                  </div>
-                )}
               </div>
+
+              {/* Recommendations — outside overflow-y-auto to avoid scroll context conflict */}
+              {items.length > 0 && (
+                <div className="border-t border-border/60 bg-card flex-shrink-0">
+                  <Recommendations excludeIds={excludeIds} variant="cart" />
+                </div>
+              )}
 
               {/* Footer */}
               {items.length > 0 && (

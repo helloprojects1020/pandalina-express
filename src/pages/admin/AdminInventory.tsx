@@ -45,6 +45,7 @@ const AdminInventory = () => {
   const [supplierForm, setSupplierForm] = useState(emptySupplierForm);
   const [saving, setSaving] = useState(false);
   const [showLowOnly, setShowLowOnly] = useState(false);
+  const [stockDraft, setStockDraft] = useState<Record<string, number>>({});
   const [expandedSupplier, setExpandedSupplier] = useState<string | null>(null);
   const [priceFilterSupplier, setPriceFilterSupplier] = useState<string>('all');
 
@@ -149,6 +150,12 @@ const AdminInventory = () => {
     await db.from('inventory_items').update({ current_stock: newStock, updated_at: new Date().toISOString() }).eq('id', id);
     setItems(prev => prev.map(i => i.id === id ? { ...i, current_stock: newStock } : i));
   };
+  const setStockDirect = async (id: string, value: number) => {
+    const newStock = Math.max(0, value);
+    await db.from('inventory_items').update({ current_stock: newStock, updated_at: new Date().toISOString() }).eq('id', id);
+    setItems(prev => prev.map(i => i.id === id ? { ...i, current_stock: newStock } : i));
+    setStockDraft(prev => { const next = { ...prev }; delete next[id]; return next; });
+  };
 
   // ─── Suppliers ────────────────────────────────────────────────────────────────
   const openCreateSupplier = () => { setEditingSupplier(null); setSupplierForm(emptySupplierForm); setSupplierSheet(true); };
@@ -223,13 +230,20 @@ const AdminInventory = () => {
                 const itemHistory = priceHistory.filter(p => p.inventory_item_id === item.id);
                 const priceTrend = itemHistory[0] ? itemHistory[0].new_price - itemHistory[0].old_price : 0;
                 const totalUsedItem = movements.filter(m => m.inventory_item_id === item.id).reduce((s, m) => s + Number(m.quantity_used), 0);
+                const isExhausted   = item.current_stock === 0;
+                const isNearlyEmpty = item.current_stock > 0 && item.current_stock < 5;
+                const rowBorder = isExhausted ? 'border border-red-200' : isLow ? 'border border-orange-200' : '';
                 return (
-                  <div key={item.id} className={`bg-card rounded-xl p-4 shadow-sm flex items-center gap-3 ${isLow ? 'border border-red-200' : ''}`}>
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${isLow ? 'bg-red-500/10' : 'bg-primary/10'}`}><Package className={`w-5 h-5 ${isLow ? 'text-red-600' : 'text-primary'}`} /></div>
+                  <div key={item.id} className={`bg-card rounded-xl p-4 shadow-sm flex items-center gap-3 ${rowBorder}`}>
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${isExhausted ? 'bg-red-500/10' : isLow ? 'bg-orange-500/10' : 'bg-primary/10'}`}>
+                      <Package className={`w-5 h-5 ${isExhausted ? 'text-red-600' : isLow ? 'text-orange-500' : 'text-primary'}`} />
+                    </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <p className="font-semibold text-foreground text-sm">{item.name}</p>
-                        {isLow && <Badge variant="outline" className="text-xs bg-red-500/10 text-red-700 border-red-200">מלאי נמוך</Badge>}
+                        {isExhausted   && <Badge variant="outline" className="text-xs bg-red-500/10 text-red-700 border-red-200">אזל מהמלאי</Badge>}
+                        {isNearlyEmpty && <Badge variant="outline" className="text-xs bg-orange-500/10 text-orange-700 border-orange-200">כמעט אזל</Badge>}
+                        {isLow && !isExhausted && !isNearlyEmpty && <Badge variant="outline" className="text-xs bg-red-500/10 text-red-700 border-red-200">מלאי נמוך</Badge>}
                         {priceTrend !== 0 && <span className={`text-xs flex items-center gap-0.5 ${priceTrend > 0 ? 'text-red-600' : 'text-green-600'}`}>{priceTrend > 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}{priceTrend > 0 ? '+' : ''}₪{priceTrend.toFixed(1)}</span>}
                       </div>
                       <div className="flex items-center gap-3 mt-0.5 flex-wrap">
@@ -239,10 +253,33 @@ const AdminInventory = () => {
                         {totalUsedItem > 0 && <span className="text-xs text-orange-600">נצרך: {totalUsedItem.toFixed(1)} {item.unit}</span>}
                       </div>
                     </div>
-                    <div className="flex items-center gap-1 shrink-0">
-                      <button onClick={() => updateStock(item.id, -1)} className="w-7 h-7 rounded-lg bg-muted flex items-center justify-center hover:bg-muted/80 text-sm font-bold">−</button>
-                      <span className={`text-sm font-bold w-12 text-center ${isLow ? 'text-red-600' : 'text-foreground'}`}>{item.current_stock} {item.unit}</span>
-                      <button onClick={() => updateStock(item.id, 1)} className="w-7 h-7 rounded-lg bg-muted flex items-center justify-center hover:bg-muted/80 text-sm font-bold">+</button>
+
+                    {/* Stock controls: inline input + quick presets */}
+                    <div className="flex items-center gap-1.5 shrink-0 flex-wrap justify-end">
+                      <input
+                        type="number"
+                        min="0"
+                        value={stockDraft[item.id] ?? item.current_stock}
+                        onChange={e => setStockDraft(prev => ({ ...prev, [item.id]: Math.max(0, Number(e.target.value)) }))}
+                        onBlur={() => {
+                          const draft = stockDraft[item.id];
+                          if (draft !== undefined && draft !== item.current_stock) setStockDirect(item.id, draft);
+                        }}
+                        onKeyDown={e => { if (e.key === 'Enter') { setStockDirect(item.id, stockDraft[item.id] ?? item.current_stock); (e.target as HTMLInputElement).blur(); } }}
+                        className={`w-16 h-8 text-center text-sm font-bold rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary/30 ${
+                          isExhausted ? 'text-red-600 border-red-300' : isLow ? 'text-orange-600 border-orange-200' : 'text-foreground border-border'
+                        }`}
+                      />
+                      <span className="text-xs text-muted-foreground">{item.unit}</span>
+                      {[0, 10, 50].map(preset => (
+                        <button
+                          key={preset}
+                          onClick={() => setStockDirect(item.id, preset)}
+                          className="h-7 px-1.5 text-xs rounded-md bg-muted hover:bg-muted/70 text-muted-foreground font-medium transition-colors"
+                        >
+                          {preset}
+                        </button>
+                      ))}
                     </div>
                     <Button variant="ghost" size="icon" onClick={() => openEditItem(item)}><Pencil className="w-4 h-4" /></Button>
                     <AlertDialog><AlertDialogTrigger asChild><Button variant="ghost" size="icon" className="text-destructive hover:text-destructive"><Trash2 className="w-4 h-4" /></Button></AlertDialogTrigger>

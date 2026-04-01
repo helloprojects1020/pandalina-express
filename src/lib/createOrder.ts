@@ -52,146 +52,10 @@ type CreateOrderParams = {
   longitude?: number;
 };
 
-// ─── Inventory deduction ──────────────────────────────────────────────────────
-
-async function deductInventory(
-  restaurantId: string,
-  orderId: string,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  items: any[],
-) {
-  try {
-    // debug — יוסר אחרי בדיקה
-    console.log(
-      "🔍 deductInventory items:",
-      JSON.stringify(
-        items.map((i) => ({
-          menuItemId: i?.menuItem?.id,
-          menuItemName: i?.menuItem?.name,
-          itemId: i?.id,
-          name: i?.name,
-        })),
-      ),
-    );
-
-    const menuItemIds = items.map(getMenuItemId).filter(Boolean) as string[];
-    console.log("🔍 menuItemIds:", menuItemIds);
-
-    if (!menuItemIds.length) return;
-
-    const { data: recipes } = await db
-      .from("menu_item_ingredients")
-      .select("menu_item_id, ingredient_id, quantity")
-      .in("menu_item_id", menuItemIds);
-
-    console.log("🔍 recipes found:", recipes?.length ?? 0);
-
-    if (!recipes?.length) return;
-
-    const ingredientIds = [
-      ...new Set(
-        recipes.map((r: { ingredient_id: string }) => r.ingredient_id),
-      ),
-    ];
-
-    const { data: ingredientsData } = await db
-      .from("ingredients")
-      .select("id, inventory_item_id, name")
-      .in("id", ingredientIds)
-      .not("inventory_item_id", "is", null);
-
-    console.log(
-      "🔍 ingredients with inventory link:",
-      ingredientsData?.length ?? 0,
-    );
-
-    if (!ingredientsData?.length) return;
-
-    const ingMap: Record<string, { inventory_item_id: string; name: string }> =
-      {};
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ingredientsData.forEach((ing: any) => {
-      ingMap[ing.id] = {
-        inventory_item_id: ing.inventory_item_id,
-        name: ing.name,
-      };
-    });
-
-    const deductions: Record<
-      string,
-      { quantity: number; itemNames: string[] }
-    > = {};
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    items.forEach((cartItem: any) => {
-      const menuItemId = getMenuItemId(cartItem);
-      const qty = Number(cartItem?.quantity || 1);
-      const itemName = getItemResolvedName(cartItem);
-      if (!menuItemId) return;
-
-      const itemRecipes = recipes.filter(
-        (r: { menu_item_id: string }) => r.menu_item_id === menuItemId,
-      );
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      itemRecipes.forEach((recipe: any) => {
-        const ingData = ingMap[recipe.ingredient_id];
-        if (!ingData) return;
-        const invId = ingData.inventory_item_id;
-        const totalQty = recipe.quantity * qty;
-        if (!deductions[invId])
-          deductions[invId] = { quantity: 0, itemNames: [] };
-        deductions[invId].quantity += totalQty;
-        if (!deductions[invId].itemNames.includes(itemName)) {
-          deductions[invId].itemNames.push(itemName);
-        }
-      });
-    });
-
-    console.log("🔍 deductions:", JSON.stringify(deductions));
-
-    if (!Object.keys(deductions).length) return;
-
-    const invIds = Object.keys(deductions);
-    const { data: currentStock } = await db
-      .from("inventory_items")
-      .select("id, current_stock, name")
-      .in("id", invIds);
-
-    if (!currentStock?.length) return;
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    for (const inv of currentStock as any[]) {
-      const deduct = deductions[inv.id];
-      if (!deduct) continue;
-
-      const newStock = Math.max(0, Number(inv.current_stock) - deduct.quantity);
-
-      await db
-        .from("inventory_items")
-        .update({
-          current_stock: newStock,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", inv.id);
-
-      await db.from("inventory_movements").insert({
-        restaurant_id: restaurantId,
-        inventory_item_id: inv.id,
-        order_id: orderId,
-        menu_item_name: deduct.itemNames.join(", "),
-        quantity_used: deduct.quantity,
-        movement_type: "order",
-        notes: "הזמנה אוטומטית",
-      });
-    }
-
-    console.log("✅ inventory deduction complete");
-  } catch (err) {
-    console.warn("Inventory deduction error:", err);
-  }
-}
-
 // ─── Main ─────────────────────────────────────────────────────────────────────
+// Inventory deduction is handled automatically by the database trigger
+// trg_deduct_inventory_on_order_item (AFTER INSERT ON order_items).
+// This function only inserts orders and order_items.
 
 export async function createOrder({
   restaurantId,
@@ -248,7 +112,18 @@ export async function createOrder({
     .insert(orderItems)
     .select("id");
 
-  if (itemsError) throw itemsError;
+  if (itemsError) {
+    // Trigger raises 'OUT_OF_STOCK:<item name>' when inventory_tracking_enabled
+    // is true and the restaurant has insufficient stock for an ordered item.
+    if (itemsError.message?.includes('OUT_OF_STOCK:')) {
+      const parts = itemsError.message.split('OUT_OF_STOCK:')[1]?.split(':') ?? [];
+      const itemName       = parts[0]?.trim() || 'פריט';
+      const ingredientName = parts[1]?.trim();
+      const detail = ingredientName ? ` (${ingredientName} אזל)` : '';
+      throw new Error(`הפריט "${itemName}" אזל מהמלאי${detail}. אנא עדכן את הזמנתך.`);
+    }
+    throw itemsError;
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const optionRows: any[] = [];
@@ -276,9 +151,6 @@ export async function createOrder({
   if (optionRows.length > 0) {
     await db.from("order_item_options").insert(optionRows);
   }
-
-  // ─── הורד מלאי אוטומטית ───────────────────────────────────────────────────
-  await deductInventory(restaurantId, order.id, items);
 
   return order;
 }

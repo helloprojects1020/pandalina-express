@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from "@/hooks/use-toast";
 import { useMenu } from "@/hooks/useMenu";
 import { useOpeningHours } from "@/hooks/useOpeningHours";
 
@@ -123,6 +124,7 @@ export default function CheckoutSheet() {
   const safeItems = Array.isArray(items) ? items : [];
   const [submitting, setSubmitting] = useState(false);
   const [paymentLoading, setPaymentLoading] = useState(false);
+  const [outOfStockItem, setOutOfStockItem] = useState<string | null>(null);
   const [arrivalTime, setArrivalTime] = useState<"now" | "20min" | "40min" | "">("");
   const [deliveryZones, setDeliveryZones] = useState<DeliveryZone[]>([]);
   const [selectedCity, setSelectedCity] = useState('');
@@ -228,26 +230,32 @@ export default function CheckoutSheet() {
     setArrivalTime("");
     setSelectedCity('');
     setSharedLocation(null);
+    setOutOfStockItem(null);
     setCustomerDetails({ name: "", phone: "", address: "", notes: "" });
   };
 
+  const handleOrderError = (error: unknown) => {
+    const msg = error instanceof Error ? error.message : "שגיאה בשמירת ההזמנה";
+    // Out-of-stock errors carry the item name in the formatted message
+    if (msg.includes('אזל מהמלאי')) {
+      const match = msg.match(/הפריט "([^"]+)"/);
+      setOutOfStockItem(match?.[1] ?? null);
+      toast({ title: 'פריט אזל מהמלאי', description: msg, variant: 'destructive' });
+    } else {
+      setOutOfStockItem(null);
+      toast({ title: 'שגיאה בהזמנה', description: msg, variant: 'destructive' });
+    }
+  };
+
   const handleSend = async () => {
-    // ─── DEBUG ───────────────────────────────────────────────────────────────
-    console.log('🚀 handleSend START');
-    console.log('🚀 orderType:', customerDetails.orderType);
-    console.log('🚀 items count:', safeItems.length);
-    console.log('🚀 first item:', JSON.stringify(safeItems[0]));
-    // ─────────────────────────────────────────────────────────────────────────
     try {
       setSubmitting(true);
       validate();
-      console.log('🚀 validate passed');
       const restaurant = await getRestaurant();
       const detailsWithCity = {
         ...customerDetails,
         address: selectedCity + (customerDetails.address ? ` — ${customerDetails.address}` : ''),
       };
-      console.log('🚀 calling createOrder...');
       await createOrder({
         restaurantId: restaurant.id,
         items: safeItems,
@@ -258,7 +266,6 @@ export default function CheckoutSheet() {
         latitude: sharedLocation?.lat,
         longitude: sharedLocation?.lng,
       });
-      console.log('🚀 createOrder done');
       const whatsappMessage = buildWhatsappMessage({
         restaurantName: restaurant.name,
         customerDetails,
@@ -273,8 +280,7 @@ export default function CheckoutSheet() {
       window.open(url, "_blank");
       resetForm();
     } catch (error) {
-      console.error('🚀 handleSend error:', error);
-      alert(error instanceof Error ? error.message : "שגיאה בשמירת ההזמנה");
+      handleOrderError(error);
     } finally {
       setSubmitting(false);
     }
@@ -297,14 +303,14 @@ export default function CheckoutSheet() {
       if (!sessionData?.payment_url) throw new Error("לא התקבל קישור לתשלום");
       window.location.href = sessionData.payment_url;
     } catch (error) {
-      alert(error instanceof Error ? error.message : "שגיאה ביצירת תשלום");
+      handleOrderError(error);
     } finally {
       setPaymentLoading(false);
     }
   };
 
   return (
-    <Sheet open={isCheckoutOpen} onOpenChange={setCheckoutOpen}>
+    <Sheet open={isCheckoutOpen} onOpenChange={(open) => { setCheckoutOpen(open); if (!open) setOutOfStockItem(null); }}>
       <SheetContent side="right" className="w-full max-w-xl overflow-y-auto">
         <SheetHeader>
           <SheetTitle className="text-right">השלם את ההזמנה</SheetTitle>
@@ -424,6 +430,17 @@ export default function CheckoutSheet() {
               <span>סה"כ</span><span>{formatPrice(total)}</span>
             </div>
           </div>
+
+          {outOfStockItem && (
+            <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-3 space-y-1">
+              <p className="text-sm font-semibold text-destructive text-center">
+                הפריט &quot;{outOfStockItem}&quot; אזל מהמלאי
+              </p>
+              <p className="text-xs text-destructive/80 text-center">
+                אנא הסר את הפריט מהעגלה ונסה שנית
+              </p>
+            </div>
+          )}
 
           <div className="space-y-3">
             <Button type="button" className="w-full" onClick={handleSend} disabled={submitting || safeItems.length === 0 || restaurantClosed || belowMinimum}>

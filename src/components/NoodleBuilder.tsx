@@ -15,7 +15,7 @@ interface NoodleBuilderProps {
 
 const NoodleBuilder = ({ open, onClose }: NoodleBuilderProps) => {
   const { t, isRTL, locale } = useI18n();
-  const { noodleBases, noodleToppings, noodleSauces, menuItems } = useMenu();
+  const { noodleBases, noodleToppings, noodleSauces, menuItems, outOfStockIds, inventoryTrackingEnabled } = useMenu();
   const [step, setStep] = useState(0);
   const [config, setConfig] = useState<NoodleConfig>({ base: null, toppings: [], sauce: null });
   const addItem = useCartStore((s) => s.addItem);
@@ -44,6 +44,7 @@ const NoodleBuilder = ({ open, onClose }: NoodleBuilderProps) => {
   const handleAddToCart = () => {
     const noodleItem = menuItems.find(m => m.slug === 'build-your-noodle-bowl');
     if (!noodleItem) return;
+    if (inventoryTrackingEnabled && outOfStockIds.has(noodleItem.id)) return;
 
     const selectedOptions = [
       ...(config.base

@@ -86,6 +86,8 @@ interface MenuContextValue {
   loading: boolean;
   error: string | null;
   restaurantId: string | null;
+  outOfStockIds: Set<string>;
+  inventoryTrackingEnabled: boolean;
 }
 
 const MenuContext = createContext<MenuContextValue | undefined>(undefined);
@@ -108,6 +110,8 @@ export const MenuProvider = ({ children, restaurantSlug }: MenuProviderProps) =>
   const [noodleSauces, setNoodleSauces] = useState<OptionChoice[]>([]);
   const [loading, setLoading]           = useState(true);
   const [error, setError]               = useState<string | null>(null);
+  const [outOfStockIds, setOutOfStockIds]               = useState<Set<string>>(new Set());
+  const [inventoryTrackingEnabled, setInventoryTrackingEnabled] = useState(false);
 
   // ── Step 1: resolve restaurantId from slug ─────────────────────────────────
   useEffect(() => {
@@ -294,6 +298,37 @@ export const MenuProvider = ({ children, restaurantSlug }: MenuProviderProps) =>
     fetchMenu();
   }, [restaurantId]);
 
+  // ── Step 3: inventory flags + out-of-stock items ───────────────────────────
+  // Runs in parallel with the menu fetch (both triggered by restaurantId).
+  // If out_of_stock_ui_enabled is false the Set stays empty — no badge, no block.
+  useEffect(() => {
+    if (!restaurantId) return;
+
+    const fetchStockFlags = async () => {
+      const { data: s } = await db
+        .from('restaurant_settings')
+        .select('inventory_tracking_enabled, out_of_stock_ui_enabled')
+        .eq('restaurant_id', restaurantId)
+        .maybeSingle();
+
+      if (!s) return;
+
+      setInventoryTrackingEnabled(s.inventory_tracking_enabled ?? false);
+
+      if (s.out_of_stock_ui_enabled) {
+        const { data: stockData } = await db
+          .rpc('get_out_of_stock_menu_items', { p_restaurant_id: restaurantId });
+        if (Array.isArray(stockData)) {
+          setOutOfStockIds(
+            new Set(stockData.map((r: { menu_item_id: string }) => r.menu_item_id)),
+          );
+        }
+      }
+    };
+
+    fetchStockFlags();
+  }, [restaurantId]);
+
   const featuredItems      = menuItems.filter(i => i.isFeatured);
   const getItemsByCategory = (categorySlug: string) =>
     menuItems.filter(i => i.categoryId === categorySlug).sort((a, b) => a.sortOrder - b.sortOrder);
@@ -304,6 +339,8 @@ export const MenuProvider = ({ children, restaurantSlug }: MenuProviderProps) =>
       noodleBases, noodleToppings, noodleSauces,
       getItemsByCategory, loading, error,
       restaurantId,
+      outOfStockIds,
+      inventoryTrackingEnabled,
     }}>
       {children}
     </MenuContext.Provider>
