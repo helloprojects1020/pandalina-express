@@ -10,6 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { toast } from '@/hooks/use-toast';
 import { Plus, Pencil, Trash2, Loader2, Search, TrendingUp, TrendingDown, AlertTriangle, ChefHat, Package, Calculator } from 'lucide-react';
+import { FeatureGate } from '@/components/admin/FeatureGate';
+import { PageHeader, KpiCard, LoadingState, EmptyState } from '@/components/admin/AdminUI';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any;
@@ -60,7 +62,7 @@ function getMarginBadge(margin: number): { label: string; color: string } {
   if (margin >= 60) return { label: 'מרווח גבוה', color: 'bg-green-500/10 text-green-700 border-green-200' };
   if (margin >= 40) return { label: 'מרווח בינוני', color: 'bg-yellow-500/10 text-yellow-700 border-yellow-200' };
   if (margin >= 20) return { label: 'מרווח נמוך', color: 'bg-orange-500/10 text-orange-700 border-orange-200' };
-  return { label: '🔴 מרווח קריטי', color: 'bg-red-500/10 text-red-700 border-red-200' };
+  return { label: 'מרווח קריטי', color: 'bg-red-500/10 text-red-700 border-red-200' };
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -252,11 +254,7 @@ const AdminCosting = () => {
     toast({ title: 'המרכיב נמחק' });
   };
 
-  if (loading) return (
-    <div className="flex items-center justify-center py-20">
-      <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-    </div>
-  );
+  if (loading) return <LoadingState />;
 
   // ─── Simulation cost ────────────────────────────────────────────────────────
   const simCost = selectedDish ? dishRecipe.reduce((sum, r) => {
@@ -270,44 +268,32 @@ const AdminCosting = () => {
     <div className="space-y-6" dir="rtl">
 
       {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">עלויות ורווחיות</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">חשב את העלות האמיתית של כל מנה</p>
-        </div>
-        <div className="flex gap-2">
-          {tab === 'dishes' && (
-            <Button variant="outline" size="sm" onClick={() => setTab('ingredients')}>
-              <Package className="w-4 h-4 ml-1" />נהל מרכיבים
-            </Button>
-          )}
-          {tab === 'ingredients' && (
-            <Button size="sm" onClick={openCreateIngredient}>
-              <Plus className="w-4 h-4 ml-1" />הוסף מרכיב
-            </Button>
-          )}
-        </div>
-      </div>
+      <PageHeader
+        title="עלויות תפריט"
+        description="חשב את העלות האמיתית של כל מנה"
+        actions={
+          <div className="flex gap-2">
+            {tab === 'dishes' && (
+              <Button variant="outline" size="sm" onClick={() => setTab('ingredients')}>
+                <Package className="w-4 h-4 ml-1" />נהל מרכיבים
+              </Button>
+            )}
+            {tab === 'ingredients' && (
+              <Button size="sm" onClick={openCreateIngredient}>
+                <Plus className="w-4 h-4 ml-1" />הוסף מרכיב
+              </Button>
+            )}
+          </div>
+        }
+      />
 
       {/* Summary */}
       {summary && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div className="bg-card rounded-xl p-4 shadow-sm text-center">
-            <p className="text-2xl font-bold text-foreground">{summary.avgMargin.toFixed(1)}%</p>
-            <p className="text-xs text-muted-foreground mt-1">מרווח ממוצע</p>
-          </div>
-          <div className="bg-card rounded-xl p-4 shadow-sm text-center">
-            <p className="text-2xl font-bold text-foreground">{summary.total}</p>
-            <p className="text-xs text-muted-foreground mt-1">מנות עם מתכון</p>
-          </div>
-          <div className={`bg-card rounded-xl p-4 shadow-sm text-center ${summary.lowMargin > 0 ? 'border border-red-200' : ''}`}>
-            <p className={`text-2xl font-bold ${summary.lowMargin > 0 ? 'text-red-600' : 'text-foreground'}`}>{summary.lowMargin}</p>
-            <p className="text-xs text-muted-foreground mt-1">מרווח קריטי (&lt;30%)</p>
-          </div>
-          <div className="bg-card rounded-xl p-4 shadow-sm text-center">
-            <p className="text-sm font-bold text-green-600 truncate">{summary.bestDish.name_he ?? summary.bestDish.name}</p>
-            <p className="text-xs text-muted-foreground mt-1">הכי רווחית ({summary.bestDish.margin.toFixed(0)}%)</p>
-          </div>
+          <KpiCard label="מרווח ממוצע" value={`${summary.avgMargin.toFixed(1)}%`} icon={TrendingUp} accent="#10b981" />
+          <KpiCard label="מנות עם מתכון" value={summary.total} icon={ChefHat} accent="#3b82f6" />
+          <KpiCard label="מרווח קריטי (<30%)" value={summary.lowMargin} icon={AlertTriangle} accent="#ef4444" />
+          <KpiCard label={`הכי רווחית (${summary.bestDish.margin.toFixed(0)}%)`} value={summary.bestDish.name_he ?? summary.bestDish.name} icon={TrendingUp} accent="#f59e0b" />
         </div>
       )}
 
@@ -409,13 +395,16 @@ const AdminCosting = () => {
       {tab === 'ingredients' && (
         <div className="space-y-2">
           {ingredients.length === 0 ? (
-            <div className="bg-card rounded-2xl p-8 shadow-sm text-center">
-              <Package className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
-              <p className="text-muted-foreground">אין מרכיבים. הוסף מרכיב ראשון.</p>
-              <Button size="sm" className="mt-3" onClick={openCreateIngredient}>
-                <Plus className="w-4 h-4 ml-1" />הוסף מרכיב
-              </Button>
-            </div>
+            <EmptyState
+              icon={Package}
+              title="אין מרכיבים"
+              description="הוסף מרכיב ראשון כדי להתחיל לחשב עלויות"
+              action={
+                <Button size="sm" onClick={openCreateIngredient}>
+                  <Plus className="w-4 h-4 ml-1" />הוסף מרכיב
+                </Button>
+              }
+            />
           ) : (
             ingredients.map(ing => {
               const supplierName = suppliers.find(s => s.id === ing.supplier_id)?.name;
@@ -507,7 +496,7 @@ const AdminCosting = () => {
 
             {ingredients.length === 0 && (
               <div className="bg-yellow-500/10 border border-yellow-200 rounded-lg p-3 text-xs text-yellow-700">
-                ⚠️ עליך להוסיף מרכיבים לפני שניתן להגדיר מתכון
+                עליך להוסיף מרכיבים לפני שניתן להגדיר מתכון
               </div>
             )}
 
@@ -628,4 +617,7 @@ const AdminCosting = () => {
   );
 };
 
-export default AdminCosting;
+function GatedAdminCosting() {
+  return <FeatureGate feature="costing"><AdminCosting /></FeatureGate>;
+}
+export default GatedAdminCosting;

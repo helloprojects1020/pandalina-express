@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { I18nProvider } from "@/i18n/context";
 import { AuthProvider } from "@/hooks/useAuth";
+import { FeatureFlagsProvider } from "@/hooks/useFeatureFlags";
 import { MenuProvider } from "@/hooks/useMenu";
 import SiteHeader from "@/components/SiteHeader";
 import CartDrawer from "@/components/CartDrawer";
@@ -37,6 +38,7 @@ import AdminSettings from "./pages/admin/AdminSettings";
 import AdminDaily from "./pages/admin/AdminDaily";
 import AdminReminders from "./pages/admin/AdminReminders";
 import AdminReportXZ from "./pages/admin/AdminReportXZ";
+import AdminPlatformControl from "./pages/admin/AdminPlatformControl";
 import KitchenScreen from "./pages/KitchenScreen";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentFailure from "./pages/PaymentFailure";
@@ -69,6 +71,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <I18nProvider>
       <AuthProvider>
+        <FeatureFlagsProvider>
         <TooltipProvider>
           <Toaster />
           <Sonner />
@@ -103,6 +106,7 @@ const App = () => (
                 <Route path="report-xz" element={<AdminReportXZ />} />
                 <Route path="reminders" element={<AdminReminders />} />
                 <Route path="settings" element={<AdminSettings />} />
+                <Route path="platform" element={<AdminPlatformControl />} />
               </Route>
 
               {/* Kitchen */}
@@ -131,6 +135,7 @@ const App = () => (
             </Routes>
           </BrowserRouter>
         </TooltipProvider>
+        </FeatureFlagsProvider>
       </AuthProvider>
     </I18nProvider>
   </QueryClientProvider>

@@ -17,6 +17,8 @@ import {
   Megaphone, Clock, Bell, Calendar, ChevronDown, ChevronUp,
   BarChart2, Minus, RefreshCw
 } from 'lucide-react';
+import { FeatureGate } from '@/components/admin/FeatureGate';
+import { PageHeader, KpiCard, LoadingState } from '@/components/admin/AdminUI';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any;
@@ -299,7 +301,7 @@ const AdminDaily = () => {
     window.open(`https://wa.me/${intl}?text=${encodeURIComponent(message)}`, '_blank');
   };
 
-  if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>;
+  if (loading) return <LoadingState />;
 
   const tabs = [
     { key: 'overview', label: 'סיכום יומי', icon: BarChart2 },
@@ -314,17 +316,16 @@ const AdminDaily = () => {
   return (
     <div className="space-y-6" dir="rtl">
 
-      {/* Header */}
-      <div className="flex items-start justify-between flex-wrap gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">דוח יומי תפעולי</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">שליטה מלאה בזמן אמת</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Input type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} className="w-40 h-9 text-sm" />
-          <Button size="sm" variant="outline" onClick={loadAll}><RefreshCw className="w-4 h-4" /></Button>
-        </div>
-      </div>
+      <PageHeader
+        title="דוח יומי תפעולי"
+        description="שליטה מלאה בזמן אמת"
+        actions={
+          <>
+            <Input type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} className="w-40 h-9 text-sm" />
+            <Button size="sm" variant="outline" onClick={loadAll}><RefreshCw className="w-4 h-4" /></Button>
+          </>
+        }
+      />
 
       {/* Tabs */}
       <div className="flex gap-1 border-b border-border overflow-x-auto">
@@ -346,7 +347,7 @@ const AdminDaily = () => {
             <div className="flex items-center justify-between mt-2">
               <div>
                 <p className="text-3xl font-black">{fmtCurrency(Math.abs(dailyProfit))}</p>
-                <p className="text-sm opacity-80 mt-0.5">{dailyProfit >= 0 ? '✅ רווח משוער' : '❌ הפסד משוער'}</p>
+                <p className="text-sm opacity-80 mt-0.5">{dailyProfit >= 0 ? 'רווח משוער' : 'הפסד משוער'}</p>
               </div>
               <div className="text-left">
                 <p className="text-xs opacity-70">הכנסות</p>
@@ -361,26 +362,18 @@ const AdminDaily = () => {
 
           {/* KPIs */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {[
-              { label: 'הכנסות', value: fmtCurrency(todayRevenue), sub: `${todayOrders} הזמנות`, color: 'text-emerald-600', bg: 'bg-emerald-500/10', icon: TrendingUp },
-              { label: 'עלות עובדים', value: fmtCurrency(dailyStaffCost), sub: `${dailyStaff.length} עובדים`, color: 'text-blue-600', bg: 'bg-blue-500/10', icon: Users },
-              { label: 'הוצאות קבועות', value: fmtCurrency(dailyFixedCost), sub: 'חלק יומי', color: 'text-slate-600', bg: 'bg-slate-500/10', icon: DollarSign },
-              { label: 'הוצאות משתנות', value: fmtCurrency(dailyVariableCost), sub: 'היום', color: 'text-orange-600', bg: 'bg-orange-500/10', icon: ShoppingBag },
-            ].map(({ label, value, sub, color, bg, icon: Icon }) => (
-              <div key={label} className="bg-card rounded-xl p-4 shadow-sm">
-                <div className={`w-8 h-8 rounded-lg ${bg} flex items-center justify-center mb-2`}>
-                  <Icon className={`w-4 h-4 ${color}`} />
-                </div>
-                <p className={`text-xl font-bold ${color}`}>{value}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{label}</p>
-                <p className="text-xs text-muted-foreground">{sub}</p>
-              </div>
-            ))}
+            <KpiCard label="הכנסות" value={fmtCurrency(todayRevenue)} sub={`${todayOrders} הזמנות`} icon={TrendingUp} accent="#10b981" />
+            <KpiCard label="עלות עובדים" value={fmtCurrency(dailyStaffCost)} sub={`${dailyStaff.length} עובדים`} icon={Users} accent="#3b82f6" />
+            <KpiCard label="הוצאות קבועות" value={fmtCurrency(dailyFixedCost)} sub="חלק יומי" icon={DollarSign} accent="#64748b" />
+            <KpiCard label="הוצאות משתנות" value={fmtCurrency(dailyVariableCost)} sub="היום" icon={ShoppingBag} accent="#f97316" />
           </div>
 
           {/* פירוט עלויות */}
-          <div className="bg-card rounded-2xl p-4 shadow-sm">
-            <p className="font-semibold text-foreground text-sm mb-3">פירוט עלויות יומיות</p>
+          <div className="bg-card border border-border/50 rounded-2xl p-5 shadow-sm">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-6 h-6 rounded-lg bg-orange-500/10 flex items-center justify-center"><DollarSign className="w-3.5 h-3.5 text-orange-600" /></div>
+              <p className="font-bold text-foreground text-sm">פירוט עלויות יומיות</p>
+            </div>
             <div className="space-y-2">
               {[
                 { label: 'עובדים', amount: dailyStaffCost, color: 'bg-blue-500' },
@@ -406,8 +399,11 @@ const AdminDaily = () => {
 
           {/* פרסום ROI */}
           {campaigns.length > 0 && (
-            <div className="bg-card rounded-2xl p-4 shadow-sm">
-              <p className="font-semibold text-foreground text-sm mb-3">📣 ביצועי פרסום היום</p>
+            <div className="bg-card border border-border/50 rounded-2xl p-5 shadow-sm">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-6 h-6 rounded-lg bg-purple-500/10 flex items-center justify-center"><Megaphone className="w-3.5 h-3.5 text-purple-600" /></div>
+                <p className="font-bold text-foreground text-sm">ביצועי פרסום היום</p>
+              </div>
               <div className="grid grid-cols-3 gap-3 text-center mb-3">
                 <div className="bg-muted/30 rounded-xl p-3">
                   <p className="text-lg font-bold text-foreground">{fmtCurrency(dailyMarketingCost)}</p>
@@ -422,21 +418,24 @@ const AdminDaily = () => {
                   <p className="text-xs text-muted-foreground">עלות/הזמנה</p>
                 </div>
               </div>
-              <div className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold ${
-                marketingROI > 0 ? 'bg-emerald-500/10 text-emerald-700' :
-                marketingROI > -dailyMarketingCost * 0.3 ? 'bg-yellow-500/10 text-yellow-700' :
-                'bg-red-500/10 text-red-700'
+              <div className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold ${
+                marketingROI > 0 ? 'bg-emerald-500/10 text-emerald-700 border border-emerald-200' :
+                marketingROI > -dailyMarketingCost * 0.3 ? 'bg-amber-500/10 text-amber-700 border border-amber-200' :
+                'bg-red-500/10 text-red-700 border border-red-200'
               }`}>
-                {marketingROI > 0 ? '🟢 פרסום משתלם' : marketingROI > -dailyMarketingCost * 0.3 ? '🟡 גבולי' : '🔴 הפסד בפרסום'}
-                <span className="mr-auto">{fmtCurrency(totalMarketingRevenue)} הכנסות מפרסום</span>
+                <span>{marketingROI > 0 ? 'פרסום משתלם' : marketingROI > -dailyMarketingCost * 0.3 ? 'ביצועים גבוליים' : 'הפסד בפרסום'}</span>
+                <span className="text-xs font-medium">{fmtCurrency(totalMarketingRevenue)} הכנסות מפרסום</span>
               </div>
             </div>
           )}
 
           {/* דוחות X/Z */}
           {dailyReports.length > 0 && (
-            <div className="bg-card rounded-2xl p-4 shadow-sm">
-              <p className="font-semibold text-foreground text-sm mb-2">📋 דוחות היום</p>
+            <div className="bg-card border border-border/50 rounded-2xl p-5 shadow-sm">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-6 h-6 rounded-lg bg-primary/10 flex items-center justify-center"><Clock className="w-3.5 h-3.5 text-primary" /></div>
+                <p className="font-bold text-foreground text-sm">דוחות היום</p>
+              </div>
               <div className="space-y-2">
                 {dailyReports.map(r => (
                   <div key={r.id} className="flex items-center justify-between bg-muted/30 rounded-xl px-3 py-2">
@@ -672,7 +671,7 @@ const AdminDaily = () => {
               marketingROI > -dailyMarketingCost * 0.3 ? 'bg-yellow-500/10 border-yellow-200 text-yellow-700' :
               'bg-red-500/10 border-red-200 text-red-700'
             }`}>
-              {marketingROI > 0 ? '🟢 פרסום משתלם' : marketingROI > -dailyMarketingCost * 0.3 ? '🟡 גבולי' : '🔴 הפסד בפרסום'}
+              {marketingROI > 0 ? 'פרסום משתלם' : marketingROI > -dailyMarketingCost * 0.3 ? 'גבולי' : 'הפסד בפרסום'}
               <span className="text-xs font-normal mr-auto">
                 השקעה: {fmtCurrency(dailyMarketingCost)} · הזמנות: {totalMarketingOrders} · הכנסות: {fmtCurrency(totalMarketingRevenue)}
                 {costPerOrder > 0 && ` · עלות/הזמנה: ${fmtCurrency(costPerOrder)}`}
@@ -690,7 +689,7 @@ const AdminDaily = () => {
               {/* סיכום כולל */}
               {allCampaigns.length > 0 && (
                 <div className="bg-card rounded-2xl p-4 shadow-sm">
-                  <p className="text-xs font-semibold text-muted-foreground mb-3">📊 סיכום 30 יום אחרונים</p>
+                  <p className="text-xs font-semibold text-muted-foreground mb-3">סיכום 30 יום אחרונים</p>
                   <div className="grid grid-cols-4 gap-2 text-center">
                     <div className="bg-muted/30 rounded-xl p-3">
                       <p className="text-lg font-bold text-foreground">{fmtCurrency(allCampaigns.reduce((s, c) => s + c.amount, 0))}</p>
@@ -784,7 +783,7 @@ const AdminDaily = () => {
           ) : (
             <div className="space-y-3">
               <div className="bg-card rounded-2xl p-4 shadow-sm">
-                <p className="text-xs font-semibold text-muted-foreground mb-3">📊 סיכום 30 יום אחרונים</p>
+                <p className="text-xs font-semibold text-muted-foreground mb-3">סיכום 30 יום אחרונים</p>
                 <div className="grid grid-cols-3 gap-2 text-center">
                   <div className="bg-muted/30 rounded-xl p-3">
                     <p className="text-lg font-bold text-foreground">{allReports.filter(r => r.report_type === 'Z').length}</p>
@@ -1080,4 +1079,7 @@ const AdminDaily = () => {
   );
 };
 
-export default AdminDaily;
+function GatedAdminDaily() {
+  return <FeatureGate feature="daily"><AdminDaily /></FeatureGate>;
+}
+export default GatedAdminDaily;

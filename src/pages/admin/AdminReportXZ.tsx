@@ -8,6 +8,8 @@ import {
   Target, Zap, ChevronDown, ChevronUp, Eye, Download,
   Printer, Wifi,
 } from 'lucide-react';
+import { PageHeader, SectionCard, EmptyState, LoadingState } from '@/components/admin/AdminUI';
+import { FeatureGate } from '@/components/admin/FeatureGate';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any;
@@ -420,13 +422,13 @@ function KpiCard({label,value,sub,sub2,icon:Icon,accent,barPct,warn}:{
 
 function InsightsPanel({summary,days}:{summary:Summary;days:(LiveDay|LockedDay)[]}) {
   const items:[string,string,'warn'|'ok'|'info'][] = [];
-  if(summary.staffRatio>40) items.push(['👥',`עלות עובדים ${fmtPct(summary.staffRatio)} — כדאי לצמצם משמרות`,'warn']);
-  if(summary.weightedMargin<15&&summary.totalRevenue>0) items.push(['📉',`רווחיות נמוכה (${fmtPct(summary.weightedMargin)}) — בחן הוצאות`,'warn']);
-  if(summary.avgOrderValue<60&&summary.avgOrderValue>0) items.push(['🛒',`ממוצע הזמנה נמוך (${fmt(summary.avgOrderValue)}) — שקול upsell`,'info']);
-  if(summary.totalProfit>0&&summary.weightedMargin>=30) items.push(['🏆',`מרווח מעולה! ${fmtPct(summary.weightedMargin)} — מעל ממוצע הענף`,'ok']);
+  if(summary.staffRatio>40) items.push(['!',`עלות עובדים ${fmtPct(summary.staffRatio)} — כדאי לצמצם משמרות`,'warn']);
+  if(summary.weightedMargin<15&&summary.totalRevenue>0) items.push(['↓',`רווחיות נמוכה (${fmtPct(summary.weightedMargin)}) — בחן הוצאות`,'warn']);
+  if(summary.avgOrderValue<60&&summary.avgOrderValue>0) items.push(['↑',`ממוצע הזמנה נמוך (${fmt(summary.avgOrderValue)}) — שקול upsell`,'info']);
+  if(summary.totalProfit>0&&summary.weightedMargin>=30) items.push(['★',`מרווח מעולה! ${fmtPct(summary.weightedMargin)} — מעל ממוצע הענף`,'ok']);
   const lossDay = days.find(d=>d.profit<0&&d.revenue>0);
-  if(lossDay) items.push(['⚠️',`${heDayFull(lossDay.date)}: יום הפסד (${fmt(lossDay.profit)})`,'warn']);
-  if(items.length===0) items.push(['✅','כל המדדים תקינים לתקופה זו','ok']);
+  if(lossDay) items.push(['!',`${heDayFull(lossDay.date)}: יום הפסד (${fmt(lossDay.profit)})`,'warn']);
+  if(items.length===0) items.push(['✓','כל המדדים תקינים לתקופה זו','ok']);
   return (
     <div className="rounded-2xl border border-border bg-card p-5">
       <div className="flex items-center gap-2 mb-3"><Zap className="w-4 h-4 text-amber-500"/><h3 className="font-bold text-sm">תובנות עסקיות</h3></div>
@@ -494,7 +496,7 @@ function RevenueChart({days}:{days:(LiveDay|LockedDay)[]}) {
 // ═══════════════════════════════════════════════════════════════════
 // MAIN COMPONENT
 // ═══════════════════════════════════════════════════════════════════
-export default function AdminReportXZ() {
+function AdminReportXZ() {
   const { restaurantId } = useAuth();
 
   const [reportType,  setReportType]  = useState<'X'|'Z'>('X');
@@ -619,44 +621,45 @@ export default function AdminReportXZ() {
   return (
     <div className="space-y-5 max-w-5xl mx-auto" dir="rtl">
 
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-black text-foreground tracking-tight">דוח X / Z</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">{storeName} • {dateLabel}</p>
-        </div>
-        <div className="flex items-center gap-2 flex-wrap">
-          <button onClick={()=>summary&&sendWhatsApp(summary,storeName,dateLabel,reportType)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600 transition-colors">
-            <MessageCircle className="w-4 h-4"/> WhatsApp
-          </button>
-          <button onClick={()=>summary&&openFullReport(displayDays,summary,storeName,dateLabel,reportType)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-border bg-card text-sm font-medium hover:bg-muted transition-colors">
-            <Eye className="w-4 h-4"/> צפייה מלאה
-          </button>
-          <button onClick={()=>summary&&printReport(displayDays,summary,storeName,dateLabel,reportType)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-border bg-card text-sm font-medium hover:bg-muted transition-colors">
-            <Printer className="w-4 h-4"/> הדפס
-          </button>
-          <button onClick={()=>summary&&downloadCSV(displayDays,summary,storeName,dateLabel,reportType)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-border bg-card text-sm font-medium hover:bg-muted transition-colors">
-            <Download className="w-4 h-4"/> CSV
-          </button>
-          <button onClick={fetchReport} disabled={loading}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-border bg-card text-sm font-medium hover:bg-muted transition-colors">
-            <RefreshCw className={`w-4 h-4 ${loading?'animate-spin':''}`}/>
-          </button>
-        </div>
-      </div>
+      <PageHeader
+        title="דוחות X/Z"
+        description={`דוח X = פתוח | דוח Z = סגור • ${storeName} • ${dateLabel}`}
+        isLive={true}
+        actions={
+          <div className="flex items-center gap-2 flex-wrap">
+            <button onClick={()=>summary&&sendWhatsApp(summary,storeName,dateLabel,reportType)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600 transition-colors">
+              <MessageCircle className="w-4 h-4"/> WhatsApp
+            </button>
+            <button onClick={()=>summary&&openFullReport(displayDays,summary,storeName,dateLabel,reportType)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-border bg-card text-sm font-medium hover:bg-muted transition-colors">
+              <Eye className="w-4 h-4"/> צפייה מלאה
+            </button>
+            <button onClick={()=>summary&&printReport(displayDays,summary,storeName,dateLabel,reportType)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-border bg-card text-sm font-medium hover:bg-muted transition-colors">
+              <Printer className="w-4 h-4"/> הדפס
+            </button>
+            <button onClick={()=>summary&&downloadCSV(displayDays,summary,storeName,dateLabel,reportType)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-border bg-card text-sm font-medium hover:bg-muted transition-colors">
+              <Download className="w-4 h-4"/> CSV
+            </button>
+            <button onClick={fetchReport} disabled={loading}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-border bg-card text-sm font-medium hover:bg-muted transition-colors">
+              <RefreshCw className={`w-4 h-4 ${loading?'animate-spin':''}`}/>
+            </button>
+          </div>
+        }
+      />
 
       {/* Controls */}
-      <div className="bg-card border border-border rounded-2xl p-4 space-y-3">
+      <SectionCard title="הגדרות דוח" icon={Calendar} noPadding>
+      <div className="p-4 space-y-3">
         <div className="flex flex-wrap gap-2 items-end">
           <div className="flex rounded-xl border border-border overflow-hidden">
             {(['X','Z'] as const).map(t=>(
               <button key={t} onClick={()=>setReportType(t)}
                 className={`px-5 py-2 text-sm font-bold transition-colors ${reportType===t?(t==='X'?'bg-amber-500 text-white':'bg-red-600 text-white'):'bg-card text-muted-foreground hover:bg-muted'}`}>
-                {t==='X'?'🟡':'🔴'} דוח {t}
+                דוח {t}
               </button>
             ))}
           </div>
@@ -692,6 +695,7 @@ export default function AdminReportXZ() {
             : <><Lock className="w-3.5 h-3.5 shrink-0"/>דוח Z — דוח סגירה סופי של כל היום, כולל כל העסקאות שנכנסו. נועל קופה. לא משתנה לאחר הסגירה.</>}
         </div>
       </div>
+      </SectionCard>
 
       {/* Banner */}
       <ReportBanner reportType={reportType} summary={summary} liveDays={liveDays} lockedDays={lockedDays}/>
@@ -746,7 +750,7 @@ export default function AdminReportXZ() {
                   <div key={date} className="px-5 py-4 flex items-center gap-3">
                     <div className="w-32 shrink-0">
                       <p className="text-sm font-bold text-foreground">{heDayFull(date)}</p>
-                      <p className="text-[10px] text-amber-600 font-semibold mt-0.5">🟡 לא נסגר</p>
+                      <p className="text-[10px] text-amber-600 font-semibold mt-0.5">לא נסגר</p>
                     </div>
                     <div className="flex-1">
                       <p className="text-xs text-muted-foreground">אין דוח Z סגור ליום זה</p>
@@ -773,8 +777,8 @@ export default function AdminReportXZ() {
                         {reportType==='Z'
                           ? <span className="text-red-600 font-semibold flex items-center gap-0.5"><Lock className="w-2.5 h-2.5 inline"/>Z נעול</span>
                           : (day as LiveDay).hasClosedZ
-                            ? <span className="text-amber-600 font-semibold">🟡 X live (Z קיים)</span>
-                            : <span className="text-amber-600 font-semibold">🟡 X live</span>}
+                            ? <span className="text-amber-600 font-semibold">X live (Z קיים)</span>
+                            : <span className="text-amber-600 font-semibold">X live</span>}
                       </p>
                     </div>
                     <div className="flex-1 text-right">
@@ -872,22 +876,18 @@ export default function AdminReportXZ() {
 
       {/* Empty */}
       {!loading&&displayDays.length===0&&(
-        <div className="bg-card border border-border rounded-2xl p-14 text-center">
-          <FileText className="w-10 h-10 text-muted-foreground mx-auto mb-3"/>
-          <p className="font-bold text-foreground">
-            {reportType==='Z'?'אין דוחות Z סגורים לתקופה זו':'אין נתונים לתקופה זו'}
-          </p>
-          <p className="text-sm text-muted-foreground mt-1">
-            {reportType==='Z'?'כדי לסגור יום — עבור לדוח X ולחץ "סגור יום (Z)"':'בחר תאריך אחר'}
-          </p>
-        </div>
+        <EmptyState
+          icon={FileText}
+          title={reportType==='Z'?'אין דוחות Z סגורים לתקופה זו':'אין נתונים לתקופה זו'}
+          description={reportType==='Z'?'כדי לסגור יום — עבור לדוח X ולחץ "סגור יום (Z)"':'בחר תאריך אחר'}
+        />
       )}
-      {loading&&(
-        <div className="bg-card border border-border rounded-2xl p-14 text-center">
-          <RefreshCw className="w-8 h-8 text-muted-foreground mx-auto mb-3 animate-spin"/>
-          <p className="text-sm text-muted-foreground">טוען נתונים...</p>
-        </div>
-      )}
+      {loading&&<LoadingState />}
     </div>
   );
 }
+
+function GatedAdminReportXZ() {
+  return <FeatureGate feature="reports"><AdminReportXZ /></FeatureGate>;
+}
+export default GatedAdminReportXZ;

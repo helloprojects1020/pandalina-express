@@ -17,6 +17,8 @@ import {
   Shield, CheckSquare, Bell, Search, Filter, Mail, Clock,
   Star, UserCheck, UserX, Coffee, Briefcase, X, Check
 } from 'lucide-react';
+import { FeatureGate } from '@/components/admin/FeatureGate';
+import { PageHeader, KpiCard, LoadingState, EmptyState } from '@/components/admin/AdminUI';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any;
@@ -422,7 +424,7 @@ const AdminStaff = () => {
 
   const fmtDate = (d: string) => new Date(d).toLocaleDateString('he-IL', { weekday: 'short', day: '2-digit', month: '2-digit' });
 
-  if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>;
+  if (loading) return <LoadingState />;
 
   const activeCount = staff.filter(s => s.is_active).length;
   const todayCount = todayShifts.length;
@@ -433,47 +435,40 @@ const AdminStaff = () => {
     <div className="space-y-5" dir="rtl">
 
       {/* Header */}
-      <div className="flex items-start justify-between flex-wrap gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">ניהול עובדים</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">{activeCount} פעילים · {todayCount} עובדים היום</p>
-        </div>
-        {tab === 'list' && (
-          <Button onClick={openCreateStaff} size="sm">
-            <Plus className="w-4 h-4 ml-1" />הוסף עובד
-          </Button>
-        )}
-        {tab === 'tasks' && (
-          <Button size="sm" onClick={() => { setEditingTask(null); setTaskForm({ staff_id: selectedStaff?.id ?? '', role_slug: '', title: '', description: '', task_type: 'daily', scheduled_time: '', priority: 'normal', date: new Date().toISOString().split('T')[0] }); setTaskSheet(true); }}>
-            <Plus className="w-4 h-4 ml-1" />הוסף משימה
-          </Button>
-        )}
-        {tab === 'reminders' && (
-          <Button size="sm" onClick={() => { setEditingReminder(null); setReminderForm({ title: '', message: '', reminder_type: 'whatsapp', target_type: 'staff', target_phone: '', staff_id: '', scheduled_time: '09:00', days_of_week: [1,2,3,4,5,6,7], is_active: true }); setReminderSheet(true); }}>
-            <Plus className="w-4 h-4 ml-1" />הוסף תזכורת
-          </Button>
-        )}
-        {tab === 'roles' && (
-          <Button size="sm" onClick={() => { setEditingRole(null); setRoleForm({ name: '', slug: '', color: '#6b7280', permissions: {} }); setRoleSheet(true); }}>
-            <Plus className="w-4 h-4 ml-1" />הוסף תפקיד
-          </Button>
-        )}
-      </div>
+      <PageHeader
+        title="ניהול צוות"
+        description={`${activeCount} פעילים · ${todayCount} עובדים היום`}
+        actions={
+          <div className="flex gap-2">
+            {tab === 'list' && (
+              <Button onClick={openCreateStaff} size="sm">
+                <Plus className="w-4 h-4 ml-1" />הוסף עובד
+              </Button>
+            )}
+            {tab === 'tasks' && (
+              <Button size="sm" onClick={() => { setEditingTask(null); setTaskForm({ staff_id: selectedStaff?.id ?? '', role_slug: '', title: '', description: '', task_type: 'daily', scheduled_time: '', priority: 'normal', date: new Date().toISOString().split('T')[0] }); setTaskSheet(true); }}>
+                <Plus className="w-4 h-4 ml-1" />הוסף משימה
+              </Button>
+            )}
+            {tab === 'reminders' && (
+              <Button size="sm" onClick={() => { setEditingReminder(null); setReminderForm({ title: '', message: '', reminder_type: 'whatsapp', target_type: 'staff', target_phone: '', staff_id: '', scheduled_time: '09:00', days_of_week: [1,2,3,4,5,6,7], is_active: true }); setReminderSheet(true); }}>
+                <Plus className="w-4 h-4 ml-1" />הוסף תזכורת
+              </Button>
+            )}
+            {tab === 'roles' && (
+              <Button size="sm" onClick={() => { setEditingRole(null); setRoleForm({ name: '', slug: '', color: '#6b7280', permissions: {} }); setRoleSheet(true); }}>
+                <Plus className="w-4 h-4 ml-1" />הוסף תפקיד
+              </Button>
+            )}
+          </div>
+        }
+      />
 
       {/* KPIs */}
       <div className="grid grid-cols-3 gap-3">
-        <div className="bg-card rounded-xl p-4 shadow-sm text-center">
-          <p className="text-2xl font-bold text-foreground">{activeCount}</p>
-          <p className="text-xs text-muted-foreground mt-1">עובדים פעילים</p>
-        </div>
-        <div className="bg-card rounded-xl p-4 shadow-sm text-center">
-          <p className="text-2xl font-bold text-foreground">{todayCount}</p>
-          <p className="text-xs text-muted-foreground mt-1">עובדים היום</p>
-        </div>
-        <div className="bg-card rounded-xl p-4 shadow-sm text-center">
-          <p className="text-xl font-bold text-foreground">₪{Math.round(totalMonthlyCost).toLocaleString()}</p>
-          <p className="text-xs text-muted-foreground mt-1">שכר חודשי</p>
-        </div>
+        <KpiCard label="עובדים פעילים" value={activeCount} icon={Users} accent="#10b981" />
+        <KpiCard label="עובדים היום" value={todayCount} icon={Calendar} accent="#3b82f6" />
+        <KpiCard label="שכר חודשי" value={`₪${Math.round(totalMonthlyCost).toLocaleString()}`} icon={TrendingUp} accent="#8b5cf6" />
       </div>
 
       {/* Tabs */}
@@ -519,10 +514,7 @@ const AdminStaff = () => {
 
           {/* Staff cards */}
           {filteredStaff.length === 0 ? (
-            <div className="bg-card rounded-2xl p-8 shadow-sm text-center">
-              <Users className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
-              <p className="text-muted-foreground">אין עובדים. הוסף עובד ראשון.</p>
-            </div>
+            <EmptyState icon={Users} title="אין עובדים" description="הוסף עובד ראשון כדי להתחיל" />
           ) : (
             <div className="space-y-2">
               {filteredStaff.map(member => {
@@ -1256,4 +1248,7 @@ const AdminStaff = () => {
   );
 };
 
-export default AdminStaff;
+function GatedAdminStaff() {
+  return <FeatureGate feature="staff"><AdminStaff /></FeatureGate>;
+}
+export default GatedAdminStaff;

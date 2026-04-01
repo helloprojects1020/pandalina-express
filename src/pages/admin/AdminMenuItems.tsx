@@ -12,7 +12,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from '@/com
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Pencil, Trash2, Loader2, ImageIcon, Star, Sparkles, X } from 'lucide-react';
+import { Plus, Pencil, Trash2, Loader2, ImageIcon, Star, Sparkles, X, UtensilsCrossed } from 'lucide-react';
+import { PageHeader, SectionCard, EmptyState, LoadingState } from '@/components/admin/AdminUI';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any;
@@ -234,40 +235,42 @@ const AdminMenuItems = () => {
 
   const getCatName = (id: string) => categories.find(c => c.id === id)?.name_he ?? '';
 
-  if (!restaurantId || loading) return (
-    <div className="flex items-center justify-center py-20">
-      <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-    </div>
-  );
+  if (!restaurantId || loading) return <LoadingState />;
 
   return (
     <div className="space-y-6" dir="rtl">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="text-2xl font-bold text-foreground">ניהול מנות</h1>
-        <div className="flex gap-2">
-          <Select value={filterCat} onValueChange={setFilterCat}>
-            <SelectTrigger className="w-40 h-9 text-sm">
-              <SelectValue placeholder="כל הקטגוריות" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">כל הקטגוריות</SelectItem>
-              {categories.map(c => (
-                <SelectItem key={c.id} value={c.id}>{c.name_he}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button onClick={openCreate} size="sm">
-            <Plus className="w-4 h-4 ml-1" /> הוסף מנה
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="פריטי תפריט"
+        actions={
+          <div className="flex gap-2">
+            <Select value={filterCat} onValueChange={setFilterCat}>
+              <SelectTrigger className="w-40 h-9 text-sm">
+                <SelectValue placeholder="כל הקטגוריות" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">כל הקטגוריות</SelectItem>
+                {categories.map(c => (
+                  <SelectItem key={c.id} value={c.id}>{c.name_he}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button onClick={openCreate} size="sm">
+              <Plus className="w-4 h-4 ml-1" /> הוסף מנה
+            </Button>
+          </div>
+        }
+      />
 
+      <SectionCard title="מנות" icon={UtensilsCrossed} noPadding>
       {filtered.length === 0 ? (
-        <div className="bg-card rounded-2xl p-8 shadow-sm text-center">
-          <p className="text-muted-foreground">אין מנות. הוסף את המנה הראשונה.</p>
-        </div>
+        <EmptyState
+          icon={UtensilsCrossed}
+          title="אין מנות"
+          description="הוסף את המנה הראשונה לתפריט"
+          action={<Button onClick={openCreate}>הוסף מנה</Button>}
+        />
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-2 p-5">
           {filtered.map((item) => (
             <div key={item.id} className="bg-card rounded-xl p-4 shadow-sm flex items-center gap-4">
               {item.image_url ? (
@@ -321,6 +324,7 @@ const AdminMenuItems = () => {
           ))}
         </div>
       )}
+      </SectionCard>
 
       <Sheet open={dialogOpen} onOpenChange={setDialogOpen}>
         <SheetContent side="right" className="w-full max-w-lg overflow-y-auto" dir="rtl">

@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Loader2, Search, Phone, ShoppingBag, TrendingUp, Clock, Repeat, Users, Star } from 'lucide-react';
+import { FeatureGate } from '@/components/admin/FeatureGate';
+import { PageHeader, KpiCard, LoadingState, EmptyState } from '@/components/admin/AdminUI';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any;
@@ -136,7 +138,7 @@ const AdminCustomers = () => {
   // daysSince
   const daysSince = (d: string) => Math.floor((Date.now() - new Date(d).getTime()) / 86400000);
 
-  if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>;
+  if (loading) return <LoadingState />;
 
   const returningCount = customers.filter(c => c.order_count > 1).length;
   const vipCount = customers.filter(c => c.total_spent >= vipThreshold && vipThreshold > 0).length;
@@ -146,29 +148,14 @@ const AdminCustomers = () => {
     <div className="space-y-6" dir="rtl">
 
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">לקוחות</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">{customers.length} לקוחות ייחודיים</p>
-      </div>
+      <PageHeader title="לקוחות" description={`${customers.length} לקוחות ייחודיים`} />
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className="bg-card rounded-xl p-4 shadow-sm text-center">
-          <p className="text-2xl font-bold text-foreground">{customers.length}</p>
-          <p className="text-xs text-muted-foreground mt-1">סה"כ לקוחות</p>
-        </div>
-        <div className="bg-card rounded-xl p-4 shadow-sm text-center">
-          <p className="text-2xl font-bold text-green-600">{returningCount}</p>
-          <p className="text-xs text-muted-foreground mt-1">לקוחות חוזרים</p>
-        </div>
-        <div className="bg-card rounded-xl p-4 shadow-sm text-center">
-          <p className="text-2xl font-bold text-yellow-600">{vipCount}</p>
-          <p className="text-xs text-muted-foreground mt-1">⭐ לקוחות VIP</p>
-        </div>
-        <div className="bg-card rounded-xl p-4 shadow-sm text-center">
-          <p className="text-2xl font-bold text-foreground">₪{Math.round(totalRevenue / (customers.length || 1))}</p>
-          <p className="text-xs text-muted-foreground mt-1">ממוצע ללקוח</p>
-        </div>
+        <KpiCard label='סה"כ לקוחות' value={customers.length} icon={Users} accent="#3b82f6" />
+        <KpiCard label="לקוחות חוזרים" value={returningCount} icon={Repeat} accent="#10b981" />
+        <KpiCard label="לקוחות VIP" value={vipCount} icon={Star} accent="#f59e0b" />
+        <KpiCard label="ממוצע ללקוח" value={`₪${Math.round(totalRevenue / (customers.length || 1))}`} icon={TrendingUp} accent="#8b5cf6" />
       </div>
 
       {/* Filter tabs */}
@@ -194,7 +181,7 @@ const AdminCustomers = () => {
 
       {/* List */}
       {filtered.length === 0 ? (
-        <div className="bg-card rounded-2xl p-8 shadow-sm text-center"><p className="text-muted-foreground">לא נמצאו לקוחות</p></div>
+        <EmptyState icon={Users} title="לא נמצאו לקוחות" description="נסה לשנות את הסינון או החיפוש" />
       ) : (
         <div className="space-y-2">
           {filtered.map(customer => {
@@ -213,7 +200,7 @@ const AdminCustomers = () => {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="font-semibold text-foreground text-sm">{customer.customer_name}</p>
-                    {tier === 'vip' && <Badge variant="outline" className="text-xs bg-yellow-500/10 text-yellow-700 border-yellow-200">⭐ VIP</Badge>}
+                    {tier === 'vip' && <Badge variant="outline" className="text-xs bg-yellow-500/10 text-yellow-700 border-yellow-200">VIP</Badge>}
                     {(tier as string) === 'returning' && <Badge variant="outline" className="text-xs bg-green-500/10 text-green-700 border-green-200">חוזר</Badge>}
                     {days > 30 && <Badge variant="outline" className="text-xs bg-orange-500/10 text-orange-700 border-orange-200">לא פעיל</Badge>}
                   </div>
@@ -269,7 +256,7 @@ const AdminCustomers = () => {
                     <div>
                       <div className="flex items-center gap-2">
                         <p className="font-bold text-foreground">{selected.customer_name}</p>
-                        {getCustomerTier(selected) === 'vip' && <Badge variant="outline" className="text-xs bg-yellow-500/10 text-yellow-700 border-yellow-200">⭐ VIP</Badge>}
+                        {getCustomerTier(selected) === 'vip' && <Badge variant="outline" className="text-xs bg-yellow-500/10 text-yellow-700 border-yellow-200">VIP</Badge>}
                         {selected.order_count > 1 && <Badge variant="outline" className="text-xs bg-green-500/10 text-green-700 border-green-200">לקוח חוזר</Badge>}
                       </div>
                       <div className="flex items-center gap-1 mt-0.5">
@@ -334,7 +321,7 @@ const AdminCustomers = () => {
                       style={{ width: `${Math.min((selected.order_count / 10) * 100, 100)}%` }} />
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
-                    {selected.order_count >= 10 ? '🏆 לקוח נאמן מאוד' : selected.order_count >= 5 ? '⭐ לקוח נאמן' : selected.order_count > 1 ? '🔄 לקוח חוזר' : '👋 לקוח חדש'}
+                    {selected.order_count >= 10 ? 'לקוח נאמן מאוד' : selected.order_count >= 5 ? 'לקוח נאמן' : selected.order_count > 1 ? 'לקוח חוזר' : 'לקוח חדש'}
                   </p>
                 </div>
 
@@ -378,4 +365,7 @@ const AdminCustomers = () => {
   );
 };
 
-export default AdminCustomers;
+function GatedAdminCustomers() {
+  return <FeatureGate feature="customers"><AdminCustomers /></FeatureGate>;
+}
+export default GatedAdminCustomers;

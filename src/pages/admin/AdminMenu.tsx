@@ -9,7 +9,8 @@ import { Switch } from '@/components/ui/switch';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from '@/components/ui/sheet';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Pencil, Trash2, GripVertical, Loader2, ImageIcon, X } from 'lucide-react';
+import { Plus, Pencil, Trash2, GripVertical, Loader2, ImageIcon, X, LayoutList } from 'lucide-react';
+import { PageHeader, SectionCard, EmptyState, LoadingState } from '@/components/admin/AdminUI';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any;
@@ -158,28 +159,30 @@ const AdminMenu = () => {
     setCategories(prev => prev.map(c => c.id === id ? { ...c, is_active: active } : c));
   };
 
-  if (!restaurantId || loading) return (
-    <div className="flex items-center justify-center py-20">
-      <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-    </div>
-  );
+  if (!restaurantId || loading) return <LoadingState />;
 
   return (
     <div className="space-y-6" dir="rtl">
 
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-foreground">ניהול קטגוריות</h1>
-        <Button onClick={openCreate} size="sm">
-          <Plus className="w-4 h-4 ml-1" /> הוסף קטגוריה
-        </Button>
-      </div>
+      <PageHeader
+        title="קטגוריות תפריט"
+        actions={
+          <Button onClick={openCreate} size="sm">
+            <Plus className="w-4 h-4 ml-1" /> הוסף קטגוריה
+          </Button>
+        }
+      />
 
+      <SectionCard title="קטגוריות" icon={LayoutList} noPadding>
       {categories.length === 0 ? (
-        <div className="bg-card rounded-2xl p-8 shadow-sm text-center">
-          <p className="text-muted-foreground">אין קטגוריות.</p>
-        </div>
+        <EmptyState
+          icon={LayoutList}
+          title="אין קטגוריות"
+          description="הוסף קטגוריה ראשונה לתפריט"
+          action={<Button onClick={openCreate}>הוסף קטגוריה</Button>}
+        />
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-2 p-5">
           {categories.map((cat) => (
             <div key={cat.id} className="bg-card rounded-xl p-4 shadow-sm flex items-center gap-4">
               <GripVertical className="w-4 h-4 text-muted-foreground/40 shrink-0" />
@@ -226,6 +229,7 @@ const AdminMenu = () => {
           ))}
         </div>
       )}
+      </SectionCard>
 
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetContent side="right" className="w-full max-w-lg overflow-y-auto" dir="rtl">

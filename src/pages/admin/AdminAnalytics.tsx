@@ -3,8 +3,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Loader2, TrendingUp, TrendingDown, ShoppingBag, Users, Repeat, GitCompare } from 'lucide-react';
+import { TrendingUp, TrendingDown, ShoppingBag, Users, Repeat, GitCompare, BarChart2, Clock, Layers, ArrowUpRight } from 'lucide-react';
 import { DateRangePicker, DateRange } from '@/components/admin/DateRangePicker';
+import { KpiCard, SectionCard, PageHeader, LoadingState } from '@/components/admin/AdminUI';
+import { FeatureGate } from '@/components/admin/FeatureGate';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any;
@@ -52,29 +54,12 @@ const BarChart = ({ data, valueKey, labelKey, color = 'bg-primary' }: { data: Re
   );
 };
 
-const KpiCard = ({ title, value, sub, icon: Icon, trend }: { title: string; value: string; sub?: string; icon: React.ElementType; trend?: number; }) => (
-  <div className="bg-card rounded-xl p-4 shadow-sm">
-    <div className="flex items-center justify-between mb-2">
-      <p className="text-xs text-muted-foreground">{title}</p>
-      <Icon className="w-4 h-4 text-muted-foreground" />
-    </div>
-    <p className="text-2xl font-bold text-foreground">{value}</p>
-    {sub && <p className="text-xs text-muted-foreground mt-0.5">{sub}</p>}
-    {trend !== undefined && (
-      <div className={`flex items-center gap-1 mt-1 text-xs ${trend >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-        {trend >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-        {trend >= 0 ? '+' : ''}{trend.toFixed(1)}% לעומת תקופה קודמת
-      </div>
-    )}
-  </div>
-);
-
-const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
-  <div className="bg-card rounded-2xl p-5 shadow-sm space-y-4">
-    <h3 className="font-semibold text-foreground text-sm">{title}</h3>
-    {children}
-  </div>
-);
+const ACCENT = {
+  revenue:   '#10b981',
+  orders:    '#3b82f6',
+  returning: '#8b5cf6',
+  customers: '#f59e0b',
+};
 
 const AdminAnalytics = () => {
   const { restaurantId } = useAuth();
@@ -193,7 +178,7 @@ const AdminAnalytics = () => {
     return Object.entries(byItem).sort((a, b) => b[1].qty - a[1].qty).slice(0, 8).map(([name, data]) => ({ name, ...data }));
   }, [orderItems]);
 
-  if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>;
+  if (loading) return <LoadingState />;
 
   const maxItemQty = Math.max(...popularItems.map(i => i.qty), 1);
   const prevRevenueTotal = prevOrders.reduce((s, o) => s + Number(o.total), 0);
@@ -201,34 +186,33 @@ const AdminAnalytics = () => {
   return (
     <div className="space-y-6" dir="rtl">
 
-      {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Analytics</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">נתוני ביצועים לתקופה שנבחרה</p>
-        </div>
-        <div className="flex items-center gap-2 flex-wrap">
-          <DateRangePicker value={dateRange} onChange={r => { setDateRange(r); }} />
-          {!dateRange && (
-            <Select value={period} onValueChange={v => setPeriod(v as Period)}>
-              <SelectTrigger className="w-36 h-9 text-sm"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {(Object.entries(PERIOD_LABELS) as [Period, string][]).map(([k, v]) => (
-                  <SelectItem key={k} value={k}>{v}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-          <Button variant={compareMode ? 'default' : 'outline'} size="sm" onClick={() => setCompareMode(v => !v)}>
-            <GitCompare className="w-4 h-4 ml-1" />השווה
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="אנליטיקה"
+        description="נתוני ביצועים לתקופה שנבחרה"
+        actions={
+          <>
+            <DateRangePicker value={dateRange} onChange={r => { setDateRange(r); }} />
+            {!dateRange && (
+              <Select value={period} onValueChange={v => setPeriod(v as Period)}>
+                <SelectTrigger className="w-36 h-9 text-sm"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {(Object.entries(PERIOD_LABELS) as [Period, string][]).map(([k, v]) => (
+                    <SelectItem key={k} value={k}>{v}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+            <Button variant={compareMode ? 'default' : 'outline'} size="sm" onClick={() => setCompareMode(v => !v)}>
+              <GitCompare className="w-4 h-4 ml-1" />השווה
+            </Button>
+          </>
+        }
+      />
 
       {/* Compare panel */}
       {compareMode && (
         <div className="bg-muted/30 border border-border rounded-xl p-4 space-y-3">
-          <p className="text-sm font-semibold text-foreground">📊 השוואת תקופות</p>
+          <p className="text-sm font-semibold text-foreground">השוואת תקופות</p>
           <div className="flex gap-2 flex-wrap items-center">
             <DateRangePicker value={compareDateRange} onChange={r => { setCompareDateRange(r); if (r) setCompareLabel(`${new Date(r.from).toLocaleDateString('he-IL')} — ${new Date(r.to).toLocaleDateString('he-IL')}`); }} />
             {/* קיצורים מהירים */}
@@ -289,104 +273,107 @@ const AdminAnalytics = () => {
 
       {/* KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <KpiCard title="הכנסות" value={fmtCurrency(stats.totalRevenue)} icon={TrendingUp} trend={stats.revenueTrend} />
-        <KpiCard title="הזמנות" value={String(stats.total)} sub={`ממוצע ${fmtCurrency(stats.avgOrder)}`} icon={ShoppingBag} trend={stats.ordersTrend} />
-        <KpiCard title="לקוחות חוזרים" value={String(stats.returning)} sub={`${stats.newCustomers} חדשים`} icon={Repeat} />
-        <KpiCard title="סה״כ לקוחות" value={String(stats.returning + stats.newCustomers)} icon={Users} />
+        <KpiCard label="הכנסות" value={fmtCurrency(stats.totalRevenue)} icon={TrendingUp} trend={stats.revenueTrend} accent={ACCENT.revenue} />
+        <KpiCard label="הזמנות" value={String(stats.total)} sub={`ממוצע ${fmtCurrency(stats.avgOrder)}`} icon={ShoppingBag} trend={stats.ordersTrend} accent={ACCENT.orders} />
+        <KpiCard label="לקוחות חוזרים" value={String(stats.returning)} sub={`${stats.newCustomers} חדשים`} icon={Repeat} accent={ACCENT.returning} />
+        <KpiCard label="סה״כ לקוחות" value={String(stats.returning + stats.newCustomers)} icon={Users} accent={ACCENT.customers} />
       </div>
 
       {/* גרף הכנסות */}
       {dailyRevenue.length > 0 && (
-        <Section title="📈 הכנסות יומיות">
+        <SectionCard title="הכנסות יומיות" icon={BarChart2}>
           <BarChart data={dailyRevenue} valueKey="value" labelKey="label" color="bg-primary" />
-          <div className="flex justify-between text-xs text-muted-foreground mt-1">
-            <span>סה"כ: {fmtCurrency(stats.totalRevenue)}</span>
-            <span>ממוצע יומי: {fmtCurrency(stats.totalRevenue / (dailyRevenue.length || 1))}</span>
+          <div className="flex justify-between text-xs text-muted-foreground pt-1 border-t border-border/50">
+            <span>סה"כ: <span className="font-semibold text-foreground">{fmtCurrency(stats.totalRevenue)}</span></span>
+            <span>ממוצע יומי: <span className="font-semibold text-foreground">{fmtCurrency(stats.totalRevenue / (dailyRevenue.length || 1))}</span></span>
           </div>
-        </Section>
+        </SectionCard>
       )}
 
       {/* שעות עומס */}
       {peakHours.length > 0 && (
-        <Section title="⏰ שעות עומס">
+        <SectionCard title="שעות עומס" icon={Clock}>
           <BarChart data={peakHours} valueKey="value" labelKey="label" color="bg-orange-400" />
-          <p className="text-xs text-muted-foreground">
-            שעת השיא: {peakHours.reduce((a, b) => a.value > b.value ? a : b).label}:00
-            ({peakHours.reduce((a, b) => a.value > b.value ? a : b).value} הזמנות)
+          <p className="text-xs text-muted-foreground pt-1 border-t border-border/50">
+            שעת השיא: <span className="font-semibold text-foreground">{peakHours.reduce((a, b) => a.value > b.value ? a : b).label}:00</span>
+            {' '}· {peakHours.reduce((a, b) => a.value > b.value ? a : b).value} הזמנות
           </p>
-        </Section>
+        </SectionCard>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Section title="🍽️ סוגי הזמנות">
+        <SectionCard title="סוגי הזמנות" icon={Layers}>
           <div className="space-y-3">
             {orderTypes.map(type => (
               <div key={type.label}>
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-foreground">{type.label}</span>
-                  <span className="text-muted-foreground">{type.value} ({type.pct}%)</span>
+                <div className="flex justify-between text-sm mb-1.5">
+                  <span className="text-foreground font-medium">{type.label}</span>
+                  <span className="text-muted-foreground text-xs">{type.value} · {type.pct}%</span>
                 </div>
                 <div className="h-2 bg-muted rounded-full overflow-hidden">
-                  <div className={`h-full ${type.color} rounded-full`} style={{ width: `${type.pct}%` }} />
+                  <div className={`h-full ${type.color} rounded-full transition-all`} style={{ width: `${type.pct}%` }} />
                 </div>
               </div>
             ))}
           </div>
-        </Section>
+        </SectionCard>
 
-        <Section title="👥 לקוחות חוזרים vs חדשים">
+        <SectionCard title="לקוחות חוזרים vs חדשים" icon={Users}>
           <div className="space-y-3">
             {[
-              { label: 'חוזרים', value: stats.returning, color: 'bg-green-500' },
+              { label: 'חוזרים', value: stats.returning, color: 'bg-emerald-500' },
               { label: 'חדשים', value: stats.newCustomers, color: 'bg-blue-500' },
             ].map(item => {
               const pct = Math.round((item.value / (stats.returning + stats.newCustomers || 1)) * 100);
               return (
                 <div key={item.label}>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span className="text-foreground">{item.label}</span>
-                    <span className="text-muted-foreground">{item.value} ({pct}%)</span>
+                  <div className="flex justify-between text-sm mb-1.5">
+                    <span className="text-foreground font-medium">{item.label}</span>
+                    <span className="text-muted-foreground text-xs">{item.value} · {pct}%</span>
                   </div>
                   <div className="h-2 bg-muted rounded-full overflow-hidden">
-                    <div className={`h-full ${item.color} rounded-full`} style={{ width: `${pct}%` }} />
+                    <div className={`h-full ${item.color} rounded-full transition-all`} style={{ width: `${pct}%` }} />
                   </div>
                 </div>
               );
             })}
-            <div className="bg-muted/30 rounded-lg p-3 text-center">
+            <div className="bg-emerald-500/8 border border-emerald-500/20 rounded-xl p-3 text-center mt-1">
               <p className="text-xs text-muted-foreground">שיעור שימור לקוחות</p>
-              <p className="text-2xl font-bold text-green-600 mt-1">
+              <p className="text-3xl font-black text-emerald-600 mt-1">
                 {Math.round((stats.returning / (stats.returning + stats.newCustomers || 1)) * 100)}%
               </p>
             </div>
           </div>
-        </Section>
+        </SectionCard>
       </div>
 
       {/* מנות פופולריות */}
       {popularItems.length > 0 && (
-        <Section title="🔥 מנות פופולריות">
-          <div className="space-y-2">
-            {popularItems.map((item, i) => (
-              <div key={item.name} className="flex items-center gap-3">
-                <span className="text-xs font-bold text-muted-foreground w-5 text-center">{i + 1}</span>
-                <div className="flex-1 min-w-0">
-                  <div className="flex justify-between items-center mb-0.5">
-                    <span className="text-sm text-foreground truncate">{item.name}</span>
-                    <span className="text-xs text-muted-foreground shrink-0 mr-2">{item.qty} יח׳ · {fmtCurrency(item.revenue)}</span>
-                  </div>
-                  <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                    <div className="h-full bg-primary rounded-full" style={{ width: `${(item.qty / maxItemQty) * 100}%` }} />
+        <SectionCard title="מנות פופולריות" icon={ArrowUpRight}>
+          <div className="space-y-2.5">
+            {popularItems.map((item, i) => {
+              const rankColors = ['text-amber-500', 'text-slate-400', 'text-orange-400'];
+              return (
+                <div key={item.name} className="flex items-center gap-3">
+                  <span className={`text-xs font-black shrink-0 w-6 text-center ${rankColors[i] ?? 'text-muted-foreground'}`}>{i + 1}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-sm text-foreground font-medium truncate">{item.name}</span>
+                      <span className="text-xs text-muted-foreground shrink-0 mr-2">{item.qty} יח׳ · {fmtCurrency(item.revenue)}</span>
+                    </div>
+                    <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                      <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${(item.qty / maxItemQty) * 100}%` }} />
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
-        </Section>
+        </SectionCard>
       )}
 
       {/* השוואה לתקופה קודמת */}
-      <Section title="📊 השוואה לתקופה הקודמת (אוטומטי)">
+      <SectionCard title="השוואה לתקופה הקודמת" icon={GitCompare}>
         <div className="grid grid-cols-3 gap-3">
           {[
             { label: 'הכנסות', current: stats.totalRevenue, prev: prevRevenueTotal, fmt: fmtCurrency },
@@ -396,21 +383,24 @@ const AdminAnalytics = () => {
             const diff = item.prev > 0 ? ((item.current - item.prev) / item.prev) * 100 : 0;
             const up = diff >= 0;
             return (
-              <div key={item.label} className="bg-muted/30 rounded-xl p-3 text-center">
-                <p className="text-xs text-muted-foreground">{item.label}</p>
-                <p className="text-lg font-bold text-foreground mt-1">{item.fmt(item.current)}</p>
-                <p className="text-xs text-muted-foreground">לעומת {item.fmt(item.prev)}</p>
-                <p className={`text-xs font-medium mt-1 ${up ? 'text-green-600' : 'text-red-600'}`}>
+              <div key={item.label} className="bg-muted/30 border border-border/50 rounded-xl p-3 text-center">
+                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">{item.label}</p>
+                <p className="text-lg font-black text-foreground mt-1.5 leading-none">{item.fmt(item.current)}</p>
+                <p className="text-xs text-muted-foreground mt-1">לעומת {item.fmt(item.prev)}</p>
+                <p className={`text-xs font-bold mt-1 ${up ? 'text-emerald-600' : 'text-red-600'}`}>
                   {up ? '▲' : '▼'} {Math.abs(diff).toFixed(1)}%
                 </p>
               </div>
             );
           })}
         </div>
-      </Section>
+      </SectionCard>
 
     </div>
   );
 };
 
-export default AdminAnalytics;
+function GatedAdminAnalytics() {
+  return <FeatureGate feature="analytics"><AdminAnalytics /></FeatureGate>;
+}
+export default GatedAdminAnalytics;

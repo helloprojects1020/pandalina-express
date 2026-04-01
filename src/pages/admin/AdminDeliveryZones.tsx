@@ -9,6 +9,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from '@/com
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { toast } from '@/hooks/use-toast';
 import { Plus, Pencil, Trash2, Loader2, Truck, MapPin, Search } from 'lucide-react';
+import { FeatureGate } from '@/components/admin/FeatureGate';
+import { PageHeader, SectionCard, EmptyState, LoadingState } from '@/components/admin/AdminUI';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any;
@@ -173,32 +175,26 @@ const AdminDeliveryZones = () => {
     setZones(prev => prev.map(z => z.id === id ? { ...z, active } : z));
   };
 
-  if (!restaurantId || loading) return (
-    <div className="flex items-center justify-center py-20">
-      <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-    </div>
-  );
+  if (!restaurantId || loading) return <LoadingState />;
 
   return (
     <div className="space-y-6" dir="rtl">
 
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">אזורי משלוח</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">הגדר לאן המסעדה מספקת משלוחים ובאיזה מחיר</p>
-        </div>
-        <Button onClick={openCreate} size="sm">
-          <Plus className="w-4 h-4 ml-1" /> הוסף אזור
-        </Button>
-      </div>
+      <PageHeader
+        title="אזורי משלוח"
+        description="הגדר לאן המסעדה מספקת משלוחים ובאיזה מחיר"
+        actions={
+          <Button onClick={openCreate} size="sm">
+            <Plus className="w-4 h-4 ml-1" /> הוסף אזור
+          </Button>
+        }
+      />
 
       {zones.length === 0 ? (
-        <div className="bg-card rounded-2xl p-8 shadow-sm text-center">
-          <Truck className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
-          <p className="text-muted-foreground">אין אזורי משלוח. הוסף אזור ראשון.</p>
-        </div>
+        <EmptyState icon={Truck} title="אין אזורי משלוח" description="הוסף את האזור הראשון" />
       ) : (
-        <div className="space-y-2">
+        <SectionCard title="אזורי משלוח פעילים" icon={Truck} noPadding>
+        <div className="space-y-2 p-4">
           {zones.map(zone => (
             <div key={zone.id} className={`bg-card rounded-xl p-4 shadow-sm flex items-center gap-4 ${!zone.active ? 'opacity-60' : ''}`}>
               <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
@@ -257,6 +253,7 @@ const AdminDeliveryZones = () => {
             </div>
           ))}
         </div>
+        </SectionCard>
       )}
 
       {/* Sheet */}
@@ -368,4 +365,7 @@ const AdminDeliveryZones = () => {
   );
 };
 
-export default AdminDeliveryZones;
+function GatedAdminDeliveryZones() {
+  return <FeatureGate feature="delivery_zones"><AdminDeliveryZones /></FeatureGate>;
+}
+export default GatedAdminDeliveryZones;

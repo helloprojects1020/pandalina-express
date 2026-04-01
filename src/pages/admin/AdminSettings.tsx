@@ -6,7 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
-import { Loader2, Save } from 'lucide-react';
+import { Loader2, Save, Store, ShoppingBag, Clock, Package, CreditCard, Check, Sparkles } from 'lucide-react';
+import { PageHeader, SectionCard, LoadingState } from '@/components/admin/AdminUI';
+import { useFeatureFlags } from '@/hooks/useFeatureFlags';
+import { PLAN_RANK, type PlanSlug } from '@/types/featureFlags';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any;
@@ -32,6 +35,125 @@ const DAY_LABELS: Record<string, string> = {
 const defaultHours = () => Object.fromEntries(
   DAYS.map(d => [d, { open: '11:00', close: '23:00', closed: d === 'saturday' }])
 );
+
+// ── Plan definitions ──────────────────────────────────────────────────────────
+
+const PLANS: {
+  slug: PlanSlug;
+  name: string;
+  price: string;
+  description: string;
+  features: string[];
+  badge: string;
+  border: string;
+}[] = [
+  {
+    slug: 'free',
+    name: 'Free',
+    price: 'חינם',
+    description: 'מנהלי תפריט והזמנות בסיסי',
+    badge:  'bg-slate-100 text-slate-700 border-slate-200',
+    border: 'border-slate-200',
+    features: ['הזמנות', 'ניהול תפריט'],
+  },
+  {
+    slug: 'pro',
+    name: 'Pro',
+    price: '₪149 / חודש',
+    description: 'חבילה מלאה לתפעול מסעדה צומחת',
+    badge:  'bg-blue-100 text-blue-700 border-blue-300',
+    border: 'border-blue-300',
+    features: ['הכל ב-Free', 'לקוחות', 'אזורי משלוח', 'אנליטיקה', 'מלאי', 'דוחות X/Z', 'דוח יומי', 'צוות', 'ביצועי תפריט', 'ייצוא'],
+  },
+  {
+    slug: 'enterprise',
+    name: 'Enterprise',
+    price: '₪499 / חודש',
+    description: 'אוטומציה ודוחות מתקדמים',
+    badge:  'bg-purple-100 text-purple-700 border-purple-300',
+    border: 'border-purple-300',
+    features: ['הכל ב-Pro', 'עלויות ורווחיות', 'אוטומציה WhatsApp', 'אנליטיקה מתקדמת'],
+  },
+];
+
+// ── Subscription section ──────────────────────────────────────────────────────
+
+function SubscriptionSection() {
+  const { plan } = useFeatureFlags();
+  const currentRank = PLAN_RANK[plan];
+
+  return (
+    <SectionCard title="מנוי ותוכנית" icon={CreditCard}>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {PLANS.map(p => {
+          const isCurrent  = p.slug === plan;
+          const isUpgrade  = PLAN_RANK[p.slug] > currentRank;
+          const isDowngrade = PLAN_RANK[p.slug] < currentRank;
+          return (
+            <div
+              key={p.slug}
+              className={`relative rounded-2xl border-2 p-5 space-y-3 transition-shadow ${
+                isCurrent
+                  ? `${p.border} shadow-md`
+                  : 'border-border/50 hover:border-border'
+              }`}
+            >
+              {isCurrent && (
+                <span className={`absolute top-3 left-3 text-[10px] font-black px-2 py-0.5 rounded-full border ${p.badge}`}>
+                  התוכנית שלך
+                </span>
+              )}
+              <div className="pt-4">
+                <p className="font-black text-foreground text-base flex items-center gap-1.5">
+                  {p.slug !== 'free' && <Sparkles className="w-3.5 h-3.5 text-yellow-500" />}
+                  {p.name}
+                </p>
+                <p className="text-lg font-bold text-foreground mt-0.5">{p.price}</p>
+                <p className="text-xs text-muted-foreground mt-1">{p.description}</p>
+              </div>
+
+              <ul className="space-y-1.5">
+                {p.features.map(f => (
+                  <li key={f} className="flex items-center gap-2 text-xs text-foreground/80">
+                    <Check className="w-3 h-3 text-green-500 flex-shrink-0" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+
+              {isUpgrade && (
+                <a
+                  href={`mailto:hello@bitelyx.com?subject=שדרוג לתוכנית ${p.name}`}
+                  className={`flex items-center justify-center gap-1.5 w-full mt-2 px-4 py-2 rounded-xl text-white text-xs font-semibold transition-colors ${
+                    p.slug === 'pro' ? 'bg-blue-600 hover:bg-blue-500' : 'bg-purple-600 hover:bg-purple-500'
+                  }`}
+                >
+                  שדרג ל-{p.name}
+                </a>
+              )}
+              {isDowngrade && (
+                <p className="text-[11px] text-muted-foreground text-center pt-1">
+                  לשינוי תוכנית צור קשר
+                </p>
+              )}
+              {isCurrent && (
+                <p className="text-[11px] text-green-600 font-semibold text-center pt-1">
+                  פעיל
+                </p>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <p className="text-xs text-muted-foreground text-center mt-3">
+        לשאלות ושדרוג:{' '}
+        <a href="mailto:hello@bitelyx.com" className="text-blue-600 hover:underline font-medium">
+          hello@bitelyx.com
+        </a>
+      </p>
+    </SectionCard>
+  );
+}
 
 const SaveButton = ({ onClick, saving }: { onClick: () => void; saving: boolean }) => (
   <Button onClick={onClick} disabled={saving}>
@@ -114,21 +236,18 @@ const AdminSettings = () => {
     setSaving(false);
   };
 
-  if (loading) return (
-    <div className="flex items-center justify-center py-20">
-      <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-    </div>
-  );
+  if (loading) return <LoadingState />;
 
   return (
     <div className="space-y-6 max-w-2xl" dir="rtl">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-foreground">הגדרות</h1>
-        <SaveButton onClick={handleSave} saving={saving} />
-      </div>
+      <PageHeader
+        title="הגדרות"
+        actions={<SaveButton onClick={handleSave} saving={saving} />}
+      />
 
-      <section className="bg-card rounded-2xl p-6 shadow-sm space-y-4">
-        <h2 className="font-semibold text-foreground">פרטי המסעדה</h2>
+      <SubscriptionSection />
+
+      <SectionCard title="פרטי המסעדה" icon={Store}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1">
             <Label>שם המסעדה</Label>
@@ -147,10 +266,9 @@ const AdminSettings = () => {
             />
           </div>
         </div>
-      </section>
+      </SectionCard>
 
-      <section className="bg-card rounded-2xl p-6 shadow-sm space-y-4">
-        <h2 className="font-semibold text-foreground">סוגי הזמנה</h2>
+      <SectionCard title="סוגי הזמנה" icon={ShoppingBag}>
         <div className="space-y-3">
           <label className="flex items-center justify-between">
             <span className="text-sm">משלוח</span>
@@ -165,7 +283,7 @@ const AdminSettings = () => {
             <Switch checked={form.dine_in_enabled} onCheckedChange={v => setForm(f => ({ ...f, dine_in_enabled: v }))} />
           </label>
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4 mt-4">
           <div className="space-y-1">
             <Label>דמי משלוח (₪)</Label>
             <Input type="number" value={form.delivery_fee} onChange={e => setForm(f => ({ ...f, delivery_fee: +e.target.value }))} />
@@ -175,10 +293,9 @@ const AdminSettings = () => {
             <Input type="number" value={form.min_order_amount} onChange={e => setForm(f => ({ ...f, min_order_amount: +e.target.value }))} />
           </div>
         </div>
-      </section>
+      </SectionCard>
 
-      <section className="bg-card rounded-2xl p-6 shadow-sm space-y-4">
-        <h2 className="font-semibold text-foreground">שעות פתיחה</h2>
+      <SectionCard title="שעות פתיחה" icon={Clock}>
         <div className="space-y-3">
           {DAYS.map(day => {
             const h = form.opening_hours[day] ?? { open: '11:00', close: '23:00', closed: false };
@@ -217,15 +334,13 @@ const AdminSettings = () => {
             );
           })}
         </div>
-      </section>
+      </SectionCard>
 
-      <section className="bg-card rounded-2xl p-6 shadow-sm space-y-4">
-        <div>
-          <h2 className="font-semibold text-foreground">ניהול מלאי</h2>
-          <p className="text-xs text-muted-foreground mt-1">
-            הגדרות אלו שולטות על מעקב המלאי ועל תצוגת פריטים חסרים. כבויות כברירת מחדל.
-          </p>
-        </div>
+      <SectionCard
+        title="ניהול מלאי"
+        description="הגדרות אלו שולטות על מעקב המלאי ועל תצוגת פריטים חסרים. כבויות כברירת מחדל."
+        icon={Package}
+      >
         <div className="space-y-3">
           <label className="flex items-center justify-between">
             <div>
@@ -252,7 +367,7 @@ const AdminSettings = () => {
             />
           </label>
         </div>
-      </section>
+      </SectionCard>
 
       <div className="flex justify-end pb-6">
         <SaveButton onClick={handleSave} saving={saving} />

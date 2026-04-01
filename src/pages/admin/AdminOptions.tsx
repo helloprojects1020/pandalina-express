@@ -9,7 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from '@/components/ui/sheet';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Pencil, Trash2, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, Pencil, Trash2, Loader2, ChevronDown, ChevronUp, Settings2 } from 'lucide-react';
+import { PageHeader, SectionCard, EmptyState, LoadingState } from '@/components/admin/AdminUI';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any;
@@ -263,43 +264,43 @@ const AdminOptions = () => {
 
   // ─── Render ─────────────────────────────────────────────────────────────────
 
-  if (!restaurantId || loading) return (
-    <div className="flex items-center justify-center py-20">
-      <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-    </div>
-  );
+  if (!restaurantId || loading) return <LoadingState />;
 
   return (
     <div className="space-y-6" dir="rtl">
 
-      {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="text-2xl font-bold text-foreground">ניהול תוספות</h1>
-        <div className="flex gap-2">
-          <Select value={filterItem} onValueChange={setFilterItem}>
-            <SelectTrigger className="w-44 h-9 text-sm">
-              <SelectValue placeholder="כל המנות" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">כל המנות</SelectItem>
-              {menuItems.map(i => (
-                <SelectItem key={i.id} value={i.id}>{i.name_he}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button onClick={openCreateGroup} size="sm">
-            <Plus className="w-4 h-4 ml-1" /> הוסף קבוצה
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="אפשרויות ותוספות"
+        actions={
+          <div className="flex gap-2">
+            <Select value={filterItem} onValueChange={setFilterItem}>
+              <SelectTrigger className="w-44 h-9 text-sm">
+                <SelectValue placeholder="כל המנות" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">כל המנות</SelectItem>
+                {menuItems.map(i => (
+                  <SelectItem key={i.id} value={i.id}>{i.name_he}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button onClick={openCreateGroup} size="sm">
+              <Plus className="w-4 h-4 ml-1" /> הוסף קבוצה
+            </Button>
+          </div>
+        }
+      />
 
-      {/* Groups list */}
+      <SectionCard title="קבוצות אפשרויות" icon={Settings2} noPadding>
       {filteredGroups.length === 0 ? (
-        <div className="bg-card rounded-2xl p-8 shadow-sm text-center">
-          <p className="text-muted-foreground">אין תוספות. הוסף קבוצה ראשונה.</p>
-        </div>
+        <EmptyState
+          icon={Settings2}
+          title="אין תוספות"
+          description="הוסף קבוצת אפשרויות ראשונה"
+          action={<Button onClick={openCreateGroup}>הוסף קבוצה</Button>}
+        />
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-3 p-5">
           {filteredGroups.map(group => {
             const groupValues = getGroupValues(group.id);
             const isExpanded = expandedGroups.has(group.id);
@@ -417,6 +418,7 @@ const AdminOptions = () => {
           })}
         </div>
       )}
+      </SectionCard>
 
       {/* ── Group Sheet ── */}
       <Sheet open={groupSheetOpen} onOpenChange={setGroupSheetOpen}>

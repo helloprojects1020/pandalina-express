@@ -15,6 +15,7 @@ import {
   Settings, History, Zap, AlertTriangle, CheckCircle,
   TrendingUp, Package, Users, MessageSquare, X, RefreshCw
 } from 'lucide-react';
+import { PageHeader, SectionCard, EmptyState, LoadingState } from '@/components/admin/AdminUI';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any;
@@ -341,27 +342,26 @@ const AdminReminders = () => {
     setReminders(prev => prev.map(r => r.id === id ? { ...r, is_active } : r));
   };
 
-  if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>;
+  if (loading) return <LoadingState />;
 
   const activeCount = reminders.filter(r => r.is_active).length;
 
   return (
     <div className="space-y-5" dir="rtl">
 
-      {/* Header */}
-      <div className="flex items-start justify-between flex-wrap gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">מרכז תזכורות והתראות</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">{activeCount} תזכורות פעילות · Scheduler רץ</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-700 border border-emerald-200">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            Scheduler פעיל
+      <PageHeader
+        title="תזכורות"
+        description={`${activeCount} תזכורות פעילות · Scheduler רץ`}
+        actions={
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-700 border border-emerald-200">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              Scheduler פעיל
+            </div>
+            <Button size="sm" onClick={openNew}><Plus className="w-4 h-4 ml-1" />תזכורת חדשה</Button>
           </div>
-          <Button size="sm" onClick={openNew}><Plus className="w-4 h-4 ml-1" />תזכורת חדשה</Button>
-        </div>
-      </div>
+        }
+      />
 
       {/* Smart alerts bar */}
       {smartAlerts.length > 0 && (
@@ -436,10 +436,7 @@ const AdminReminders = () => {
           </div>
 
           {reminders.length === 0 ? (
-            <div className="bg-card rounded-2xl p-8 text-center shadow-sm">
-              <Bell className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
-              <p className="text-muted-foreground">אין תזכורות. הוסף תזכורת ראשונה.</p>
-            </div>
+            <EmptyState icon={Bell} title="אין תזכורות" description="הגדר תזכורת אוטומטית ראשונה" />
           ) : (
             <div className="space-y-2">
               {reminders.map(r => {
@@ -493,8 +490,8 @@ const AdminReminders = () => {
       {/* ─── Send Tab ─── */}
       {tab === 'send' && (
         <div className="space-y-4">
-          <div className="bg-card rounded-2xl p-5 shadow-sm space-y-4">
-            <h2 className="font-bold text-foreground text-sm flex items-center gap-2"><MessageSquare className="w-4 h-4" />שלח הודעה ידנית</h2>
+          <SectionCard title="שלח הודעה ידנית" icon={MessageSquare}>
+          <div className="space-y-4">
             <div className="space-y-1">
               <Label>מספר טלפון</Label>
               <div className="flex gap-2">
@@ -525,10 +522,10 @@ const AdminReminders = () => {
               שלח WhatsApp
             </Button>
           </div>
+          </SectionCard>
 
           {/* Staff quick send */}
-          <div className="bg-card rounded-2xl p-5 shadow-sm">
-            <h2 className="font-bold text-foreground text-sm mb-3 flex items-center gap-2"><Users className="w-4 h-4" />שלח לעובד מהיר</h2>
+          <SectionCard title="שלח לעובד מהיר" icon={Users}>
             <div className="space-y-2">
               {staff.filter(s => s.phone).map(s => (
                 <div key={s.id} className="flex items-center justify-between bg-muted/20 rounded-xl px-3 py-2.5">
@@ -546,7 +543,7 @@ const AdminReminders = () => {
                 <p className="text-xs text-muted-foreground text-center py-4">אין עובדים עם מספר טלפון</p>
               )}
             </div>
-          </div>
+          </SectionCard>
         </div>
       )}
 
@@ -554,8 +551,8 @@ const AdminReminders = () => {
       {tab === 'owner' && (
         <div className="space-y-4">
           {/* Settings */}
-          <div className="bg-card rounded-2xl p-5 shadow-sm space-y-4">
-            <h2 className="font-bold text-foreground text-sm flex items-center gap-2"><Settings className="w-4 h-4" />הגדרות דוחות לבעל העסק</h2>
+          <SectionCard title="הגדרות דוחות לבעל העסק" icon={Settings}>
+          <div className="space-y-4">
             <div className="space-y-1">
               <Label>מספר טלפון של בעל העסק</Label>
               <Input value={ownerSettings.owner_phone} onChange={e => setOwnerSettings(s => ({ ...s, owner_phone: e.target.value }))} placeholder="050-0000000" />
@@ -588,10 +585,10 @@ const AdminReminders = () => {
               {saving && <Loader2 className="w-4 h-4 ml-1 animate-spin" />}שמור הגדרות
             </Button>
           </div>
+          </SectionCard>
 
           {/* Send report now */}
-          <div className="bg-card rounded-2xl p-5 shadow-sm space-y-3">
-            <h2 className="font-bold text-foreground text-sm flex items-center gap-2"><TrendingUp className="w-4 h-4" />שלח דוח עכשיו</h2>
+          <SectionCard title="שלח דוח עכשיו" icon={TrendingUp}>
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-orange-500/10 border border-orange-200 rounded-xl p-4 text-center">
                 <Clock className="w-8 h-8 text-orange-600 mx-auto mb-2" />
@@ -610,15 +607,14 @@ const AdminReminders = () => {
                 </Button>
               </div>
             </div>
-          </div>
+          </SectionCard>
 
           {/* Preview */}
-          <div className="bg-card rounded-2xl p-5 shadow-sm">
-            <h2 className="font-bold text-foreground text-sm mb-3">תצוגה מקדימה — פורמט הודעה</h2>
+          <SectionCard title="תצוגה מקדימה — פורמט הודעה">
             <div className="bg-muted/30 rounded-xl p-4 text-xs font-mono whitespace-pre-line text-muted-foreground">
               {buildHalfDayReport(3200, 18, 950, 400)}
             </div>
-          </div>
+          </SectionCard>
         </div>
       )}
 
@@ -633,11 +629,7 @@ const AdminReminders = () => {
           </div>
 
           {smartAlerts.length === 0 ? (
-            <div className="bg-card rounded-2xl p-8 text-center shadow-sm">
-              <CheckCircle className="w-10 h-10 text-emerald-500/40 mx-auto mb-3" />
-              <p className="text-foreground font-semibold">הכל תקין!</p>
-              <p className="text-sm text-muted-foreground mt-1">אין התראות כרגע</p>
-            </div>
+            <EmptyState icon={CheckCircle} title="הכל תקין!" description="אין התראות כרגע" />
           ) : (
             <div className="space-y-3">
               {smartAlerts.map(alert => (
@@ -695,10 +687,7 @@ const AdminReminders = () => {
             <Button size="sm" variant="outline" onClick={loadAll}><RefreshCw className="w-3.5 h-3.5 ml-1" />רענן</Button>
           </div>
           {logs.length === 0 ? (
-            <div className="bg-card rounded-2xl p-8 text-center shadow-sm">
-              <History className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
-              <p className="text-muted-foreground">אין היסטוריה עדיין</p>
-            </div>
+            <EmptyState icon={History} title="אין היסטוריה עדיין" />
           ) : (
             <div className="space-y-2">
               {logs.map(log => (

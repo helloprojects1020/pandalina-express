@@ -10,8 +10,10 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Pencil, Trash2, Loader2, Package, AlertTriangle, Search, Truck, ChevronDown, ChevronUp, TrendingUp, TrendingDown, History, ArrowDownCircle } from 'lucide-react';
+import { Plus, Pencil, Trash2, Package, AlertTriangle, Search, Truck, ChevronDown, ChevronUp, TrendingUp, TrendingDown, History, ArrowDownCircle } from 'lucide-react';
 import { DateRangePicker, DateRange } from '@/components/admin/DateRangePicker';
+import { FeatureGate } from '@/components/admin/FeatureGate';
+import { PageHeader, KpiCard, SectionCard, EmptyState, LoadingState } from '@/components/admin/AdminUI';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any;
@@ -180,28 +182,48 @@ const AdminInventory = () => {
   const fmtDate = (d: string) => new Date(d).toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: '2-digit' });
   const fmtDateTime = (d: string) => new Date(d).toLocaleString('he-IL', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
 
-  if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>;
+  if (loading) return <LoadingState />;
 
   const totalUsed = filteredMovements.reduce((s, m) => s + Number(m.quantity_used), 0);
   const topItems = items.map(item => ({ ...item, totalUsed: movements.filter(m => m.inventory_item_id === item.id).reduce((s, m) => s + Number(m.quantity_used), 0) })).sort((a, b) => b.totalUsed - a.totalUsed).slice(0, 5);
+  const outOfStockItems = items.filter(i => i.current_stock === 0);
+  const healthyItems = items.filter(i => i.min_stock === 0 || i.current_stock > i.min_stock);
 
   return (
-    <div className="space-y-6" dir="rtl">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">ניהול מלאי</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">{items.length} מוצרים · {suppliers.length} ספקים</p>
-        </div>
-        <Button onClick={tab === 'inventory' ? openCreateItem : tab === 'suppliers' ? openCreateSupplier : undefined} size="sm"
-          style={{ display: (tab === 'prices' || tab === 'movements') ? 'none' : undefined }}>
-          <Plus className="w-4 h-4 ml-1" />{tab === 'inventory' ? 'הוסף מוצר' : 'הוסף ספק'}
-        </Button>
+    <div className="space-y-5" dir="rtl">
+      <PageHeader
+        title="ניהול מלאי"
+        description={`${items.length} מוצרים · ${suppliers.length} ספקים`}
+        actions={tab !== 'prices' && tab !== 'movements' ? (
+          <Button onClick={tab === 'inventory' ? openCreateItem : openCreateSupplier} size="sm">
+            <Plus className="w-4 h-4 ml-1" />{tab === 'inventory' ? 'הוסף מוצר' : 'הוסף ספק'}
+          </Button>
+        ) : undefined}
+      />
+
+      {/* Stats strip */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <KpiCard label='סה"כ מוצרים' value={items.length} icon={Package} accent="#3b82f6" />
+        <KpiCard label="מלאי תקין" value={healthyItems.length} icon={TrendingUp} accent="#10b981" />
+        <KpiCard label="מלאי נמוך" value={lowStockItems.length} icon={AlertTriangle} accent={lowStockItems.length > 0 ? '#f59e0b' : '#6b7280'} />
+        <KpiCard label="אזל מהמלאי" value={outOfStockItems.length} icon={TrendingDown} accent={outOfStockItems.length > 0 ? '#ef4444' : '#6b7280'} />
       </div>
 
       {lowStockItems.length > 0 && (
-        <div className="bg-red-500/10 border border-red-200 rounded-xl p-4">
-          <div className="flex items-center gap-2 mb-2"><AlertTriangle className="w-4 h-4 text-red-600" /><p className="font-semibold text-sm text-red-700">{lowStockItems.length} מוצרים במלאי נמוך!</p></div>
-          <div className="flex flex-wrap gap-1.5">{lowStockItems.map(item => <span key={item.id} className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">{item.name} ({item.current_stock} {item.unit})</span>)}</div>
+        <div className="bg-amber-500/8 border border-amber-400/30 rounded-2xl p-4">
+          <div className="flex items-center gap-2 mb-2.5">
+            <div className="w-7 h-7 rounded-lg bg-amber-500/15 flex items-center justify-center">
+              <AlertTriangle className="w-4 h-4 text-amber-600" />
+            </div>
+            <p className="font-bold text-sm text-amber-800">{lowStockItems.length} מוצרים דורשים תשומת לב</p>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {lowStockItems.map(item => (
+              <span key={item.id} className={`text-xs px-2.5 py-1 rounded-full font-medium ${item.current_stock === 0 ? 'bg-red-500/10 text-red-700 border border-red-200' : 'bg-amber-500/10 text-amber-700 border border-amber-200'}`}>
+                {item.name} — {item.current_stock} {item.unit}
+              </span>
+            ))}
+          </div>
         </div>
       )}
 
@@ -308,7 +330,7 @@ const AdminInventory = () => {
 
           {movementDateRange && (
             <div className="bg-primary/10 border border-primary/20 rounded-lg px-3 py-2 text-xs text-primary font-medium">
-              📅 {new Date(movementDateRange.from).toLocaleDateString('he-IL')} — {new Date(movementDateRange.to).toLocaleDateString('he-IL')} · {filteredMovements.length} תנועות
+              {new Date(movementDateRange.from).toLocaleDateString('he-IL')} — {new Date(movementDateRange.to).toLocaleDateString('he-IL')} · {filteredMovements.length} תנועות
             </div>
           )}
 
@@ -322,17 +344,16 @@ const AdminInventory = () => {
           </div>
 
           {topItems.length > 0 && (
-            <div className="bg-card rounded-2xl p-4 shadow-sm">
-              <p className="text-sm font-semibold text-foreground mb-3">📊 צריכה לפי מוצר</p>
+            <SectionCard title="צריכה לפי מוצר" icon={TrendingDown}>
               <div className="space-y-2">{topItems.filter(i => i.totalUsed > 0).map(item => {
                 const maxUsed = topItems[0].totalUsed || 1;
                 return (<div key={item.id} className="flex items-center gap-3"><span className="text-xs text-foreground w-24 truncate shrink-0">{item.name}</span><div className="flex-1 h-2 bg-muted rounded-full overflow-hidden"><div className="h-full bg-orange-400 rounded-full" style={{ width: `${(item.totalUsed / maxUsed) * 100}%` }} /></div><span className="text-xs text-muted-foreground shrink-0">{item.totalUsed.toFixed(1)} {item.unit}</span></div>);
               })}</div>
-            </div>
+            </SectionCard>
           )}
 
           {filteredMovements.length === 0 ? (
-            <div className="bg-card rounded-2xl p-8 shadow-sm text-center"><ArrowDownCircle className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" /><p className="text-muted-foreground">{movementDateRange ? 'אין תנועות בטווח זה.' : 'אין תנועות מלאי עדיין.'}</p></div>
+            <EmptyState icon={ArrowDownCircle} title="אין תנועות מלאי" description={movementDateRange ? 'אין תנועות בטווח זה.' : 'תנועות מלאי יופיעו כאן לאחר הזמנות.'} />
           ) : (
             <div className="space-y-2">{filteredMovements.map(mov => {
               const itemName = items.find(i => i.id === mov.inventory_item_id)?.name ?? 'מוצר';
@@ -348,7 +369,7 @@ const AdminInventory = () => {
                     </div>
                     <p className="text-xs text-muted-foreground mt-0.5">{fmtDateTime(mov.created_at)}</p>
                   </div>
-                  <Badge variant="outline" className="text-xs shrink-0">{mov.movement_type === 'order' ? '🛒 הזמנה' : mov.movement_type}</Badge>
+                  <Badge variant="outline" className="text-xs shrink-0">{mov.movement_type === 'order' ? 'הזמנה' : mov.movement_type}</Badge>
                 </div>
               );
             })}</div>
@@ -418,7 +439,7 @@ const AdminInventory = () => {
 
           {priceDateRange && (
             <div className="bg-primary/10 border border-primary/20 rounded-lg px-3 py-2 text-xs text-primary font-medium">
-              📅 {new Date(priceDateRange.from).toLocaleDateString('he-IL')} — {new Date(priceDateRange.to).toLocaleDateString('he-IL')} · {filteredPriceHistory.length} שינויים
+              {new Date(priceDateRange.from).toLocaleDateString('he-IL')} — {new Date(priceDateRange.to).toLocaleDateString('he-IL')} · {filteredPriceHistory.length} שינויים
             </div>
           )}
 
@@ -506,4 +527,7 @@ const AdminInventory = () => {
   );
 };
 
-export default AdminInventory;
+function GatedAdminInventory() {
+  return <FeatureGate feature="inventory"><AdminInventory /></FeatureGate>;
+}
+export default GatedAdminInventory;

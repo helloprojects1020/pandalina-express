@@ -3,11 +3,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import {
   UtensilsCrossed, ClipboardList, Layers, Settings, TrendingUp,
-  Clock, CheckCircle, XCircle, AlertCircle, Wifi, RefreshCw,
-  Star, Calendar, ArrowUpRight, Zap, Package, Users
+  Clock, CheckCircle, XCircle, RefreshCw,
+  Calendar, ArrowUpRight, Zap, Package
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { PageHeader, KpiCard, SectionCard, StatusBadge, EmptyState, LoadingState } from '@/components/admin/AdminUI';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any;
@@ -18,15 +19,6 @@ type PopularItem = { name: string; count: number; revenue: number; };
 type DayRevenue = { date: string; label: string; revenue: number; orders: number; };
 type HourStat = { hour: number; label: string; orders: number; };
 
-const statusColors: Record<string, string> = {
-  new: 'bg-blue-500/15 text-blue-400 border border-blue-500/20',
-  preparing: 'bg-amber-500/15 text-amber-400 border border-amber-500/20',
-  ready: 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20',
-  completed: 'bg-slate-500/15 text-slate-400 border border-slate-500/20',
-  cancelled: 'bg-red-500/15 text-red-400 border border-red-500/20',
-};
-const statusLabels: Record<string, string> = { new: 'חדשה', preparing: 'בהכנה', ready: 'מוכנה', completed: 'הושלמה', cancelled: 'בוטלה' };
-const orderTypeLabels: Record<string, string> = { pickup: 'איסוף', delivery: 'משלוח', dine_in: 'שולחן' };
 
 const AdminDashboard = () => {
   const { restaurantId } = useAuth();
@@ -147,90 +139,72 @@ const AdminDashboard = () => {
   const maxRevenue = Math.max(...revenueByDay.map(d => d.revenue), 1);
   const maxOrders = Math.max(...hourStats.map(h => h.orders), 1);
 
-  if (loading) return (
-    <div className="flex items-center justify-center py-20">
-      <div className="w-5 h-5 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-    </div>
-  );
+  if (loading) return <LoadingState />;
 
   const activeOrders = statusCounts.new + statusCounts.preparing + statusCounts.ready;
 
   return (
     <div className="space-y-5" dir="rtl">
 
-      {/* ─── Header ─── */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <h1 className="text-2xl font-black tracking-tight text-foreground">לוח בקרה</h1>
-            <span className={`flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full transition-all ${isLive ? 'bg-emerald-500/15 text-emerald-500' : 'bg-muted text-muted-foreground'}`}>
-              <span className={`w-1.5 h-1.5 rounded-full ${isLive ? 'bg-emerald-500 animate-pulse' : 'bg-muted-foreground'}`} />
-              {isLive ? 'Live' : 'מחובר'}
-            </span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-0.5">עדכון אחרון: {fmtTime(lastRefresh.toISOString())}</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Select value={period} onValueChange={v => setPeriod(v as 'week' | 'month')}>
-            <SelectTrigger className="h-8 text-xs w-36 bg-muted/40 border-0"><SelectValue /></SelectTrigger>
-            <SelectContent><SelectItem value="week">7 ימים אחרונים</SelectItem><SelectItem value="month">30 ימים אחרונים</SelectItem></SelectContent>
-          </Select>
-          <button onClick={fetchStats} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-muted/40 hover:bg-muted text-xs font-medium text-muted-foreground transition-all">
-            <RefreshCw className="w-3.5 h-3.5" />רענן
-          </button>
-        </div>
-      </div>
+      <PageHeader
+        title="לוח בקרה"
+        description={`עדכון אחרון: ${fmtTime(lastRefresh.toISOString())}`}
+        isLive={isLive}
+        actions={
+          <>
+            <Select value={period} onValueChange={v => setPeriod(v as 'week' | 'month')}>
+              <SelectTrigger className="h-8 text-xs w-36 bg-muted/40 border-0"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="week">7 ימים אחרונים</SelectItem>
+                <SelectItem value="month">30 ימים אחרונים</SelectItem>
+              </SelectContent>
+            </Select>
+            <button onClick={fetchStats} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-muted/40 hover:bg-muted text-xs font-medium text-muted-foreground transition-all">
+              <RefreshCw className="w-3.5 h-3.5" />רענן
+            </button>
+          </>
+        }
+      />
 
-      {/* ─── Hero KPIs ─── */}
+      {/* Hero KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {[
-          { label: 'הכנסות היום', value: fmtCurrency(revenueToday), sub: `${ordersToday} הזמנות`, accent: '#10b981', bg: 'from-emerald-500/10 to-emerald-500/5', icon: TrendingUp, link: '/admin/orders' },
-          { label: 'הכנסות תקופה', value: fmtCurrency(periodRevenue), sub: `${periodOrders} הזמנות`, accent: '#3b82f6', bg: 'from-blue-500/10 to-blue-500/5', icon: Calendar, link: '/admin/analytics' },
-          { label: 'ממוצע הזמנה', value: fmtCurrency(avgOrderValue), sub: 'בתקופה', accent: '#8b5cf6', bg: 'from-violet-500/10 to-violet-500/5', icon: Zap, link: '/admin/analytics' },
-          { label: 'הזמנות פעילות', value: activeOrders, sub: `${statusCounts.new} ממתינות`, accent: activeOrders > 0 ? '#f59e0b' : '#6b7280', bg: activeOrders > 0 ? 'from-amber-500/10 to-amber-500/5' : 'from-muted/30 to-muted/10', icon: ClipboardList, link: '/admin/orders' },
-        ].map(kpi => (
-          <Link key={kpi.label} to={kpi.link}
-            className={`group relative bg-gradient-to-br ${kpi.bg} border border-border/50 rounded-2xl p-4 hover:border-border transition-all hover:shadow-lg overflow-hidden`}>
-            <div className="absolute top-0 left-0 w-full h-0.5 opacity-60" style={{ background: `linear-gradient(90deg, ${kpi.accent}, transparent)` }} />
-            <div className="flex items-start justify-between mb-3">
-              <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: `${kpi.accent}20` }}>
-                <kpi.icon className="w-4.5 h-4.5" style={{ color: kpi.accent }} />
-              </div>
-              <ArrowUpRight className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-            </div>
-            <p className="text-xl font-black text-foreground tracking-tight">{kpi.value}</p>
-            <p className="text-xs text-muted-foreground mt-0.5">{kpi.label}</p>
-            <p className="text-[11px] font-medium mt-0.5" style={{ color: kpi.accent }}>{kpi.sub}</p>
-          </Link>
-        ))}
+        <KpiCard label="הכנסות היום" value={fmtCurrency(revenueToday)} sub={`${ordersToday} הזמנות`} accent="#10b981" icon={TrendingUp} href="/admin/orders" />
+        <KpiCard label="הכנסות תקופה" value={fmtCurrency(periodRevenue)} sub={`${periodOrders} הזמנות`} accent="#3b82f6" icon={Calendar} href="/admin/analytics" />
+        <KpiCard label="ממוצע הזמנה" value={fmtCurrency(avgOrderValue)} sub="בתקופה" accent="#8b5cf6" icon={Zap} href="/admin/analytics" />
+        <KpiCard
+          label="הזמנות פעילות"
+          value={activeOrders}
+          sub={`${statusCounts.new} ממתינות`}
+          accent={activeOrders > 0 ? '#f59e0b' : '#6b7280'}
+          icon={ClipboardList}
+          href="/admin/orders"
+        />
       </div>
 
-      {/* ─── Alert bar ─── */}
+      {/* Alert bar */}
       {statusCounts.new > 0 && (
         <Link to="/admin/orders"
-          className="flex items-center justify-between px-4 py-3 bg-amber-500/10 border border-amber-500/20 rounded-xl hover:bg-amber-500/15 transition-all">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-            <span className="text-sm font-semibold text-amber-600">{statusCounts.new} הזמנות חדשות ממתינות לטיפול</span>
+          className="flex items-center justify-between px-4 py-3 bg-amber-500/8 border border-amber-400/30 rounded-xl hover:bg-amber-500/12 transition-all">
+          <div className="flex items-center gap-2.5">
+            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse shrink-0" />
+            <span className="text-sm font-semibold text-amber-700">{statusCounts.new} הזמנות חדשות ממתינות לטיפול</span>
           </div>
-          <span className="text-xs font-bold text-amber-600 flex items-center gap-1">טפל עכשיו <ArrowUpRight className="w-3.5 h-3.5" /></span>
+          <span className="text-xs font-bold text-amber-700 flex items-center gap-1 shrink-0">טפל עכשיו <ArrowUpRight className="w-3.5 h-3.5" /></span>
         </Link>
       )}
 
-      {/* ─── Revenue Chart ─── */}
-      <div className="bg-card border border-border/50 rounded-2xl p-5 shadow-sm">
-        <div className="flex items-center justify-between mb-5">
-          <div>
-            <h2 className="font-bold text-foreground text-sm">הכנסות לפי יום</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">סה"כ: {fmtCurrency(periodRevenue)}</p>
-          </div>
-          <div className="text-xs text-muted-foreground bg-muted/40 px-2.5 py-1 rounded-lg">{period === 'week' ? '7 ימים' : '30 ימים'}</div>
-        </div>
+      {/* Revenue Chart */}
+      <SectionCard
+        title="הכנסות לפי יום"
+        description={`סה"כ: ${fmtCurrency(periodRevenue)}`}
+        icon={TrendingUp}
+        action={<span className="text-[11px] text-muted-foreground bg-muted/40 px-2.5 py-1 rounded-lg">{period === 'week' ? '7 ימים' : '30 ימים'}</span>}
+      >
         {revenueByDay.every(d => d.revenue === 0) ? (
-          <div className="flex items-center justify-center h-24 text-muted-foreground text-sm">אין נתונים לתקופה זו</div>
+          <EmptyState title="אין נתונים לתקופה זו" />
         ) : (
           <div className="flex items-end gap-[3px] h-28 overflow-x-auto">
-            {revenueByDay.map((day, i) => {
+            {revenueByDay.map(day => {
               const height = Math.max((day.revenue / maxRevenue) * 96, day.revenue > 0 ? 4 : 0);
               const isToday = day.date === new Date().toISOString().slice(0, 10);
               return (
@@ -243,7 +217,7 @@ const AdminDashboard = () => {
                     )}
                   </div>
                   <div className="w-full flex items-end justify-center" style={{ height: '96px' }}>
-                    <div className={`w-full rounded-t-sm transition-all duration-300 ${isToday ? 'bg-primary' : 'bg-primary/40 group-hover/bar:bg-primary/70'}`}
+                    <div className={`w-full rounded-t-sm transition-all duration-300 ${isToday ? 'bg-primary' : 'bg-primary/35 group-hover/bar:bg-primary/65'}`}
                       style={{ height: `${height}px` }} />
                   </div>
                   <p className={`text-[9px] ${isToday ? 'text-primary font-bold' : 'text-muted-foreground'}`}>{day.label}</p>
@@ -252,34 +226,32 @@ const AdminDashboard = () => {
             })}
           </div>
         )}
-      </div>
+      </SectionCard>
 
-      {/* ─── Status + Popular ─── */}
+      {/* Status + Popular */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
-        {/* סטטוס */}
-        <div className="bg-card border border-border/50 rounded-2xl p-5 shadow-sm">
-          <h2 className="font-bold text-foreground text-sm mb-4">סטטוס הזמנות</h2>
+        <SectionCard title="סטטוס הזמנות" icon={ClipboardList}>
           <div className="grid grid-cols-5 gap-2 mb-4">
-            {[
-              { key: 'new', label: 'חדשות', icon: Clock },
-              { key: 'preparing', label: 'בהכנה', icon: Clock },
-              { key: 'ready', label: 'מוכנות', icon: CheckCircle },
-              { key: 'completed', label: 'הושלמו', icon: CheckCircle },
-              { key: 'cancelled', label: 'בוטלו', icon: XCircle },
-            ].map(({ key, label, icon: Icon }) => (
-              <div key={key} className={`rounded-xl p-2.5 text-center ${statusColors[key]}`}>
-                <p className="text-lg font-black">{statusCounts[key as keyof typeof statusCounts]}</p>
-                <p className="text-[10px] font-medium mt-0.5 opacity-80">{label}</p>
+            {([
+              { key: 'new',       label: 'חדשות',   accent: '#3b82f6' },
+              { key: 'preparing', label: 'בהכנה',   accent: '#f59e0b' },
+              { key: 'ready',     label: 'מוכנות',  accent: '#10b981' },
+              { key: 'completed', label: 'הושלמו',  accent: '#64748b' },
+              { key: 'cancelled', label: 'בוטלו',   accent: '#ef4444' },
+            ] as { key: string; label: string; accent: string }[]).map(({ key, label, accent }) => (
+              <div key={key} className="rounded-xl p-2.5 text-center border border-border/50"
+                style={{ background: `${accent}10` }}>
+                <p className="text-lg font-black" style={{ color: accent }}>
+                  {statusCounts[key as keyof typeof statusCounts]}
+                </p>
+                <p className="text-[10px] font-semibold mt-0.5 text-muted-foreground">{label}</p>
               </div>
             ))}
           </div>
-
-          {/* שעות שיא */}
-          <div className="mt-4 pt-4 border-t border-border/50">
-            <p className="text-xs font-semibold text-muted-foreground mb-3 flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5" />שעות שיא
-            </p>
+          {/* Peak hours */}
+          <div className="pt-4 border-t border-border/50">
+            <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-3">שעות שיא</p>
             {hourStats.length === 0 ? (
               <p className="text-xs text-muted-foreground">אין נתונים</p>
             ) : (
@@ -290,38 +262,43 @@ const AdminDashboard = () => {
                     <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
                       <div className="h-full bg-amber-500 rounded-full transition-all" style={{ width: `${(h.orders / maxOrders) * 100}%` }} />
                     </div>
-                    <span className="text-[11px] text-muted-foreground shrink-0 w-12 text-left">{h.orders} הזמנות</span>
+                    <span className="text-[11px] text-muted-foreground shrink-0">{h.orders}</span>
                   </div>
                 ))}
               </div>
             )}
           </div>
-        </div>
+        </SectionCard>
 
-        {/* מנות פופולריות */}
-        <div className="bg-card border border-border/50 rounded-2xl p-5 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold text-foreground text-sm">מנות פופולריות</h2>
-            <Link to="/admin/costing" className="text-[11px] text-primary flex items-center gap-0.5 hover:underline">ניתוח <ArrowUpRight className="w-3 h-3" /></Link>
-          </div>
+        <SectionCard
+          title="מנות פופולריות"
+          icon={UtensilsCrossed}
+          action={
+            <Link to="/admin/costing" className="text-[11px] text-primary flex items-center gap-0.5 hover:underline">
+              ניתוח <ArrowUpRight className="w-3 h-3" />
+            </Link>
+          }
+        >
           {popularItems.length === 0 ? (
-            <div className="flex items-center justify-center h-24 text-muted-foreground text-sm">אין נתונים</div>
+            <EmptyState title="אין נתונים לתקופה זו" />
           ) : (
             <div className="space-y-3">
               {popularItems.map((item, idx) => {
-                const medals = ['🥇', '🥈', '🥉'];
+                const rankColors = ['#f59e0b', '#94a3b8', '#f97316'];
                 const pct = Math.round((item.count / (popularItems[0]?.count || 1)) * 100);
                 return (
-                  <div key={item.name} className="flex items-center gap-3 group/item">
-                    <span className="text-base shrink-0 w-6 text-center">{medals[idx] ?? <span className="text-xs font-bold text-muted-foreground">{idx + 1}</span>}</span>
+                  <div key={item.name} className="flex items-center gap-3">
+                    <span className="text-xs font-black w-5 text-center shrink-0" style={{ color: rankColors[idx] ?? '#6b7280' }}>
+                      {idx + 1}
+                    </span>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
                         <p className="text-xs font-semibold text-foreground truncate">{item.name}</p>
                         <span className="text-[11px] text-muted-foreground shrink-0 mr-2">{item.count}×</span>
                       </div>
                       <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                        <div className={`h-full rounded-full transition-all ${idx === 0 ? 'bg-amber-500' : idx === 1 ? 'bg-slate-400' : idx === 2 ? 'bg-orange-400' : 'bg-primary/40'}`}
-                          style={{ width: `${pct}%` }} />
+                        <div className="h-full rounded-full transition-all"
+                          style={{ width: `${pct}%`, background: rankColors[idx] ?? '#6b7280' }} />
                       </div>
                     </div>
                   </div>
@@ -329,55 +306,46 @@ const AdminDashboard = () => {
               })}
             </div>
           )}
-        </div>
+        </SectionCard>
       </div>
 
-      {/* ─── Recent Orders ─── */}
-      <div className="bg-card border border-border/50 rounded-2xl p-5 shadow-sm">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-bold text-foreground text-sm">הזמנות אחרונות</h2>
-          <Link to="/admin/orders" className="text-[11px] text-primary flex items-center gap-0.5 hover:underline">כל ההזמנות <ArrowUpRight className="w-3 h-3" /></Link>
-        </div>
+      {/* Recent Orders */}
+      <SectionCard
+        title="הזמנות אחרונות"
+        icon={ClipboardList}
+        action={
+          <Link to="/admin/orders" className="text-[11px] text-primary flex items-center gap-0.5 hover:underline">
+            כל ההזמנות <ArrowUpRight className="w-3 h-3" />
+          </Link>
+        }
+        noPadding
+      >
         {recentOrders.length === 0 ? (
-          <div className="text-center py-8 text-sm text-muted-foreground">אין הזמנות עדיין</div>
+          <EmptyState title="אין הזמנות עדיין" description="הזמנות יופיעו כאן ברגע שיגיעו" />
         ) : (
-          <div className="space-y-1">
+          <div className="divide-y divide-border/40">
             {recentOrders.map(order => (
-              <div key={order.id} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-muted/30 transition-colors cursor-default">
-                <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full shrink-0 ${statusColors[order.status]}`}>
-                  {statusLabels[order.status]}
-                </span>
+              <div key={order.id} className="flex items-center gap-3 px-5 py-3 hover:bg-muted/20 transition-colors">
+                <StatusBadge status={order.status} type="order" />
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-semibold text-foreground truncate">{order.customer_name ?? 'אורח'}</p>
-                  <p className="text-[11px] text-muted-foreground">{orderTypeLabels[order.order_type]} · {fmtTime(order.created_at)}</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                    {order.order_type === 'delivery' ? 'משלוח' : order.order_type === 'pickup' ? 'איסוף' : 'שולחן'} · {fmtTime(order.created_at)}
+                  </p>
                 </div>
                 <p className="text-sm font-black text-foreground shrink-0">{fmtCurrency(order.total)}</p>
               </div>
             ))}
           </div>
         )}
-      </div>
+      </SectionCard>
 
-      {/* ─── Quick Nav ─── */}
+      {/* Quick Nav */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {[
-          { label: 'קטגוריות', value: categoriesCount, icon: Layers, to: '/admin/menu', color: '#3b82f6' },
-          { label: 'מנות', value: itemsCount, icon: UtensilsCrossed, to: '/admin/menu/items', color: '#10b981' },
-          { label: 'מלאי', value: '←', icon: Package, to: '/admin/inventory', color: '#f59e0b' },
-          { label: 'הגדרות', value: '←', icon: Settings, to: '/admin/settings', color: '#8b5cf6' },
-        ].map(c => (
-          <Link key={c.label} to={c.to}
-            className="group flex items-center gap-3 bg-card border border-border/50 rounded-xl px-4 py-3.5 hover:border-border hover:shadow-md transition-all">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: `${c.color}18` }}>
-              <c.icon className="w-4.5 h-4.5" style={{ color: c.color }} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-black text-foreground">{c.value}</p>
-              <p className="text-[11px] text-muted-foreground">{c.label}</p>
-            </div>
-            <ArrowUpRight className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-          </Link>
-        ))}
+        <KpiCard label="קטגוריות" value={categoriesCount} icon={Layers} accent="#3b82f6" href="/admin/menu" />
+        <KpiCard label="מנות בתפריט" value={itemsCount} icon={UtensilsCrossed} accent="#10b981" href="/admin/menu/items" />
+        <KpiCard label="מלאי" value="ניהול" icon={Package} accent="#f59e0b" href="/admin/inventory" />
+        <KpiCard label="הגדרות" value="מערכת" icon={Settings} accent="#8b5cf6" href="/admin/settings" />
       </div>
 
     </div>

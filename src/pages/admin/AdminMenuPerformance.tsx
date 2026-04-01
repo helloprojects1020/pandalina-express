@@ -4,7 +4,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Search, TrendingUp, TrendingDown, Flame, Snowflake, AlertTriangle } from 'lucide-react';
+import { Search, TrendingUp, TrendingDown, Flame, Snowflake, AlertTriangle } from 'lucide-react';
+import { FeatureGate } from '@/components/admin/FeatureGate';
+import { PageHeader, KpiCard, SectionCard, LoadingState, EmptyState } from '@/components/admin/AdminUI';
 import { DateRangePicker, DateRange } from '@/components/admin/DateRangePicker';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -128,9 +130,9 @@ const AdminMenuPerformance = () => {
 
   const getDishStatus = (qty: number): { label: string; color: string; icon: React.ElementType } => {
     if (qty === 0) return { label: 'לא נמכר', color: 'bg-gray-500/10 text-gray-600 border-gray-200', icon: AlertTriangle };
-    if (qty >= avgQty * 1.5) return { label: '🔥 חם', color: 'bg-red-500/10 text-red-700 border-red-200', icon: Flame };
-    if (qty <= avgQty * 0.3) return { label: '❄️ קר', color: 'bg-blue-500/10 text-blue-700 border-blue-200', icon: Snowflake };
-    return { label: '✅ תקין', color: 'bg-green-500/10 text-green-700 border-green-200', icon: TrendingUp };
+    if (qty >= avgQty * 1.5) return { label: 'חם', color: 'bg-red-500/10 text-red-700 border-red-200', icon: Flame };
+    if (qty <= avgQty * 0.3) return { label: 'קר', color: 'bg-blue-500/10 text-blue-700 border-blue-200', icon: Snowflake };
+    return { label: 'תקין', color: 'bg-green-500/10 text-green-700 border-green-200', icon: TrendingUp };
   };
 
   // ─── סינון ומיון ──────────────────────────────────────────────────────────
@@ -167,11 +169,7 @@ const AdminMenuPerformance = () => {
     return { totalQty, totalRevenue, hotCount, coldCount, unsoldCount, topDish };
   }, [dishStats, avgQty]);
 
-  if (loading) return (
-    <div className="flex items-center justify-center py-20">
-      <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-    </div>
-  );
+  if (loading) return <LoadingState />;
 
   const maxQty = Math.max(...filtered.map(d => d.qty), 1);
   const maxRevenue = Math.max(...filtered.map(d => d.revenue), 1);
@@ -180,44 +178,32 @@ const AdminMenuPerformance = () => {
     <div className="space-y-6" dir="rtl">
 
       {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">ביצועי מנות</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">{dishStats.length} מנות · {summary.totalQty} מכירות</p>
-        </div>
-        <div className="flex items-center gap-2 flex-wrap">
-          <DateRangePicker value={dateRange} onChange={setDateRange} />
-          {!dateRange && (
-            <Select value={period} onValueChange={v => setPeriod(v as Period)}>
-              <SelectTrigger className="w-36 h-9 text-sm"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {(Object.entries(PERIOD_LABELS) as [Period, string][]).map(([k, v]) => (
-                  <SelectItem key={k} value={k}>{v}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        </div>
-      </div>
+      <PageHeader
+        title="ביצועי תפריט"
+        description={`${dishStats.length} מנות · ${summary.totalQty} מכירות`}
+        actions={
+          <div className="flex items-center gap-2 flex-wrap">
+            <DateRangePicker value={dateRange} onChange={setDateRange} />
+            {!dateRange && (
+              <Select value={period} onValueChange={v => setPeriod(v as Period)}>
+                <SelectTrigger className="w-36 h-9 text-sm"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {(Object.entries(PERIOD_LABELS) as [Period, string][]).map(([k, v]) => (
+                    <SelectItem key={k} value={k}>{v}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </div>
+        }
+      />
 
       {/* KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className="bg-card rounded-xl p-4 shadow-sm text-center">
-          <p className="text-2xl font-bold text-foreground">{summary.totalQty}</p>
-          <p className="text-xs text-muted-foreground mt-1">סה"כ מנות שנמכרו</p>
-        </div>
-        <div className="bg-card rounded-xl p-4 shadow-sm text-center">
-          <p className="text-2xl font-bold text-foreground">{fmtCurrency(summary.totalRevenue)}</p>
-          <p className="text-xs text-muted-foreground mt-1">הכנסה ממנות</p>
-        </div>
-        <div className="bg-card rounded-xl p-4 shadow-sm text-center">
-          <p className="text-2xl font-bold text-red-600">{summary.hotCount}</p>
-          <p className="text-xs text-muted-foreground mt-1">🔥 מנות חמות</p>
-        </div>
-        <div className="bg-card rounded-xl p-4 shadow-sm text-center">
-          <p className="text-2xl font-bold text-gray-500">{summary.unsoldCount}</p>
-          <p className="text-xs text-muted-foreground mt-1">לא נמכרו</p>
-        </div>
+        <KpiCard label='סה"כ מנות שנמכרו' value={summary.totalQty} icon={TrendingUp} accent="#10b981" />
+        <KpiCard label="הכנסה ממנות" value={fmtCurrency(summary.totalRevenue)} icon={TrendingUp} accent="#3b82f6" />
+        <KpiCard label="מנות חמות" value={summary.hotCount} icon={Flame} accent="#ef4444" />
+        <KpiCard label="לא נמכרו" value={summary.unsoldCount} icon={AlertTriangle} accent="#6b7280" />
       </div>
 
       {/* התראות */}
@@ -264,9 +250,7 @@ const AdminMenuPerformance = () => {
       {/* טבלת מנות */}
       <div className="space-y-2">
         {filtered.length === 0 ? (
-          <div className="bg-card rounded-2xl p-8 shadow-sm text-center">
-            <p className="text-muted-foreground">אין מנות לפי הסינון הנבחר.</p>
-          </div>
+          <EmptyState icon={AlertTriangle} title="אין מנות" description="אין מנות לפי הסינון הנבחר." />
         ) : filtered.map((dish, i) => {
           const status = getDishStatus(dish.qty);
           const StatusIcon = status.icon;
@@ -327,8 +311,7 @@ const AdminMenuPerformance = () => {
 
       {/* סיכום תחתון */}
       {summary.topDish.qty > 0 && (
-        <div className="bg-card rounded-2xl p-5 shadow-sm">
-          <p className="font-semibold text-foreground text-sm mb-3">📊 סיכום תקופה</p>
+        <SectionCard title="סיכום תקופה" icon={TrendingUp}>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             <div className="bg-muted/30 rounded-xl p-3 text-center">
               <p className="text-xs text-muted-foreground">מנה מובילה</p>
@@ -346,11 +329,14 @@ const AdminMenuPerformance = () => {
               </p>
             </div>
           </div>
-        </div>
+        </SectionCard>
       )}
 
     </div>
   );
 };
 
-export default AdminMenuPerformance;
+function GatedAdminMenuPerformance() {
+  return <FeatureGate feature="menu_performance"><AdminMenuPerformance /></FeatureGate>;
+}
+export default GatedAdminMenuPerformance;

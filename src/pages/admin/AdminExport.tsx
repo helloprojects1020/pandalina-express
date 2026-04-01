@@ -8,6 +8,8 @@ import {
   ChevronDown, ChevronLeft, ChevronRight, Calendar,
   BarChart2, Package, ChefHat
 } from 'lucide-react';
+import { FeatureGate } from '@/components/admin/FeatureGate';
+import { PageHeader, SectionCard } from '@/components/admin/AdminUI';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any;
@@ -565,23 +567,13 @@ const AdminExport = () => {
   ];
 
   return (
-    <div className="min-h-screen" dir="rtl" style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)' }}>
-      <div className="max-w-3xl mx-auto px-4 py-8 space-y-8">
+    <div className="space-y-6" dir="rtl">
 
-        {/* Header */}
-        <div className="flex items-start justify-between flex-wrap gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-8 h-8 rounded-xl bg-slate-900 flex items-center justify-center">
-                <BarChart2 className="w-4 h-4 text-white" />
-              </div>
-              <span className="text-xs font-bold text-slate-400 tracking-widest uppercase">Reports</span>
-            </div>
-            <h1 className="text-3xl font-black text-slate-900 tracking-tight">דוחות ונתונים</h1>
-            <p className="text-slate-500 mt-1 text-sm">נתוני האמת של העסק שלך — בכל פורמט שתרצה</p>
-          </div>
-          <DateSelector from={dateFrom} to={dateTo} onChange={(f, t) => { setDateFrom(f); setDateTo(t); }} />
-        </div>
+        <PageHeader
+          title="ייצוא נתונים"
+          description="ייצוא CSV ודוחות"
+          actions={<DateSelector from={dateFrom} to={dateTo} onChange={(f, t) => { setDateFrom(f); setDateTo(t); }} />}
+        />
 
         {/* Active period badge */}
         <div className="flex items-center gap-2">
@@ -590,7 +582,8 @@ const AdminExport = () => {
         </div>
 
         {/* Reports grid */}
-        <div className="space-y-3">
+        <SectionCard title="דוחות לייצוא" icon={BarChart2} noPadding>
+        <div className="space-y-3 p-4">
           {reports.map(report => {
             const Icon = report.icon;
             const isAnyLoading = (s: string) => ['preview', 'print', 'csv'].some(a => loading === `${s}-${a}`);
@@ -650,9 +643,10 @@ const AdminExport = () => {
             );
           })}
         </div>
+        </SectionCard>
 
         {/* Footer note */}
-        <div className="flex items-center gap-3 px-4 py-3 bg-white rounded-xl border border-slate-100 shadow-sm">
+        <div className="flex items-center gap-3 px-4 py-3 bg-card rounded-xl border border-border shadow-sm">
           <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center shrink-0">
             <FileText className="w-4 h-4 text-white" />
           </div>
@@ -661,7 +655,6 @@ const AdminExport = () => {
             <p className="text-xs text-slate-500">📄 צפייה בדפדפן · 🖨️ שמירה כ-PDF · ⬇️ Excel/CSV</p>
           </div>
         </div>
-      </div>
 
       {/* Staff filter modal */}
       {showStaffFilter && (
@@ -723,4 +716,7 @@ const AdminExport = () => {
   );
 };
 
-export default AdminExport;
+function GatedAdminExport() {
+  return <FeatureGate feature="export"><AdminExport /></FeatureGate>;
+}
+export default GatedAdminExport;
