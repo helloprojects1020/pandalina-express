@@ -1,7 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { Users } from 'lucide-react';
 import { useI18n } from '@/i18n/context';
 import { trackWhatsAppClick, trackMenuView } from '@/lib/analytics';
+import { getRestaurantSlug } from '@/hooks/useRestaurantSlug';
 import heroImg from '@/assets/hero-sushi.jpg';
 import kitchen1 from '@/assets/kitchen-1.jpg';
 import logoImg from '@/assets/logo.png';
@@ -42,6 +45,7 @@ const slides: Slide[] = [
 
 const Hero = () => {
   const { t } = useI18n();
+  const restaurantSlug = getRestaurantSlug();
   const [current, setCurrent] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoReady, setVideoReady] = useState(false);
@@ -173,6 +177,13 @@ const Hero = () => {
               <WhatsAppSmallIcon />
               {t.hero.cta_whatsapp}
             </a>
+            <Link
+              to={`/menu/${restaurantSlug}/group-order/new`}
+              className="h-12 px-5 rounded-full bg-white/15 backdrop-blur-sm border border-white/25 text-primary-foreground font-bold text-sm tracking-wide flex items-center gap-2 active:scale-95 transition-transform hover:bg-white/20"
+            >
+              <Users className="w-4 h-4" />
+              הזמנה קבוצתית
+            </Link>
           </div>
 
           {/* Trust line */}

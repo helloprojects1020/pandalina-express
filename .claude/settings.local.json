@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm uninstall:*)",
+      "Bash(grep -rn lovable c:/Users/Hanna/Desktop/pandalina-express/ --include=*.ts --include=*.tsx --include=*.json --include=*.md --include=*.js)",
+      "Bash(npm run:*)",
+      "Bash(wc -l /c/Users/Hanna/Desktop/pandalina-express/src/pages/admin/*.tsx)",
+      "Bash(for f:*)",
+      "Bash(do echo:*)",
+      "Read(//c/Users/Hanna/Desktop/pandalina-express/**)",
+      "Bash(done)",
+      "Bash(grep -rn \"from ''''@/components/ui/badge''''\" src/pages/admin/)",
+      "Bash(grep -v \"printReport\\\\|html\\\\|const html\\\\|return \\\\`\\\\|function.*return\\\\|insights.push\\\\|<td\\\\|<div class\\\\|<span.*class\\\\|badge.*>\\\\|font-size\\\\|style>\")"
+    ]
+  }
+}

@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from '@/hooks/use-toast';
-import { Eye, ChefHat, CheckCircle, CreditCard, Volume2, VolumeX, MapPin, Phone, FileText, Package } from 'lucide-react';
+import { Eye, ChefHat, CheckCircle, CreditCard, Volume2, VolumeX, MapPin, Phone, FileText, Package, Users } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { DateRangePicker, DateRange } from '@/components/admin/DateRangePicker';
 import { PageHeader, StatusBadge, EmptyState, LoadingState, FilterPills, GroupLabel, ActionButton } from '@/components/admin/AdminUI';
@@ -96,10 +97,36 @@ const WazeIcon = () => (
 type OrderStatus = 'new' | 'preparing' | 'ready' | 'completed' | 'cancelled';
 const allStatuses: OrderStatus[] = ['new', 'preparing', 'ready', 'completed', 'cancelled'];
 
+type GroupOrderRow = {
+  id: string;
+  title: string | null;
+  host_name: string;
+  host_phone: string | null;
+  status: string;
+  payment_mode: string;
+  created_at: string;
+  participant_count?: number;
+  grand_total?: number;
+};
+
+const GROUP_STATUS_LABELS: Record<string, string> = {
+  open: 'פתוחה', locked: 'נעולה', submitted: 'נשלחה', cancelled: 'בוטלה', expired: 'פגה תוקף',
+};
+const GROUP_STATUS_STYLE: Record<string, string> = {
+  open:      'bg-emerald-500/15 text-emerald-700 border-emerald-200',
+  locked:    'bg-amber-500/15 text-amber-700 border-amber-200',
+  submitted: 'bg-blue-500/15 text-blue-700 border-blue-200',
+  cancelled: 'bg-red-500/15 text-red-600 border-red-200',
+  expired:   'bg-muted/40 text-muted-foreground border-border',
+};
+
 const AdminOrders = () => {
   const { restaurantId } = useAuth();
+  const navigate = useNavigate();
   const [orders, setOrders] = useState<OrderRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [groupOrders, setGroupOrders] = useState<GroupOrderRow[]>([]);
+  const [groupOrdersLoading, setGroupOrdersLoading] = useState(false);
   const [filterStatus, setFilterStatus] = useState<string>('active');
   const [dateRange, setDateRange] = useState<DateRange>(null);
   const [detailOrder, setDetailOrder] = useState<OrderRow | null>(null);
@@ -133,6 +160,38 @@ const AdminOrders = () => {
   }, [restaurantId, filterStatus, dateRange]);
 
   useEffect(() => { fetchOrders(); }, [fetchOrders]);
+
+  const fetchGroupOrders = useCallback(async () => {
+    if (!restaurantId) return;
+    setGroupOrdersLoading(true);
+    const { data: goData } = await db
+      .from('group_orders')
+      .select('id, title, host_name, host_phone, status, payment_mode, created_at')
+      .eq('restaurant_id', restaurantId)
+      .order('created_at', { ascending: false })
+      .limit(20);
+
+    const rows = (goData ?? []) as GroupOrderRow[];
+
+    // Enrich with participant count + grand total
+    const enriched = await Promise.all(rows.map(async (go) => {
+      const { data: participants } = await db
+        .from('group_order_participants')
+        .select('id, subtotal')
+        .eq('group_order_id', go.id);
+      const pList = (participants ?? []) as { id: string; subtotal: number }[];
+      return {
+        ...go,
+        participant_count: pList.length,
+        grand_total: pList.reduce((s, p) => s + Number(p.subtotal), 0),
+      };
+    }));
+
+    setGroupOrders(enriched);
+    setGroupOrdersLoading(false);
+  }, [restaurantId]);
+
+  useEffect(() => { fetchGroupOrders(); }, [fetchGroupOrders]);
 
   useEffect(() => {
     if (!restaurantId) return;
@@ -319,6 +378,63 @@ const AdminOrders = () => {
           ))}
         </div>
       )}
+
+      {/* ── Group Orders Section ── */}
+      <div className="mt-8 space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Users className="w-4 h-4 text-muted-foreground" />
+            <h2 className="text-sm font-bold text-foreground">הזמנות קבוצתיות</h2>
+            {groupOrders.length > 0 && (
+              <span className="text-xs bg-muted/60 text-muted-foreground px-2 py-0.5 rounded-full">{groupOrders.length}</span>
+            )}
+          </div>
+          <ActionButton label="רענן" onClick={fetchGroupOrders} />
+        </div>
+
+        {groupOrdersLoading ? (
+          <div className="flex items-center justify-center py-8 bg-card border border-border/50 rounded-2xl">
+            <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+          </div>
+        ) : groupOrders.length === 0 ? (
+          <div className="bg-card border border-border/50 rounded-2xl">
+            <EmptyState icon={Users} title="אין הזמנות קבוצתיות" description="הזמנות קבוצתיות יופיעו כאן לאחר שייווצרו" />
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {groupOrders.map(go => (
+              <div
+                key={go.id}
+                className="bg-card border border-border/50 rounded-2xl px-4 py-3.5 flex items-center gap-3 hover:shadow-md transition-all cursor-pointer"
+                onClick={() => navigate(`/admin/group-orders/${go.id}`)}
+              >
+                <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <Users className="w-4 h-4 text-primary" />
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className={`text-[11px] px-2 py-0.5 rounded-full border font-semibold ${GROUP_STATUS_STYLE[go.status] ?? 'bg-muted/40 text-muted-foreground border-border'}`}>
+                      {GROUP_STATUS_LABELS[go.status] ?? go.status}
+                    </span>
+                    <span className="text-[11px] text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full">
+                      {go.payment_mode === 'split' ? 'כל אחד משלם' : 'המארח משלם'}
+                    </span>
+                  </div>
+                  <p className="text-sm font-semibold text-foreground mt-1 leading-snug">
+                    {go.title ?? 'הזמנה קבוצתית'} · {go.host_name}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {go.participant_count ?? 0} משתתפים · {new Date(go.created_at).toLocaleString('he-IL', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                </div>
+
+                <p className="text-base font-black text-foreground shrink-0">₪{(go.grand_total ?? 0).toFixed(2)}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* ── Detail Dialog ── */}
       <Dialog open={!!detailOrder} onOpenChange={open => { if (!open) setDetailOrder(null); }}>

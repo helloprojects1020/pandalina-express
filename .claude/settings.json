@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx supabase:*)",
+      "Bash(ls /c/Users/Hanna/Desktop/pandalina-express/src/pages/Group*)"
+    ]
+  }
+}

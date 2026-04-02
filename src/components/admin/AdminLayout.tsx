@@ -25,6 +25,7 @@ const NAV_LABELS: Record<string, Record<Lang, string>> = {
   'Menu Items':            { he: 'פריטי תפריט',      ar: 'عناصر القائمة',  en: 'Menu Items',       ru: 'Блюда' },
   'Options / Modifiers':   { he: 'תוספות ושינויים',  ar: 'الإضافات',       en: 'Options',          ru: 'Опции' },
   Orders:                  { he: 'הזמנות',           ar: 'الطلبات',        en: 'Orders',           ru: 'Заказы' },
+  'Group Orders':          { he: 'הזמנות קבוצתיות', ar: 'طلبات جماعية',   en: 'Group Orders',     ru: 'Группы' },
   Customers:               { he: 'לקוחות',           ar: 'العملاء',        en: 'Customers',        ru: 'Клиенты' },
   'Delivery Zones':        { he: 'אזורי משלוח',      ar: 'مناطق التوصيل',  en: 'Delivery Zones',   ru: 'Зоны' },
   Staff:                   { he: 'עובדים',           ar: 'الموظفون',       en: 'Staff',            ru: 'Сотрудники' },
@@ -56,6 +57,7 @@ const NAV_SECTIONS = [
     items: [
       { to: '/admin',                icon: LayoutDashboard,   label: 'Dashboard',          end: true,  feature: undefined },
       { to: '/admin/orders',         icon: ClipboardList,     label: 'Orders',                         feature: undefined },
+      { to: '/admin/group-orders',   icon: Users,             label: 'Group Orders',                   feature: undefined },
       { to: '/admin/customers',      icon: Users,             label: 'Customers',                      feature: 'customers' as FeatureKey },
       { to: '/admin/delivery-zones', icon: Truck,             label: 'Delivery Zones',                 feature: 'delivery_zones' as FeatureKey },
     ],
@@ -128,14 +130,14 @@ function StoreLogo({ restaurant, px = 32 }: { restaurant: Restaurant | undefined
 
 function BitelxWordmark() {
   return (
-    <div className="flex items-center gap-2.5 px-4 py-3.5 border-b border-border/60">
+    <div className="flex items-center gap-3 px-4 py-4 border-b border-border/50">
       {/* Icon mark */}
-      <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shrink-0 shadow-sm">
+      <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center shrink-0 shadow-sm">
         <span className="text-primary-foreground text-sm font-black tracking-tight">B</span>
       </div>
       <div className="min-w-0">
-        <p className="text-sm font-black text-foreground tracking-tight leading-none">BITELYX</p>
-        <p className="text-[10px] text-muted-foreground mt-0.5 leading-none font-medium">Restaurant Platform</p>
+        <p className="text-[13px] font-black text-foreground tracking-tight leading-none">BITELYX</p>
+        <p className="text-[10px] text-muted-foreground/70 mt-1 leading-none font-medium tracking-wide">Restaurant Platform</p>
       </div>
     </div>
   );
@@ -155,10 +157,18 @@ const AdminLayout = () => {
     : false;
   const navigate = useNavigate();
 
-  const [sidebarOpen,  setSidebarOpen]  = useState(false);
-  const [lang,         setLang]         = useState<Lang>(() => (localStorage.getItem('adminLang') as Lang) ?? 'he');
-  const [restaurants,  setRestaurants]  = useState<Restaurant[]>([]);
-  const [switcherOpen, setSwitcherOpen] = useState(false);
+  const [sidebarOpen,      setSidebarOpen]      = useState(false);
+  const [lang,             setLang]             = useState<Lang>(() => (localStorage.getItem('adminLang') as Lang) ?? 'he');
+  const [restaurants,      setRestaurants]      = useState<Restaurant[]>([]);
+  const [switcherOpen,     setSwitcherOpen]     = useState(false);
+  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
+
+  const toggleSection = (key: string) =>
+    setCollapsedSections(prev => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key); else next.add(key);
+      return next;
+    });
 
   const currentRestaurant = restaurants.find(r => r.id === restaurantId);
   const isRTL = lang === 'he' || lang === 'ar';
@@ -210,7 +220,7 @@ const AdminLayout = () => {
       <BitelxWordmark />
 
       {/* ── Store Switcher ─────────────────────────────────────────────────── */}
-      <div className="px-3 pt-3 pb-2 border-b border-border/60">
+      <div className="px-3 pt-3 pb-3 border-b border-border/50">
         <div className="relative">
           <button
             onClick={() => setSwitcherOpen(v => !v)}
@@ -269,78 +279,97 @@ const AdminLayout = () => {
       </div>
 
       {/* ── Nav (grouped) ────────────────────────────────────────────────── */}
-      <nav className="flex-1 px-2.5 py-2 space-y-4 overflow-y-auto">
-        {NAV_SECTIONS.map(section => (
-          <div key={section.key}>
-            <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest px-2.5 mb-1 leading-none">
-              {tr(section.key, lang)}
-            </p>
-            <div className="space-y-0.5">
-              {section.items.map(({ to, icon: Icon, label, end, feature }) => {
-                const locked = feature ? !hasFeature(feature) : false;
-                return (
-                  <NavLink
-                    key={to}
-                    to={to}
-                    end={end}
-                    onClick={() => setSidebarOpen(false)}
-                    className={({ isActive }) =>
-                      `flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium transition-all duration-150 ${
-                        isActive
-                          ? 'bg-primary text-primary-foreground shadow-sm'
-                          : locked
-                          ? 'text-muted-foreground/50 hover:bg-muted/50 hover:text-muted-foreground active:scale-[0.98]'
-                          : 'text-muted-foreground hover:bg-muted/80 hover:text-foreground active:scale-[0.98]'
-                      }`
-                    }
-                  >
-                    <Icon className="w-4 h-4 shrink-0" />
-                    <span className="truncate text-[13px] flex-1">{tr(label, lang)}</span>
-                    {locked && <Lock className="w-3 h-3 shrink-0 opacity-50" />}
-                  </NavLink>
-                );
-              })}
+      <nav className="flex-1 px-3 py-3 overflow-y-auto">
+        {NAV_SECTIONS.map((section, sectionIdx) => {
+          const isCollapsed = collapsedSections.has(section.key);
+          return (
+            <div key={section.key}>
+              {sectionIdx > 0 && <div className="h-px bg-border/50 mt-6 mb-3" />}
+
+              {/* Clickable section header */}
+              <button
+                onClick={() => toggleSection(section.key)}
+                className="w-full flex items-center justify-between px-3 mb-1.5 py-0.5 rounded-lg hover:bg-muted transition-colors group"
+              >
+                <span className="text-[12px] font-semibold uppercase tracking-[0.05em] text-foreground/55 leading-none">
+                  {tr(section.key, lang)}
+                </span>
+                <ChevronDown className={`w-3 h-3 text-foreground/30 transition-transform duration-200 shrink-0 ${isCollapsed ? '-rotate-90' : 'rotate-0'}`} />
+              </button>
+
+              {/* Items — collapsible with smooth transition */}
+              <div className={`overflow-hidden transition-[max-height] duration-200 ease-in-out ${isCollapsed ? 'max-h-0' : 'max-h-[600px]'}`}>
+                <div className="space-y-0.5 rounded-xl bg-muted p-1">
+                  {section.items.map(({ to, icon: Icon, label, end, feature }) => {
+                    const locked = feature ? !hasFeature(feature) : false;
+                    return (
+                      <NavLink
+                        key={to}
+                        to={to}
+                        end={end}
+                        onClick={() => setSidebarOpen(false)}
+                        className={({ isActive }) =>
+                          `flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-150 ${
+                            isActive
+                              ? 'bg-primary text-primary-foreground font-semibold shadow-sm'
+                              : locked
+                              ? 'text-muted-foreground/35 cursor-default'
+                              : 'text-muted-foreground hover:bg-muted hover:text-foreground active:scale-[0.98]'
+                          }`
+                        }
+                      >
+                        <Icon className="w-[17px] h-[17px] shrink-0" />
+                        <span className="truncate flex-1">{tr(label, lang)}</span>
+                        {locked && <Lock className="w-3 h-3 shrink-0 opacity-40" />}
+                      </NavLink>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </nav>
 
       {/* ── Super Admin ──────────────────────────────────────────────────── */}
       {isSuperAdmin && (
-        <div className="px-2.5 pb-2 border-b border-border/60">
-          <p className="text-[10px] font-bold text-purple-500/70 uppercase tracking-widest px-2.5 mb-1 leading-none">
-            Super Admin
+        <div className="px-3 pb-3 border-b border-border/50">
+          <div className="h-px bg-border/50 mt-1 mb-3" />
+          <p className="text-[12px] font-semibold uppercase tracking-[0.05em] text-foreground/55 px-3 mb-1.5 leading-none select-none">
+            Platform
           </p>
-          <NavLink
-            to="/admin/platform"
-            onClick={() => setSidebarOpen(false)}
-            className={({ isActive }) =>
-              `flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium transition-all duration-150 ${
-                isActive
-                  ? 'bg-purple-600 text-white shadow-sm'
-                  : 'text-purple-600 hover:bg-purple-500/10 active:scale-[0.98]'
-              }`
-            }
-          >
-            <Shield className="w-4 h-4 shrink-0" />
-            <span className="truncate text-[13px]">Platform Control</span>
-          </NavLink>
+          <div className="rounded-xl bg-muted p-1">
+            <NavLink
+              to="/admin/platform"
+              onClick={() => setSidebarOpen(false)}
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-150 ${
+                  isActive
+                    ? 'bg-purple-500/20 text-purple-700 font-semibold'
+                    : 'text-muted-foreground hover:bg-muted hover:text-foreground active:scale-[0.98]'
+                }`
+              }
+            >
+              <Shield className="w-[17px] h-[17px] shrink-0" />
+              <span className="truncate flex-1">Platform Control</span>
+            </NavLink>
+          </div>
         </div>
       )}
 
       {/* ── User / Logout ─────────────────────────────────────────────────── */}
-      <div className="px-2.5 py-2.5 border-t border-border/60 space-y-0.5">
-        <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-muted/40">
-          <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+      <div className="px-3 py-3 border-t border-border/50 space-y-1">
+        <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-muted/40">
+          <div className="w-6 h-6 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
             <span className="text-[10px] font-bold text-primary">{user?.email?.slice(0, 1).toUpperCase()}</span>
           </div>
-          <p className="text-[11px] text-muted-foreground truncate flex-1">{user?.email}</p>
+          <p className="text-[11px] text-muted-foreground/70 truncate flex-1">{user?.email}</p>
         </div>
         <button
           onClick={handleSignOut}
-          className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive w-full transition-colors"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium text-muted-foreground hover:bg-destructive/8 hover:text-destructive w-full transition-colors"
         >
-          <LogOut className="w-4 h-4 shrink-0" />
+          <LogOut className="w-[17px] h-[17px] shrink-0" />
           {tr('Sign Out', lang)}
         </button>
       </div>
@@ -351,7 +380,7 @@ const AdminLayout = () => {
     <div className="min-h-screen bg-background flex" dir={isRTL ? 'rtl' : 'ltr'}>
 
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex w-56 border-e border-border bg-card flex-col shrink-0 sticky top-0 h-screen">
+      <aside className="hidden md:flex w-60 border-e border-border bg-card flex-col shrink-0 sticky top-0 h-screen">
         {sidebarJSX}
       </aside>
 

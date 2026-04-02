@@ -18,7 +18,7 @@ const categoryVideos: Record<string, string> = {
 };
 
 const CategoryPage = () => {
-  const { slug } = useParams<{ slug: string }>();
+  const { categorySlug: slug } = useParams<{ categorySlug: string }>();
   const { t } = useI18n();
   const { categories, getItemsByCategory } = useMenu();
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);

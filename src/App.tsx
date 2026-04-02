@@ -39,6 +39,10 @@ import AdminDaily from "./pages/admin/AdminDaily";
 import AdminReminders from "./pages/admin/AdminReminders";
 import AdminReportXZ from "./pages/admin/AdminReportXZ";
 import AdminPlatformControl from "./pages/admin/AdminPlatformControl";
+import AdminGroupOrderDetail from "./pages/admin/AdminGroupOrderDetail";
+import AdminGroupOrders from "./pages/admin/AdminGroupOrders";
+import GroupOrderStart from "./pages/GroupOrderStart";
+import GroupOrderRoom from "./pages/GroupOrderRoom";
 import KitchenScreen from "./pages/KitchenScreen";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentFailure from "./pages/PaymentFailure";
@@ -107,6 +111,8 @@ const App = () => (
                 <Route path="reminders" element={<AdminReminders />} />
                 <Route path="settings" element={<AdminSettings />} />
                 <Route path="platform" element={<AdminPlatformControl />} />
+                <Route path="group-orders" element={<AdminGroupOrders />} />
+                <Route path="group-orders/:id" element={<AdminGroupOrderDetail />} />
               </Route>
 
               {/* Kitchen */}
@@ -122,6 +128,10 @@ const App = () => (
               {/* Payments */}
               <Route path="/payment/success" element={<PaymentSuccess />} />
               <Route path="/payment/failure" element={<PaymentFailure />} />
+
+              {/* Group Orders — public, no auth required */}
+              <Route path="/menu/:slug/group-order/new" element={<GroupOrderStart />} />
+              <Route path="/group/:token" element={<GroupOrderRoom />} />
 
               {/* Public restaurant site — hostname-based, no slug in path */}
               <Route
