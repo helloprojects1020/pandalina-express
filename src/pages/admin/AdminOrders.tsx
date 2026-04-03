@@ -35,7 +35,7 @@ function yesterdayStr() {
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
-function groupOrders(orders: OrderRow[]): { label: string; orders: OrderRow[] }[] {
+function groupByDate(orders: OrderRow[]): { label: string; orders: OrderRow[] }[] {
   const today = todayStr(); const yesterday = yesterdayStr();
   const groups: Record<string, OrderRow[]> = {};
   for (const o of orders) {
@@ -204,7 +204,7 @@ const AdminOrders = () => {
             const matchesFilter = filterStatus === 'all' || (filterStatus === 'active' && isActive) || filterStatus === newOrder.status;
             if (matchesFilter && !dateRange) setOrders(prev => [newOrder, ...prev]);
             if (soundEnabledRef.current) playOrderSound();
-            toast({ title: `🔔 הזמנה חדשה!`, description: `${newOrder.customer_name ?? 'אורח'} · ${orderTypeLabels[newOrder.order_type] ?? newOrder.order_type} · ₪${newOrder.total}` });
+            toast({ title: `🔔 הזמנה חדשה!`, description: `${newOrder.customer_name ?? 'אורח'} · ${ORDER_TYPE_LABELS[newOrder.order_type] ?? newOrder.order_type} · ₪${newOrder.total}` });
           } else if (payload.eventType === 'UPDATE') {
             setOrders(prev => prev.map(o => o.id === payload.new.id ? { ...o, ...payload.new as OrderRow } : o));
           } else if (payload.eventType === 'DELETE') {
@@ -231,7 +231,7 @@ const AdminOrders = () => {
 
   const updateStatus = async (orderId: string, status: OrderStatus) => {
     await db.from('orders').update({ status }).eq('id', orderId);
-    toast({ title: `סטטוס עודכן ל-${statusLabels[status]}` });
+    toast({ title: `סטטוס עודכן ל-${STATUS_LABELS[status]}` });
     setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status } : o));
     if (detailOrder?.id === orderId) setDetailOrder(prev => prev ? { ...prev, status } : null);
   };
@@ -255,7 +255,7 @@ const AdminOrders = () => {
     ? orders
     : orders.filter(o => o.status === filterStatus);
 
-  const groups = groupOrders(displayedOrders);
+  const groups = groupByDate(displayedOrders);
 
   if (loading) return <LoadingState />;
 
@@ -492,7 +492,7 @@ const AdminOrders = () => {
                     )}
                     {!detailOrder.customer_phone && !detailOrder.address && !detailOrder.notes && (
                       <div className="flex items-center gap-3 px-3 py-2.5">
-                        <User className="w-3.5 h-3.5 text-muted-foreground" />
+                        <Users className="w-3.5 h-3.5 text-muted-foreground" />
                         <span className="text-sm text-muted-foreground">אורח — אין פרטי קשר</span>
                       </div>
                     )}

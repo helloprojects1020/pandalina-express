@@ -220,11 +220,11 @@ const AdminLayout = () => {
       <BitelxWordmark />
 
       {/* ── Store Switcher ─────────────────────────────────────────────────── */}
-      <div className="px-3 pt-3 pb-3 border-b border-border/50">
+      <div className="px-2 pt-2 pb-2 border-b border-border/40">
         <div className="relative">
           <button
             onClick={() => setSwitcherOpen(v => !v)}
-            className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl bg-muted/50 hover:bg-muted transition-colors border border-border/40 hover:border-border"
+            className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl bg-muted/40 hover:bg-muted transition-colors border border-border/30 hover:border-border/60"
           >
             <StoreLogo restaurant={currentRestaurant} px={30} />
             <div className="flex-1 min-w-0 text-start">
@@ -279,27 +279,27 @@ const AdminLayout = () => {
       </div>
 
       {/* ── Nav (grouped) ────────────────────────────────────────────────── */}
-      <nav className="flex-1 px-3 py-3 overflow-y-auto">
+      <nav className="flex-1 px-2 py-2 overflow-y-auto">
         {NAV_SECTIONS.map((section, sectionIdx) => {
           const isCollapsed = collapsedSections.has(section.key);
           return (
             <div key={section.key}>
-              {sectionIdx > 0 && <div className="h-px bg-border/50 mt-6 mb-3" />}
+              {sectionIdx > 0 && <div className="h-px bg-border/40 my-3" />}
 
               {/* Clickable section header */}
               <button
                 onClick={() => toggleSection(section.key)}
-                className="w-full flex items-center justify-between px-3 mb-1.5 py-0.5 rounded-lg hover:bg-muted transition-colors group"
+                className="w-full flex items-center justify-between px-2 mb-1 py-1 rounded-md hover:bg-muted/60 transition-colors group"
               >
-                <span className="text-[12px] font-semibold uppercase tracking-[0.05em] text-foreground/55 leading-none">
+                <span className="text-[10.5px] font-bold uppercase tracking-widest text-muted-foreground/50 leading-none select-none">
                   {tr(section.key, lang)}
                 </span>
-                <ChevronDown className={`w-3 h-3 text-foreground/30 transition-transform duration-200 shrink-0 ${isCollapsed ? '-rotate-90' : 'rotate-0'}`} />
+                <ChevronDown className={`w-3 h-3 text-muted-foreground/30 transition-transform duration-200 shrink-0 ${isCollapsed ? '-rotate-90' : 'rotate-0'}`} />
               </button>
 
               {/* Items — collapsible with smooth transition */}
               <div className={`overflow-hidden transition-[max-height] duration-200 ease-in-out ${isCollapsed ? 'max-h-0' : 'max-h-[600px]'}`}>
-                <div className="space-y-0.5 rounded-xl bg-muted p-1">
+                <div className="space-y-0.5">
                   {section.items.map(({ to, icon: Icon, label, end, feature }) => {
                     const locked = feature ? !hasFeature(feature) : false;
                     return (
@@ -309,18 +309,18 @@ const AdminLayout = () => {
                         end={end}
                         onClick={() => setSidebarOpen(false)}
                         className={({ isActive }) =>
-                          `flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-150 ${
+                          `flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all duration-150 ${
                             isActive
                               ? 'bg-primary text-primary-foreground font-semibold shadow-sm'
                               : locked
-                              ? 'text-muted-foreground/35 cursor-default'
-                              : 'text-muted-foreground hover:bg-muted hover:text-foreground active:scale-[0.98]'
+                              ? 'text-muted-foreground/30 cursor-default'
+                              : 'text-muted-foreground/75 hover:bg-muted hover:text-foreground active:scale-[0.98]'
                           }`
                         }
                       >
-                        <Icon className="w-[17px] h-[17px] shrink-0" />
+                        <Icon className="w-4 h-4 shrink-0" />
                         <span className="truncate flex-1">{tr(label, lang)}</span>
-                        {locked && <Lock className="w-3 h-3 shrink-0 opacity-40" />}
+                        {locked && <Lock className="w-3 h-3 shrink-0 opacity-35" />}
                       </NavLink>
                     );
                   })}
@@ -333,43 +333,41 @@ const AdminLayout = () => {
 
       {/* ── Super Admin ──────────────────────────────────────────────────── */}
       {isSuperAdmin && (
-        <div className="px-3 pb-3 border-b border-border/50">
-          <div className="h-px bg-border/50 mt-1 mb-3" />
-          <p className="text-[12px] font-semibold uppercase tracking-[0.05em] text-foreground/55 px-3 mb-1.5 leading-none select-none">
-            Platform
+        <div className="px-2 pb-2 border-b border-border/40">
+          <div className="h-px bg-border/40 mt-1 mb-2" />
+          <p className="text-[10.5px] font-bold uppercase tracking-widest text-muted-foreground/50 px-2 mb-1 leading-none select-none">
+            PLATFORM
           </p>
-          <div className="rounded-xl bg-muted p-1">
-            <NavLink
-              to="/admin/platform"
-              onClick={() => setSidebarOpen(false)}
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-150 ${
-                  isActive
-                    ? 'bg-purple-500/20 text-purple-700 font-semibold'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground active:scale-[0.98]'
-                }`
-              }
-            >
-              <Shield className="w-[17px] h-[17px] shrink-0" />
-              <span className="truncate flex-1">Platform Control</span>
-            </NavLink>
-          </div>
+          <NavLink
+            to="/admin/platform"
+            onClick={() => setSidebarOpen(false)}
+            className={({ isActive }) =>
+              `flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all duration-150 ${
+                isActive
+                  ? 'bg-purple-500/15 text-purple-700 font-semibold'
+                  : 'text-muted-foreground/75 hover:bg-muted hover:text-foreground active:scale-[0.98]'
+              }`
+            }
+          >
+            <Shield className="w-4 h-4 shrink-0" />
+            <span className="truncate flex-1">Platform Control</span>
+          </NavLink>
         </div>
       )}
 
       {/* ── User / Logout ─────────────────────────────────────────────────── */}
-      <div className="px-3 py-3 border-t border-border/50 space-y-1">
-        <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-muted/40">
-          <div className="w-6 h-6 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
+      <div className="px-2 py-2 border-t border-border/40">
+        <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-muted/40 mb-1">
+          <div className="w-6 h-6 rounded-full bg-primary/15 flex items-center justify-center shrink-0 ring-1 ring-primary/20">
             <span className="text-[10px] font-bold text-primary">{user?.email?.slice(0, 1).toUpperCase()}</span>
           </div>
           <p className="text-[11px] text-muted-foreground/70 truncate flex-1">{user?.email}</p>
         </div>
         <button
           onClick={handleSignOut}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium text-muted-foreground hover:bg-destructive/8 hover:text-destructive w-full transition-colors"
+          className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13px] font-medium text-muted-foreground/70 hover:bg-destructive/8 hover:text-destructive w-full transition-colors duration-150"
         >
-          <LogOut className="w-[17px] h-[17px] shrink-0" />
+          <LogOut className="w-4 h-4 shrink-0" />
           {tr('Sign Out', lang)}
         </button>
       </div>

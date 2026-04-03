@@ -14,12 +14,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 import {
   PageHeader, KpiCard, SectionCard, LoadingState, EmptyState,
 } from '@/components/admin/AdminUI';
 import {
   Users, CheckCircle2, TrendingUp, Banknote, CreditCard,
-  AlertCircle, Clock, ArrowLeft, BarChart2,
+  AlertCircle, Clock, BarChart2,
 } from 'lucide-react';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -86,37 +87,28 @@ const STATUS_CLS: Record<string, string> = {
 
 export default function AdminGroupOrders() {
   const navigate = useNavigate();
+  const { restaurantId } = useAuth();
   const [analytics, setAnalytics] = useState<AnalyticsRow | null>(null);
   const [orders,    setOrders]    = useState<GroupOrderRow[]>([]);
   const [loading,   setLoading]   = useState(true);
+  const [error,     setError]     = useState<string | null>(null);
   const [filter,    setFilter]    = useState<'all' | 'open' | 'submitted' | 'other'>('all');
-
-  // ── Fetch restaurant_id from auth context ───────────────────────────────
-  const [restaurantId, setRestaurantId] = useState<string | null>(null);
-
-  useEffect(() => {
-    (async () => {
-      const { data: { user } } = await db.auth.getUser();
-      if (!user) return;
-      const { data: rest } = await db
-        .from('restaurants')
-        .select('id')
-        .eq('owner_id', user.id)
-        .maybeSingle();
-      if (rest?.id) setRestaurantId(rest.id);
-    })();
-  }, []);
 
   const load = useCallback(async () => {
     if (!restaurantId) return;
     setLoading(true);
+    setError(null);
     try {
       const [analyticsRes, listRes] = await Promise.all([
         db.from('group_orders_analytics').select('*').eq('restaurant_id', restaurantId).maybeSingle(),
         db.from('group_orders_list').select('*').eq('restaurant_id', restaurantId).limit(100),
       ]);
+      if (analyticsRes.error) throw new Error(analyticsRes.error.message);
+      if (listRes.error) throw new Error(listRes.error.message);
       setAnalytics(analyticsRes.data ?? null);
       setOrders(listRes.data ?? []);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'שגיאה בטעינת נתונים');
     } finally {
       setLoading(false);
     }
@@ -132,7 +124,10 @@ export default function AdminGroupOrders() {
   });
 
   // ── Loading / empty states ──────────────────────────────────────────────
-  if (loading) return <LoadingState />;
+  if (loading || !restaurantId) return <LoadingState />;
+  if (error) return (
+    <div className="p-6 text-center text-destructive text-sm">{error}</div>
+  );
 
   const a = analytics;
 
@@ -141,31 +136,34 @@ export default function AdminGroupOrders() {
       <PageHeader
         title="הזמנות קבוצתיות"
         description="אנליטיקס ומעקב אחר כל ההזמנות הקבוצתיות"
-        icon={<Users className="w-5 h-5" />}
       />
 
       {/* ── KPI grid ──────────────────────────────────────────────────────── */}
       {a && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <KpiCard
-            title="סה״כ הזמנות"
+            label="סה״כ הזמנות"
             value={String(a.total_orders ?? 0)}
-            icon={<BarChart2 className="w-4 h-4" />}
+            icon={BarChart2}
+            accent="#6366f1"
           />
           <KpiCard
-            title="הושלמו"
+            label="הושלמו"
             value={`${a.completed_orders ?? 0} (${completionRate(a.total_orders, a.completed_orders)})`}
-            icon={<CheckCircle2 className="w-4 h-4" />}
+            icon={CheckCircle2}
+            accent="#10b981"
           />
           <KpiCard
-            title="משתתפים ממוצע"
+            label="משתתפים ממוצע"
             value={String(a.avg_participants ?? '—')}
-            icon={<Users className="w-4 h-4" />}
+            icon={Users}
+            accent="#3b82f6"
           />
           <KpiCard
-            title="ממוצע להזמנה"
+            label="ממוצע להזמנה"
             value={fmtK(a.avg_order_value ?? 0)}
-            icon={<TrendingUp className="w-4 h-4" />}
+            icon={TrendingUp}
+            accent="#f59e0b"
           />
         </div>
       )}
