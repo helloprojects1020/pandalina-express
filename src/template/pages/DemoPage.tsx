@@ -322,6 +322,11 @@ const DemoPage = () => {
         subtotalLabel="Subtotal"
         checkoutLabel="Checkout"
         clearLabel="Clear Cart"
+        closeLabel="Close cart"
+        editLabel="Edit item"
+        removeLabel="Remove item"
+        decreaseLabel="Decrease quantity"
+        increaseLabel="Increase quantity"
         currencySymbol="$"
         items={cartItems}
         subtotal={subtotal}
