@@ -140,11 +140,7 @@ const App = () => (
               {/* Public restaurant site — hostname-based, no slug in path */}
               <Route
                 path="/*"
-                element={
-                  <PasswordGate>
-                    <AppLayout />
-                  </PasswordGate>
-                }
+                element={<AppLayout />}
               />
             </Routes>
           </BrowserRouter>
