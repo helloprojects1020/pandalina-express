@@ -46,6 +46,7 @@ import GroupOrderRoom from "./pages/GroupOrderRoom";
 import KitchenScreen from "./pages/KitchenScreen";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentFailure from "./pages/PaymentFailure";
+import DemoPage from "./template/pages/DemoPage";
 import { getRestaurantSlug } from "@/hooks/useRestaurantSlug";
 
 const queryClient = new QueryClient();
@@ -128,6 +129,9 @@ const App = () => (
               {/* Payments */}
               <Route path="/payment/success" element={<PaymentSuccess />} />
               <Route path="/payment/failure" element={<PaymentFailure />} />
+
+              {/* Bitelyx visual template demo (pure presentational, no backend) */}
+              <Route path="/template" element={<DemoPage />} />
 
               {/* Group Orders — public, no auth required */}
               <Route path="/menu/:slug/group-order/new" element={<GroupOrderStart />} />
