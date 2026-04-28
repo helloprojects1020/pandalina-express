@@ -11,7 +11,6 @@ import SiteHeader from "@/components/SiteHeader";
 import CartDrawer from "@/components/CartDrawer";
 import FloatingCart from "@/components/FloatingCart";
 import CheckoutSheet from "@/components/CheckoutSheet";
-import PasswordGate from "@/components/PasswordGate";
 import EditProductModal from "@/components/EditProductModal";
 import ProtectedRoute from "@/components/admin/ProtectedRoute";
 import AdminLayout from "@/components/admin/AdminLayout";
