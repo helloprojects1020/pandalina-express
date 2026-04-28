@@ -15,6 +15,7 @@ export interface CategoryNavProps {
 
 const CategoryNav = ({ dir, tokens, categories, activeId, onSelect }: CategoryNavProps) => (
   <div
+    data-template-component="CategoryNav"
     dir={dir}
     className="sticky top-14 z-30 backdrop-blur-md border-b"
     style={{ background: `${tokens.bg}f2`, borderColor: tokens.border }}

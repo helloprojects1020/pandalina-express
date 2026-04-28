@@ -26,7 +26,7 @@ const PlattersPreview = ({
   onOpen,
   onQuickAdd,
 }: PlattersPreviewProps) => (
-  <section dir={dir} className="py-6 px-4 max-w-screen-xl mx-auto" style={{ background: tokens.bg }}>
+  <section data-template-component="PlattersPreview" dir={dir} className="py-6 px-4 max-w-screen-xl mx-auto" style={{ background: tokens.bg }}>
     <div className="flex items-end justify-between mb-4">
       <div>
         <h2 className="text-xl md:text-2xl tracking-tighter uppercase mb-1" style={{ color: tokens.text }}>{title}</h2>
