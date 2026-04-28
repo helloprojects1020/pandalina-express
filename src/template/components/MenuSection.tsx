@@ -36,7 +36,7 @@ const MenuSection = ({
   const navItems: CategoryNavItem[] = categories.map((c) => ({ id: c.id, label: c.label }));
 
   return (
-    <div dir={dir} style={{ background: tokens.bg }}>
+    <div data-template-component="MenuSection" dir={dir} style={{ background: tokens.bg }}>
       <CategoryNav
         dir={dir}
         tokens={tokens}

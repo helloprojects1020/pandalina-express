@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Users } from 'lucide-react';
+import { Users, ImageOff } from 'lucide-react';
 import type { BitelyxTokens, Dir } from '../tokens';
 
 export interface HeroSlide {
   type: 'image' | 'video';
-  imageUrl: string;
+  imageUrl?: string;
   videoUrl?: string;
   title: string;
   tagline: string;
@@ -13,7 +13,7 @@ export interface HeroSlide {
 export interface HeroProps {
   dir: Dir;
   tokens: BitelyxTokens;
-  logoUrl: string;
+  logoUrl?: string;
   brandName: string;
   subtitle: string;
   trustLine: string;
@@ -26,6 +26,8 @@ export interface HeroProps {
   slides: HeroSlide[];
   /** WhatsApp brand green for the WhatsApp CTA — provided by platform. */
   whatsappColor?: string;
+  /** Aria-label template for slide dots. Use {n} for the index. */
+  slideAriaLabel?: string;
 }
 
 const WhatsAppSmallIcon = () => (
@@ -52,6 +54,7 @@ const Hero = ({
   ctaGroupHref,
   slides,
   whatsappColor = '#25D366',
+  slideAriaLabel = 'Slide {n}',
 }: HeroProps) => {
   const [current, setCurrent] = useState(0);
 
@@ -65,6 +68,7 @@ const Hero = ({
 
   return (
     <section
+      data-template-component="Hero"
       dir={dir}
       className="relative h-[100dvh] md:min-h-[90vh] md:h-auto flex items-end overflow-hidden"
       style={{ background: tokens.bg }}
@@ -74,7 +78,16 @@ const Hero = ({
           key={i}
           className={`absolute inset-0 transition-opacity duration-700 ${i === current ? 'opacity-100' : 'opacity-0'}`}
         >
-          <img src={s.imageUrl} alt="" className="absolute inset-0 w-full h-full object-cover" loading={i === 0 ? 'eager' : 'lazy'} />
+          {s.imageUrl ? (
+            <img src={s.imageUrl} alt="" className="absolute inset-0 w-full h-full object-cover" loading={i === 0 ? 'eager' : 'lazy'} />
+          ) : (
+            <div
+              className="absolute inset-0 flex items-center justify-center"
+              style={{ background: tokens.surfaceAlt }}
+            >
+              <ImageOff className="w-12 h-12 opacity-30" style={{ color: tokens.muted }} />
+            </div>
+          )}
           {s.type === 'video' && s.videoUrl && (
             <video
               src={s.videoUrl}
@@ -99,7 +112,7 @@ const Hero = ({
           <button
             key={i}
             onClick={() => setCurrent(i)}
-            aria-label={`Slide ${i + 1}`}
+            aria-label={slideAriaLabel.replace('{n}', String(i + 1))}
             className={`h-2 rounded-full transition-all ${i === current ? 'w-6' : 'w-2'}`}
             style={{ background: i === current ? tokens.accent : 'rgba(255,255,255,0.4)' }}
           />
@@ -108,7 +121,17 @@ const Hero = ({
 
       <div className="relative z-10 w-full px-4 pb-16 pt-20 md:pb-20 md:px-8 max-w-screen-xl mx-auto">
         <div className="max-w-lg">
-          <img src={logoUrl} alt={brandName} className="w-20 h-20 md:w-24 md:h-24 mb-6 rounded-2xl" />
+          {logoUrl ? (
+            <img src={logoUrl} alt={brandName} className="w-20 h-20 md:w-24 md:h-24 mb-6 rounded-2xl" />
+          ) : (
+            <div
+              aria-label={brandName}
+              className="w-20 h-20 md:w-24 md:h-24 mb-6 rounded-2xl flex items-center justify-center font-bold text-xl"
+              style={{ background: tokens.surfaceAlt, color: tokens.muted }}
+            >
+              {brandName.slice(0, 2).toUpperCase()}
+            </div>
+          )}
           <h1 className="text-4xl md:text-6xl lg:text-7xl tracking-tighter uppercase leading-[0.9] mb-3" style={{ color: '#ffffff' }}>
             {slide?.title}
           </h1>

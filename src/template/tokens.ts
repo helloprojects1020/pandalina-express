@@ -48,3 +48,26 @@ export const demoDarkTokens: BitelyxTokens = {
   success: '#22c55e',
   danger: '#ef4444',
 };
+
+/**
+ * Platform tokens — these reference CSS variables that the Bitelyx host app
+ * defines per restaurant at runtime. Pass this object as the `tokens` prop in
+ * the platform; the demo palettes above are only for the /template DemoPage.
+ *
+ * Expected CSS variables (define on :root or a wrapping element):
+ *   --tt-bg, --tt-surface, --tt-text, --tt-muted, --tt-border,
+ *   --tt-accent, --tt-accent-text, --tt-accent-alpha, --destructive
+ */
+export const PLATFORM_TOKENS: BitelyxTokens = {
+  bg:         'hsl(var(--tt-bg))',
+  surface:    'hsl(var(--tt-surface))',
+  surfaceAlt: 'hsl(var(--tt-surface) / 0.6)',
+  text:       'hsl(var(--tt-text))',
+  muted:      'hsl(var(--tt-muted))',
+  border:     'hsl(var(--tt-border))',
+  accent:     'hsl(var(--tt-accent))',
+  accentText: 'hsl(var(--tt-accent-text))',
+  accentSoft: 'hsl(var(--tt-accent-alpha))',
+  success:    'hsl(var(--tt-accent))',
+  danger:     'hsl(var(--destructive))',
+};

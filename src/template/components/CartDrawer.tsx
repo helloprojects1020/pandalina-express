@@ -1,10 +1,10 @@
-import { X, Minus, Plus, Trash2, ShoppingBag, Pencil } from 'lucide-react';
+import { X, Minus, Plus, Trash2, ShoppingBag, Pencil, ImageOff } from 'lucide-react';
 import type { BitelyxTokens, Dir } from '../tokens';
 
 export interface CartLineItem {
   id: string;
   name: string;
-  imageUrl: string;
+  imageUrl?: string;
   optionsLabel?: string;
   notes?: string;
   quantity: number;
@@ -22,6 +22,11 @@ export interface CartDrawerProps {
   subtotalLabel: string;
   checkoutLabel: string;
   clearLabel: string;
+  closeLabel: string;
+  editLabel: string;
+  removeLabel: string;
+  decreaseLabel: string;
+  increaseLabel: string;
   currencySymbol: string;
   items: CartLineItem[];
   subtotal: number;
@@ -45,6 +50,11 @@ const CartDrawer = ({
   subtotalLabel,
   checkoutLabel,
   clearLabel,
+  closeLabel,
+  editLabel,
+  removeLabel,
+  decreaseLabel,
+  increaseLabel,
   currencySymbol,
   items,
   subtotal,
@@ -59,7 +69,7 @@ const CartDrawer = ({
   if (!isOpen) return null;
 
   return (
-    <div dir={dir}>
+    <div data-template-component="CartDrawer" dir={dir}>
       <div
         className="fixed inset-0 z-50 backdrop-blur-sm"
         style={{ background: 'rgba(0,0,0,0.4)' }}
@@ -87,6 +97,7 @@ const CartDrawer = ({
             )}
             <button
               onClick={onClose}
+              aria-label={closeLabel}
               className="h-9 w-9 rounded-full flex items-center justify-center active:scale-95"
               style={{ background: tokens.surfaceAlt }}
             >
@@ -106,13 +117,23 @@ const CartDrawer = ({
             <div className="space-y-4">
               {items.map((item) => (
                 <div key={item.id} className="flex gap-3 rounded-2xl p-3" style={{ background: `${tokens.surfaceAlt}80` }}>
-                  <img src={item.imageUrl} alt={item.name} className="w-16 h-16 rounded-xl object-cover flex-shrink-0" />
+                  {item.imageUrl ? (
+                    <img src={item.imageUrl} alt={item.name} className="w-16 h-16 rounded-xl object-cover flex-shrink-0" />
+                  ) : (
+                    <div
+                      aria-label={item.name}
+                      className="w-16 h-16 rounded-xl flex-shrink-0 flex items-center justify-center"
+                      style={{ background: tokens.surfaceAlt }}
+                    >
+                      <ImageOff className="w-5 h-5 opacity-40" style={{ color: tokens.muted }} />
+                    </div>
+                  )}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-1">
                       <h3 className="font-bold text-sm truncate">{item.name}</h3>
                       <button
                         onClick={() => onEdit(item.id)}
-                        aria-label="Edit"
+                        aria-label={editLabel}
                         className="h-7 w-7 flex-shrink-0 flex items-center justify-center rounded-full active:scale-95 transition-colors"
                         style={{ background: tokens.surface, color: tokens.muted }}
                       >
@@ -127,11 +148,11 @@ const CartDrawer = ({
                     )}
                     <div className="flex items-center justify-between mt-2">
                       <div className="flex items-center rounded-full" style={{ background: tokens.surface }}>
-                        <button onClick={() => onDecrement(item.id)} className="h-7 w-7 flex items-center justify-center active:scale-95">
+                        <button onClick={() => onDecrement(item.id)} aria-label={decreaseLabel} className="h-7 w-7 flex items-center justify-center active:scale-95">
                           <Minus className="w-3 h-3" />
                         </button>
                         <span className="w-5 text-center text-xs font-bold">{item.quantity}</span>
-                        <button onClick={() => onIncrement(item.id)} className="h-7 w-7 flex items-center justify-center active:scale-95">
+                        <button onClick={() => onIncrement(item.id)} aria-label={increaseLabel} className="h-7 w-7 flex items-center justify-center active:scale-95">
                           <Plus className="w-3 h-3" />
                         </button>
                       </div>
@@ -139,7 +160,7 @@ const CartDrawer = ({
                         <span className="font-display text-sm" style={{ color: tokens.accent }}>
                           {currencySymbol}{item.lineTotal}
                         </span>
-                        <button onClick={() => onRemove(item.id)} className="h-7 w-7 flex items-center justify-center active:scale-95" style={{ color: tokens.danger }}>
+                        <button onClick={() => onRemove(item.id)} aria-label={removeLabel} className="h-7 w-7 flex items-center justify-center active:scale-95" style={{ color: tokens.danger }}>
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
