@@ -1940,7 +1940,7 @@ export default function GroupOrderRoom() {
           )}
 
           {/* Host: re-open checkout after submission for payment tracking */}
-          {isHost && groupOrder.status === 'submitted' && (
+          {isHost && (groupOrder.status as string) === 'submitted' && (
             <button
               onClick={() => setShowCheckout(true)}
               className="w-full h-11 flex items-center justify-center gap-2 text-sm font-bold rounded-xl bg-card border border-border/60 hover:bg-muted/50 transition-colors"
