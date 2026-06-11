@@ -24,7 +24,7 @@ export interface WhyOrderSectionProps {
 }
 
 const WhyOrderSection = ({ dir, tokens, title, features }: WhyOrderSectionProps) => (
-  <section data-template-component="WhyOrderSection" dir={dir} className="py-12 px-4 max-w-screen-xl mx-auto" style={{ background: tokens.bg }}>
+  <section dir={dir} className="py-12 px-4 max-w-screen-xl mx-auto" style={{ background: tokens.bg }}>
     <h2 className="text-2xl md:text-3xl tracking-tighter uppercase mb-6" style={{ color: tokens.text }}>{title}</h2>
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
       {features.map((f) => {

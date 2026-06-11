@@ -10,7 +10,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Pencil, Trash2, Package, AlertTriangle, Search, Truck, ChevronDown, ChevronUp, TrendingUp, TrendingDown, History, ArrowDownCircle, Loader2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Package, AlertTriangle, Search, Truck, ChevronDown, ChevronUp, TrendingUp, TrendingDown, History, ArrowDownCircle } from 'lucide-react';
 import { DateRangePicker, DateRange } from '@/components/admin/DateRangePicker';
 import { FeatureGate } from '@/components/admin/FeatureGate';
 import { PageHeader, KpiCard, SectionCard, EmptyState, LoadingState } from '@/components/admin/AdminUI';

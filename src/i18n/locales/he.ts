@@ -30,8 +30,6 @@ const he: Translations = {
     noodles: 'נודלס',
     platters: 'מגשים',
     drinks: 'שתייה',
-    salads: 'סלטים',
-    sandwiches: 'כריכים',
     view_all: 'הצג הכל ←',
   },
 

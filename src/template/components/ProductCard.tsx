@@ -1,4 +1,4 @@
-import { Plus, ImageOff } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import type { BitelyxTokens, Dir } from '../tokens';
 
 export interface ProductCardData {
@@ -7,7 +7,7 @@ export interface ProductCardData {
   description: string;
   price: number;
   currencySymbol: string;
-  imageUrl?: string;
+  imageUrl: string;
   badgeEmoji?: string;
   badgeLabel?: string;
   isOutOfStock?: boolean;
@@ -23,33 +23,16 @@ export interface ProductCardProps {
   item: ProductCardData;
   variant?: 'default' | 'premium';
   quickAddLabel: string;
-  /** Default fallback when item.outOfStockLabel is not set. */
-  outOfStockLabel?: string;
-  /** Default fallback when item.availableLabel is not set. */
-  availableLabel?: string;
   onOpen: (id: string) => void;
   onQuickAdd: (id: string) => void;
 }
 
-const ProductCard = ({
-  dir,
-  tokens,
-  item,
-  variant = 'default',
-  quickAddLabel,
-  outOfStockLabel,
-  availableLabel,
-  onOpen,
-  onQuickAdd,
-}: ProductCardProps) => {
+const ProductCard = ({ dir, tokens, item, variant = 'default', quickAddLabel, onOpen, onQuickAdd }: ProductCardProps) => {
   const isPremium = variant === 'premium';
   const blocked = !!item.isOutOfStock;
-  const oosText = item.outOfStockLabel ?? outOfStockLabel ?? '';
-  const availText = item.availableLabel ?? availableLabel ?? '';
 
   return (
     <div
-      data-template-component="ProductCard"
       dir={dir}
       className={`group relative flex flex-col gap-2 rounded-2xl shadow-sm border text-start w-full ${
         isPremium ? 'p-0 overflow-hidden' : 'p-2'
@@ -72,40 +55,32 @@ const ProductCard = ({
         } ${blocked ? '' : 'active:scale-[0.98]'}`}
         style={{ background: tokens.surfaceAlt }}
       >
-        {item.imageUrl ? (
-          <img
-            src={item.imageUrl}
-            alt={item.name}
-            className={`object-cover w-full h-full transition-transform duration-500 ${
-              blocked ? 'grayscale opacity-60' : 'group-hover:scale-105'
-            }`}
-            loading="lazy"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <ImageOff className="w-8 h-8 opacity-40" style={{ color: tokens.muted }} />
-          </div>
-        )}
+        <img
+          src={item.imageUrl}
+          alt={item.name}
+          className={`object-cover w-full h-full transition-transform duration-500 ${
+            blocked ? 'grayscale opacity-60' : 'group-hover:scale-105'
+          }`}
+          loading="lazy"
+        />
         {blocked ? (
           <>
             <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.4)' }} />
-            {oosText && (
-              <span
-                className="absolute top-2 start-2 text-xs font-bold px-2 py-1 rounded-md shadow-sm"
-                style={{ background: tokens.danger, color: '#ffffff' }}
-              >
-                {oosText}
-              </span>
-            )}
+            <span
+              className="absolute top-2 start-2 text-xs font-bold px-2 py-1 rounded-md shadow-sm"
+              style={{ background: tokens.danger, color: '#ffffff' }}
+            >
+              {item.outOfStockLabel ?? 'Out of stock'}
+            </span>
           </>
         ) : (
-          item.showAvailableBadge && availText && (
+          item.showAvailableBadge && (
             <span
               className="absolute bottom-2 start-2 flex items-center gap-1 backdrop-blur-sm text-[10px] font-semibold px-2 py-0.5 rounded-full"
               style={{ background: 'rgba(0,0,0,0.4)', color: '#ffffff' }}
             >
               <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: tokens.success }} />
-              {availText}
+              {item.availableLabel ?? 'Available'}
             </span>
           )
         )}

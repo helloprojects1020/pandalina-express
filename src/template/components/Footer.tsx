@@ -1,10 +1,9 @@
-import { ImageOff } from 'lucide-react';
 import type { BitelyxTokens, Dir } from '../tokens';
 
 export interface FooterSocial {
   label: string;
   href: string;
-  iconUrl?: string;
+  iconUrl: string;
 }
 
 export interface FooterProps {
@@ -12,7 +11,7 @@ export interface FooterProps {
   tokens: BitelyxTokens;
   brandName: string;
   brandTagline: string;
-  logoUrl?: string;
+  logoUrl: string;
   contactTitle: string;
   phoneLabel: string;
   phoneHref: string;
@@ -40,20 +39,10 @@ const Footer = ({
   copyright,
   poweredBy,
 }: FooterProps) => (
-  <footer data-template-component="Footer" dir={dir} className="py-8 px-4" style={{ background: tokens.accent, color: tokens.accentText }}>
+  <footer dir={dir} className="py-8 px-4" style={{ background: tokens.accent, color: tokens.accentText }}>
     <div className="max-w-screen-xl mx-auto">
       <div className="flex items-center justify-center gap-3 mb-6">
-        {logoUrl ? (
-          <img src={logoUrl} alt={brandName} className="w-10 h-10 rounded-lg" />
-        ) : (
-          <div
-            aria-label={brandName}
-            className="w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold"
-            style={{ background: `${tokens.accentText}1a`, color: tokens.accentText }}
-          >
-            {brandName.slice(0, 2).toUpperCase()}
-          </div>
-        )}
+        <img src={logoUrl} alt={brandName} className="w-10 h-10 rounded-lg" />
         <div>
           <h3 className="font-display text-base">{brandName}</h3>
           <p className="text-[11px]" style={{ color: `${tokens.accentText}80` }}>{brandTagline}</p>
@@ -86,11 +75,7 @@ const Footer = ({
             aria-label={s.label}
             className="hover:scale-110 transition-transform duration-200"
           >
-            {s.iconUrl ? (
-              <img src={s.iconUrl} alt={s.label} className="w-6 h-6" />
-            ) : (
-              <ImageOff className="w-6 h-6 opacity-60" style={{ color: tokens.accentText }} />
-            )}
+            <img src={s.iconUrl} alt={s.label} className="w-6 h-6" />
           </a>
         ))}
       </div>

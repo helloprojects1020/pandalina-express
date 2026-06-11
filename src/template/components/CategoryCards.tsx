@@ -1,10 +1,9 @@
-import { ImageOff } from 'lucide-react';
 import type { BitelyxTokens, Dir } from '../tokens';
 
 export interface CategoryCardItem {
   id: string;
   name: string;
-  imageUrl?: string;
+  imageUrl: string;
   href: string;
 }
 
@@ -17,7 +16,7 @@ export interface CategoryCardsProps {
 }
 
 const CategoryCards = ({ dir, tokens, title, items, onSelect }: CategoryCardsProps) => (
-  <section data-template-component="CategoryCards" dir={dir} className="py-10 px-4 max-w-screen-xl mx-auto" style={{ background: tokens.bg }}>
+  <section dir={dir} className="py-10 px-4 max-w-screen-xl mx-auto" style={{ background: tokens.bg }}>
     <h2 className="text-2xl md:text-3xl tracking-tighter uppercase mb-6" style={{ color: tokens.text }}>
       {title}
     </h2>
@@ -28,20 +27,13 @@ const CategoryCards = ({ dir, tokens, title, items, onSelect }: CategoryCardsPro
           href={cat.href}
           onClick={() => onSelect?.(cat.id)}
           className="group relative aspect-[4/3] rounded-2xl overflow-hidden active:scale-[0.98] transition-transform block"
-          style={{ background: tokens.surfaceAlt }}
         >
-          {cat.imageUrl ? (
-            <img
-              src={cat.imageUrl}
-              alt={cat.name}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              loading="lazy"
-            />
-          ) : (
-            <div aria-label={cat.name} className="w-full h-full flex items-center justify-center">
-              <ImageOff className="w-8 h-8 opacity-40" style={{ color: tokens.muted }} />
-            </div>
-          )}
+          <img
+            src={cat.imageUrl}
+            alt={cat.name}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            loading="lazy"
+          />
           <div
             className="absolute inset-0"
             style={{ background: `linear-gradient(to top, ${tokens.accent}cc, transparent)` }}

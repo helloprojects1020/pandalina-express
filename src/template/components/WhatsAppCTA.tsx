@@ -7,7 +7,7 @@ export interface WhatsAppCTAProps {
   description: string;
   buttonLabel: string;
   buttonHref: string;
-  backgroundImageUrl?: string;
+  backgroundImageUrl: string;
   whatsappColor?: string;
 }
 
@@ -21,13 +21,9 @@ const WhatsAppCTA = ({
   backgroundImageUrl,
   whatsappColor = '#25D366',
 }: WhatsAppCTAProps) => (
-  <section data-template-component="WhatsAppCTA" dir={dir} className="py-12 px-4" style={{ background: tokens.bg }}>
+  <section dir={dir} className="py-12 px-4" style={{ background: tokens.bg }}>
     <div className="max-w-screen-xl mx-auto rounded-3xl overflow-hidden relative">
-      {backgroundImageUrl ? (
-        <img src={backgroundImageUrl} alt="" className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
-      ) : (
-        <div className="absolute inset-0" style={{ background: tokens.accent }} />
-      )}
+      <img src={backgroundImageUrl} alt="" className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
       <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.65)' }} />
       <div className="relative z-10 p-8 md:p-12 text-center">
         <h2 className="text-2xl md:text-4xl tracking-tighter uppercase mb-3" style={{ color: '#ffffff' }}>{title}</h2>

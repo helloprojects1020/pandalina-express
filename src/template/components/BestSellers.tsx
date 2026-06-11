@@ -12,7 +12,7 @@ export interface BestSellersProps {
 }
 
 const BestSellers = ({ dir, tokens, title, items, quickAddLabel, onOpen, onQuickAdd }: BestSellersProps) => (
-  <section data-template-component="BestSellers" dir={dir} className="py-8 px-4 max-w-screen-xl mx-auto" style={{ background: tokens.bg }}>
+  <section dir={dir} className="py-8 px-4 max-w-screen-xl mx-auto" style={{ background: tokens.bg }}>
     <h2 className="text-2xl md:text-3xl tracking-tighter uppercase mb-5" style={{ color: tokens.text }}>{title}</h2>
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
       {items.slice(0, 4).map((item) => (

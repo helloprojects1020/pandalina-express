@@ -1890,7 +1890,7 @@ export default function GroupOrderRoom() {
         <div className="max-w-lg mx-auto px-4 pt-3 pb-1 space-y-2">
 
           {/* Pay Now CTA — split mode, has items, order submitted or locked */}
-          {groupOrder.payment_mode === 'split' && myParticipant && Number(myParticipant.subtotal) > 0 && ((groupOrder.status as string) === 'locked' || (groupOrder.status as string) === 'submitted') && (
+          {groupOrder.payment_mode === 'split' && myParticipant && Number(myParticipant.subtotal) > 0 && (groupOrder.status === 'locked' || groupOrder.status === 'submitted') && (
             <button
               onClick={() => setPayNowTarget(myParticipant)}
               className={`w-full h-12 flex items-center justify-center gap-2 text-sm font-bold rounded-xl transition-all shadow-sm ${
@@ -1940,7 +1940,7 @@ export default function GroupOrderRoom() {
           )}
 
           {/* Host: re-open checkout after submission for payment tracking */}
-          {isHost && (groupOrder.status as string) === 'submitted' && (
+          {isHost && groupOrder.status === 'submitted' && (
             <button
               onClick={() => setShowCheckout(true)}
               className="w-full h-11 flex items-center justify-center gap-2 text-sm font-bold rounded-xl bg-card border border-border/60 hover:bg-muted/50 transition-colors"

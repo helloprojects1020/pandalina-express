@@ -11,7 +11,7 @@ export interface HeaderProps {
   dir: Dir;
   tokens: BitelyxTokens;
   brandName: string;
-  logoUrl?: string;
+  logoUrl: string;
   links: NavLink[];
   cartCount: number;
   cartLabel: string;
@@ -25,8 +25,6 @@ export interface HeaderProps {
   /** Right-side language switcher slot (rendered as a string label + onSelect). */
   languageLabel?: string;
   onLanguageClick?: () => void;
-  /** Href used for the brand/logo link. Defaults to '#'. */
-  brandHref?: string;
 }
 
 const Header = ({
@@ -45,13 +43,11 @@ const Header = ({
   bannerVariant = 'success',
   languageLabel,
   onLanguageClick,
-  brandHref = '#',
 }: HeaderProps) => {
   const bannerColor = bannerVariant === 'success' ? tokens.success : tokens.danger;
 
   return (
     <header
-      data-template-component="Header"
       dir={dir}
       className="sticky top-0 z-40 backdrop-blur-md border-b"
       style={{ background: `${tokens.bg}f2`, borderColor: tokens.border, color: tokens.text }}
@@ -66,18 +62,8 @@ const Header = ({
       )}
 
       <div className="max-w-screen-xl mx-auto flex items-center justify-between h-14 px-4">
-        <a href={brandHref} className="flex items-center gap-2">
-          {logoUrl ? (
-            <img src={logoUrl} alt={brandName} className="w-8 h-8 rounded-lg" />
-          ) : (
-            <div
-              aria-label={brandName}
-              className="w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold"
-              style={{ background: tokens.surfaceAlt, color: tokens.muted }}
-            >
-              {brandName.slice(0, 2).toUpperCase()}
-            </div>
-          )}
+        <a href="#" className="flex items-center gap-2">
+          <img src={logoUrl} alt={brandName} className="w-8 h-8 rounded-lg" />
           <span className="font-display text-base hidden sm:inline" style={{ color: tokens.text }}>{brandName}</span>
         </a>
 

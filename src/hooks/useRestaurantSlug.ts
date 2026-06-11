@@ -8,12 +8,6 @@
 
 const ROOT_DOMAINS = ["bitelyx.com", "vercel.app", "netlify.app"];
 
-const PREVIEW_HOST_SUFFIXES = [
-  "lovableproject.com",
-  "lovable.app",
-  "lovable.dev",
-];
-
 export function getRestaurantSlug(): string {
   const hostname = window.location.hostname;
 
@@ -24,13 +18,6 @@ export function getRestaurantSlug(): string {
     hostname.startsWith("192.168")
   ) {
     return import.meta.env.VITE_RESTAURANT_SLUG ?? "pandalina";
-  }
-
-  // ── Lovable preview / staging hosts → fall back to default slug ──────────
-  for (const suffix of PREVIEW_HOST_SUFFIXES) {
-    if (hostname.endsWith(suffix)) {
-      return import.meta.env.VITE_RESTAURANT_SLUG ?? "pandalina";
-    }
   }
 
   // ── Extract subdomain from known root domains ────────────────────────────
