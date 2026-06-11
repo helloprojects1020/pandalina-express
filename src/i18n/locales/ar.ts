@@ -30,6 +30,8 @@ const ar: Translations = {
     noodles: 'نودلز',
     platters: 'أطباق',
     drinks: 'مشروبات',
+    salads: 'سلطات',
+    sandwiches: 'سندويشات',
     view_all: 'عرض الكل ←',
   },
 
