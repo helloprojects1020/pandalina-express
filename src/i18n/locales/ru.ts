@@ -30,6 +30,8 @@ const ru: Translations = {
     noodles: 'Лапша',
     platters: 'Сеты',
     drinks: 'Напитки',
+    salads: 'Салаты',
+    sandwiches: 'Сэндвичи',
     view_all: 'Смотреть все →',
   },
 
