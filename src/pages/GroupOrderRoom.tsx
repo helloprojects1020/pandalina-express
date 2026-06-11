@@ -1890,7 +1890,7 @@ export default function GroupOrderRoom() {
         <div className="max-w-lg mx-auto px-4 pt-3 pb-1 space-y-2">
 
           {/* Pay Now CTA — split mode, has items, order submitted or locked */}
-          {groupOrder.payment_mode === 'split' && myParticipant && Number(myParticipant.subtotal) > 0 && (groupOrder.status === 'locked' || groupOrder.status === 'submitted') && (
+          {groupOrder.payment_mode === 'split' && myParticipant && Number(myParticipant.subtotal) > 0 && ((groupOrder.status as string) === 'locked' || (groupOrder.status as string) === 'submitted') && (
             <button
               onClick={() => setPayNowTarget(myParticipant)}
               className={`w-full h-12 flex items-center justify-center gap-2 text-sm font-bold rounded-xl transition-all shadow-sm ${
